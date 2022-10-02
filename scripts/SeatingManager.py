@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+from typing import DefaultDict
+import pandas
+import numpy as np
+import pickle
+import logging
+import configparser as conf
+import sys, os, shutil
+
+#------------------------------------------------------------    
+def _rand_group_maker(df, n_group, rand_grp = True):
+    
+    if rand_grp:
+        df_shuffled = df.sample(frac=1)
+    else:
+        df_shuffled = df.sample(frac=1, random_state=42)
+    
+    df_splits = np.array_split(df_shuffled, int(n_group))
+    return df_splits
+
+#------------------------------------------------------------        
+def _load_student_groups(pkl_file, print_result= False):
+    exp_dict = DefaultDict() # exp dict: key = exp_id , value = student_groups
+    try:
+        with open(pkl_file, 'rb') as pickle_file:
+
+            exp_dict = pickle.load(pickle_file)
+            logging.info(f'file {pkl_file} is loaded successfully!')
+    except:
+        logging.error(f'Failed to load {pkl_file}', exc_info = True)
+    
+    if print_result:
+        _print_exp_dict(exp_dict)
+    
+    return exp_dict
+
+#------------------------------------------------------------    
+def _print_exp_dict(dict):  
+    n_exp = len(dict)
+    n_group = len(dict[0])
+    
+    for exp in range(n_exp):
+        print(f'exp {exp} list:f')
+        for g in range(n_group):
+            print(dict[exp][g])
+            print('-------------------------------')
+        print('===============================')
+        
+#------------------------------------------------------------
+def make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_output):
+    src_dir = os.path.join('scripts','src')
+    exp_df= pandas.read_csv(exp_csv_path)
+    stud_df= pandas.read_csv(stud_csv_path)   
+    
+    # filter the lists based on the given session_id
+    exp_df = exp_df.loc[exp_df['session_id']==session]
+    stud_df = stud_df.loc[stud_df['session_id']==session]
+
+    exp_list = list(exp_df['exp_id'])
+    
+    exp_dict = DefaultDict() # exp dict: key = exp_id , value = tuple of (exp meta data) and (student_groups)
+    
+    # fill the database dictionary
+    for exp in exp_list:
+        students_splits = _rand_group_maker(stud_df, n_group)
+        exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp] , students_splits )
+        
+    
+    pkl_dir = os.path.join(src_dir, 'pkl')
+    pkl_path = os.path.join(pkl_dir, pkl_output)
+
+    logging.debug(f'pkl_dir: {pkl_dir}')
+    logging.debug(f'pkl_path: {pkl_path}')
+    
+    # create src/pkl directory if not exist
+    if not os.path.exists(pkl_dir):
+        os.makedirs(pkl_dir)
+
+    # create a binary pickle file to store experiments dictionary
+    pkl_f = open(pkl_path,"wb")
+
+    # write the python object (dict) to pickle file
+    try:
+        pickle.dump(exp_dict, pkl_f)
+        logging.info(f'file {pkl_output} is written to disk successfully')
+        
+        # close file
+        pkl_f.close()
+    except:
+        logging.error(f'Failed to write {pkl_output} to disk', exc_info = True)
+    
+#------------------------------------------------------------
+def html_generator(pkl_input, coursename, code, TA_name):
+    src_dir = os.path.join('scripts','src')
+    pkl_path = os.path.join(src_dir, 'pkl', pkl_input)
+    html_dir = os.path.join(src_dir, 'html')
+    img_dir = os.path.join(src_dir, 'img')
+
+    logging.debug(f'pkl_path: {pkl_path}')
+    logging.debug(f'html_dir: {html_dir}')
+    logging.debug(f'img_dir: {img_dir}')
+
+    #creating a fresh html directory
+    if os.path.exists(html_dir):
+        shutil.rmtree(html_dir)
+    os.makedirs(html_dir)
+    
+    dict = _load_student_groups(pkl_path, print_result=False)
+    
+    n_exp = len(dict)
+    n_group = len(dict[1][1])
+ 
+    for e in range (1, n_exp+1, 1):
+        output_dir = os.path.join(html_dir, f'exp{e}')
+        df_exp_metadata = dict[e][0]
+        
+        for g in range(n_group):
+            df = dict[e][1][g].reset_index(drop=True)
+            df.index += 1
+            
+            #creating output directory if not exist
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            
+            f_html = os.path.join(output_dir, f'g{g+1}.html')
+            
+            with open(f_html, 'w') as html_seating_file:
+                stud_list = []
+                for i in range(len(df)):
+                    row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
+                    stud_list.append(row)
+                      
+                newline = "\n"
+                seating_contents = f'''<!DOCTYPE html>
+                            <html>
+                            <head>
+                            <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+                            <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
+                            <meta name="viewport" content="width=device-width, initial-scale=1">
+                            <link rel="stylesheet" href="style.css?v=1">
+                            </head>
+                            <body>
+
+                            <div class="row", style="padding:0.1cm">
+                                <div class="column", style="width:20%">
+                                    <img src={os.path.join('img','yorku-logo.jpg')} , style="width:75%">
+                                </div>
+                                <div class="column", style="width:70%">
+                                    <center>
+                                        <h1>Welcome to the {coursename} {code} Lab</h1>
+                                        <h2>{df_exp_metadata['day'].iloc[0]}, {df_exp_metadata['date'].iloc[0]}, at {df_exp_metadata['time'].iloc[0]}</h2>
+                                        <h2><p>TA: {TA_name}</p></h2>
+                                    </center>
+
+                                </div>
+                            </div>
+                            
+
+                            <div class="row", style="padding:0cm">
+                                <div class="column", style="width:50%">
+                                    <div class="vertical-menu", style="width:100%">
+                                        <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
+                                        <div class="grid-container">
+                                            {newline.join(stud for stud in stud_list)}
+                                          </div>
+                                    </div>
+                                    
+                                </div>
+
+                                <div class="column", style="width:50%">
+                                    <div class="vertical-menu", style="width:100%">
+                                        <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
+                                    </div>
+                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="width:100%" ></center>
+                                </div>
+                            </div>
+                            
+                            <div class="footer">
+                                        <p><b>Please refresh the page if the date/time is not correctly displayed<br>    
+                                    </div>
+                            </body>
+                            </html>
+                            '''
+                html_seating_file.write(seating_contents)
+    
+    logging.info(f'seating html files are generated and saved in: {html_dir}/exp<#>')
+                
+#===========================================================================
+if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.DEBUG)
+    config = conf.ConfigParser()
+    configfile = 'config.conf'
+    if os.path.isfile(configfile):
+            config.read(configfile)
+    else:
+        logging.error(f'Config file {configfile} does not exist.\n Process terminated.')
+    
+    
+    arg = sys.argv
+
+    if (len(arg) !=2):
+        logging.error('Missing argument: use either grouping: make randomized grouping of the students for each experiment, or htmlgen: to generate html files')
+        exit()
+
+    if arg[1].lower() != 'grouping' and arg[1].lower() != 'htmlgen':
+        logging.error('accepted arguments: <grouping> OR <htmlgen>')
+        exit()
+    
+
+    # parsing the config parameters
+    exp_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['exp_csv_file'] )
+    stud_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['stud_csv_file'] )
+    n_group=int(config['Course']['max_groups'])
+    pkl_file = config['Database']['file_name']+'.pkl'
+    session = config['Course']['session']
+    
+    coursename= config['Course']['coursename']
+    code = config['Course']['code']
+    TA_name = config['Course']['TA_name']
+
+    #-- Create experiment_student groups and store in pkl file (do this once per course)
+    if arg[1].lower() == 'grouping':
+        make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_file, src_dir = 'src')
+
+    
+    elif arg[1].lower() == 'htmlgen':
+        html_generator(pkl_file, coursename, code, TA_name, src_dir = 'src')
+
+
