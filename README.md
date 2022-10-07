@@ -1,4 +1,4 @@
-# Instalation:
+# Installation:
 - Install python 3, with pip and add it to the system's PATH
 - Install the required dependencies:
 ```
@@ -21,7 +21,7 @@ python3 YorkULabSeating.py
 
 4. Finally, on the main page, select the required **experiment_id** and click on ***START webserver*** to start hosting the selected experiment seating.
 
-5. From the group PCs, open a web browser and visit http://hostname:port/g<X>.html, where X is the desired group number.
+5. From the group PCs, open a web browser and visit http://hostname:port/g[X].html, where X is the desired group number.
 
 6. The GUI must be running during the lab session. Once the session is done, click on ***STOP webserver*** and close the application.
  
