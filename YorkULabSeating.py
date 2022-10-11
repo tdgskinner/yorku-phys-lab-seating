@@ -52,8 +52,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.coursename = self.lineEdit_coursename.text() 
         self.session    = self.lineEdit_session.text()
         self.TA_name    = self.lineEdit_ta.text() 
-        self.n_group    = self.lineEdit_ngroups.text()
-        self.n_benches    = self.lineEdit_nbenches.text()
+        self.n_group    = int(self.lineEdit_ngroups.text())
+        self.n_benches    = int(self.lineEdit_nbenches.text())
         
 
         self.hostname   = self.lineEdit_host.text()
