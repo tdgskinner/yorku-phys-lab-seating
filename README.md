@@ -1,4 +1,4 @@
-# Instalation:
+# Installation:
 - Install python 3, with pip and add it to the system's PATH
 - Install the required dependencies:
 ```
@@ -21,20 +21,20 @@ python3 YorkULabSeating.py
 
 4. Finally, on the main page, select the required **experiment_id** and click on ***START webserver*** to start hosting the selected experiment seating.
 
-5. From the group PCs, open a web browser and visit http://hostname:port/g<X>.html, where X is the desired group number.
+5. From the group PCs, open a web browser and visit http://hostname:port/g[X].html, where [X] is the desired group number.
 
 6. The GUI must be running during the lab session. Once the session is done, click on ***STOP webserver*** and close the application.
  
 ## Additional notes:
 1. The experiment images should be placed in ```scripts/src/img``` directory 
 
-2. The input CSS files should be placed in ```scripts/<data>``` directory. You can specify this directory in the **setting -> Input directory**
+2. The input CSV files should be placed in ```scripts/<data>``` directory. You can specify this directory in the **setting -> Input directory**
 
 3. The Experiment csv file must contain the following columns:
  - ```exp_id, exp_title, day, date, time, exp_img, session_id```
 
 4. The Student csv file must contain the following columns:
- - ```last_name, first_name, session_id```
+ - ```student_id, last_name, first_name, session_id```
 
 ---
 ---

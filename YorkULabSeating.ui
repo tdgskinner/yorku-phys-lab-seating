@@ -130,7 +130,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Grouping</string>
+           <string>Generate groups</string>
           </property>
          </widget>
         </item>
@@ -145,7 +145,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Operations</string>
+           <string>Seating operations</string>
           </property>
          </widget>
         </item>
@@ -293,9 +293,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>30</y>
+        <y>20</y>
         <width>331</width>
-        <height>311</height>
+        <height>321</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -304,16 +304,139 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>10</y>
          <width>321</width>
-         <height>291</height>
+         <height>311</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="10" column="0" colspan="2">
+         <widget class="QPushButton" name="pushButton_save_settings">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(253, 128, 8);</string>
+          </property>
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLineEdit" name="lineEdit_ngroups">
+          <property name="text">
+           <string>6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="label_35">
+          <property name="text">
+           <string>Max # of groups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_33">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>TA Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_year">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>2022</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_31">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Course Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="lineEdit_session">
+          <property name="text">
+           <string>LAB 02</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_code">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>2213</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="lineEdit_ta">
+          <property name="text">
+           <string>Mohammad Kareem</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="lineEdit_coursename">
+          <property name="text">
+           <string>PHYS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_32">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Session</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Code</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_27">
           <property name="font">
@@ -325,6 +448,32 @@
           </property>
           <property name="text">
            <string>Course Info</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="comboBox_semester">
+          <item>
+           <property name="text">
+            <string>Fall</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Winter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Summer</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_34">
+          <property name="text">
+           <string>Semester</string>
           </property>
          </widget>
         </item>
@@ -341,140 +490,17 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_21">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_11">
           <property name="text">
-           <string>2022</string>
+           <string># of benches</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_29">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+        <item row="9" column="1">
+         <widget class="QLineEdit" name="lineEdit_nbenches">
           <property name="text">
-           <string>Code</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_code">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>2213</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_31">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_coursename">
-          <property name="text">
-           <string>PHYS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_32">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Session</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_session">
-          <property name="text">
-           <string>LAB 02</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_33">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>TA Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_ta">
-          <property name="text">
-           <string>Mohammad Kareem</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_34">
-          <property name="text">
-           <string># of experiments</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_26">
-          <property name="text">
-           <string>14</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_35">
-          <property name="text">
-           <string>Max # of groups</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QLineEdit" name="lineEdit_ngroups">
-          <property name="text">
-           <string>6</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_save_settings">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(253, 128, 8);</string>
-          </property>
-          <property name="text">
-           <string>Save</string>
+           <string>4</string>
           </property>
          </widget>
         </item>
@@ -485,9 +511,9 @@
       <property name="geometry">
        <rect>
         <x>340</x>
-        <y>30</y>
+        <y>20</y>
         <width>381</width>
-        <height>311</height>
+        <height>321</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -669,8 +695,13 @@
         </item>
         <item row="8" column="1">
          <widget class="QLineEdit" name="lineEdit_pkl">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
           <property name="text">
-           <string>seatingDB_sep2022_sec_2.pkl</string>
+           <string>seatingDB_</string>
           </property>
          </widget>
         </item>
@@ -704,7 +735,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;span style=&quot; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;span style=&quot; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;' to start hosting the selected experiment seating.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;span style=&quot; font-weight:600;&quot;&gt;http://hostname:port/g&amp;lt;X&amp;gt;.html&lt;/span&gt;, where X is the group number.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;span style=&quot; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;, where [X] is the group number.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>

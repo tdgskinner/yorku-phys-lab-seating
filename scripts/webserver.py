@@ -72,7 +72,7 @@ class MyWebServer:
         socketserver.TCPServer.allow_reuse_address = True
         self.httpd = socketserver.TCPServer((self.hostname, self.serverport), self._handler_from(self.web_directory))
 
-        logging.info(f'httpd server has been successfully started: {self.hostname}:{self.serverport}')
+        logging.info(f'httpd server has been successfully started: http://{self.hostname}:{self.serverport}')
         self.httpd.serve_forever()
         
 

@@ -47,8 +47,21 @@ def _print_exp_dict(dict):
         print('===============================')
         
 #------------------------------------------------------------
-def make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_output):
-    src_dir = os.path.join('scripts','src')
+def get_number_of_students(stud_csv_path, session, src_dir = None):
+    if not src_dir:
+        src_dir = os.path.join('scripts','src')
+
+    stud_df= pandas.read_csv(stud_csv_path)   
+    
+    # filter the list based on the given session_id
+    stud_df = stud_df.loc[stud_df['session_id']==session]
+    stud_list = list(stud_df['student_id'])
+
+    return len(stud_list)
+
+def make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_output, src_dir = None):
+    if not src_dir:
+        src_dir = os.path.join('scripts','src')
     exp_df= pandas.read_csv(exp_csv_path)
     stud_df= pandas.read_csv(stud_csv_path)   
     
@@ -57,13 +70,18 @@ def make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_output):
     stud_df = stud_df.loc[stud_df['session_id']==session]
 
     exp_list = list(exp_df['exp_id'])
+    stud_list = list(stud_df['student_id'])
     
     exp_dict = DefaultDict() # exp dict: key = exp_id , value = tuple of (exp meta data) and (student_groups)
     
     # fill the database dictionary
-    for exp in exp_list:
-        students_splits = _rand_group_maker(stud_df, n_group)
-        exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp] , students_splits )
+    if exp_list and stud_list:
+        for exp in exp_list:
+            students_splits = _rand_group_maker(stud_df, n_group)
+            exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp] , students_splits )
+    else:
+        logging.error('exp_list or stud_list is empty')
+        return False
         
     
     pkl_dir = os.path.join(src_dir, 'pkl')
@@ -82,16 +100,20 @@ def make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_output):
     # write the python object (dict) to pickle file
     try:
         pickle.dump(exp_dict, pkl_f)
-        logging.info(f'file {pkl_output} is written to disk successfully')
+        logging.info(f'file {pkl_path} is written to disk successfully')
         
         # close file
         pkl_f.close()
+        return True
     except:
-        logging.error(f'Failed to write {pkl_output} to disk', exc_info = True)
+        logging.error(f'Failed to write {pkl_path} to disk', exc_info = True)
+        return False
     
 #------------------------------------------------------------
-def html_generator(pkl_input, coursename, code, TA_name):
-    src_dir = os.path.join('scripts','src')
+def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
+    if not src_dir:
+        src_dir = os.path.join('scripts','src')
+
     pkl_path = os.path.join(src_dir, 'pkl', pkl_input)
     html_dir = os.path.join(src_dir, 'html')
     img_dir = os.path.join(src_dir, 'img')
@@ -108,7 +130,9 @@ def html_generator(pkl_input, coursename, code, TA_name):
     dict = _load_student_groups(pkl_path, print_result=False)
     
     n_exp = len(dict)
+    logging.debug(f'n_exp: {n_exp}')
     n_group = len(dict[1][1])
+    logging.debug(f'n_group: {n_group}')
  
     for e in range (1, n_exp+1, 1):
         output_dir = os.path.join(html_dir, f'exp{e}')
@@ -187,7 +211,7 @@ def html_generator(pkl_input, coursename, code, TA_name):
                 
 #===========================================================================
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     config = conf.ConfigParser()
     configfile = 'config.conf'
     if os.path.isfile(configfile):
@@ -211,7 +235,8 @@ if __name__ == "__main__":
     exp_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['exp_csv_file'] )
     stud_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['stud_csv_file'] )
     n_group=int(config['Course']['max_groups'])
-    pkl_file = config['Database']['file_name']+'.pkl'
+    n_benches=int(config['Course']['n_benches'])
+    pkl_file = config['Database']['file_name']
     session = config['Course']['session']
     
     coursename= config['Course']['coursename']
@@ -220,10 +245,8 @@ if __name__ == "__main__":
 
     #-- Create experiment_student groups and store in pkl file (do this once per course)
     if arg[1].lower() == 'grouping':
-        make_groups(exp_csv_path, stud_csv_path, session, n_group, pkl_file, src_dir = 'src')
+        make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_file, src_dir = 'src')
 
     
     elif arg[1].lower() == 'htmlgen':
         html_generator(pkl_file, coursename, code, TA_name, src_dir = 'src')
-
-
