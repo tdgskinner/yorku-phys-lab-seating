@@ -161,6 +161,9 @@
           <property name="minimum">
            <number>1</number>
           </property>
+          <property name="value">
+           <number>1</number>
+          </property>
          </widget>
         </item>
         <item row="2" column="3">
@@ -759,7 +762,7 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 1.0, September 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.0, October 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_9">
