@@ -13,7 +13,7 @@ class MyWebServer:
 
         logging.debug(f'directory= {self.web_directory}')
     
-    
+    #------------------------------------------------------------
     def _handler_from(self, directory):
         def _init(self, *args, **kwargs):
             return http.server.SimpleHTTPRequestHandler.__init__(self, *args, directory=self.directory, **kwargs)
@@ -21,7 +21,6 @@ class MyWebServer:
         return type(f'HandlerFrom<{directory}>',
                 (http.server.SimpleHTTPRequestHandler,),
                 {'__init__': _init, 'directory': directory})
-    
     
     #------------------------------------------------------------
     def _force_copy(self, source, dist, type='f'):
@@ -41,7 +40,6 @@ class MyWebServer:
             except:
                 os.remove(dist)
                 shutil.copy(source, dist)
-
     
     #------------------------------------------------------------
     def _server_dir_prep(self):
@@ -49,6 +47,7 @@ class MyWebServer:
         logging.debug(f'cwd: {cwd}')
 
         css_path = os.path.join(cwd, 'scripts', 'src', 'style.css')
+        js_path = os.path.join(cwd, 'scripts', 'src', 'time.js')
         img_dir_path = os.path.join(cwd, 'scripts', 'src' ,'img')
 
         html_path = os.path.join(cwd, 'scripts', 'src', 'html', f'exp{self.exp_id}')
@@ -61,6 +60,7 @@ class MyWebServer:
         os.makedirs(self.web_directory)
 
         self._force_copy(css_path, os.path.join(self.web_directory,'style.css'))
+        self._force_copy(js_path, os.path.join(self.web_directory,'time.js'))
         self._force_copy(img_dir_path, os.path.join(self.web_directory,'img'), type='dir')
 
         for f in html_files:
@@ -72,11 +72,14 @@ class MyWebServer:
         socketserver.TCPServer.allow_reuse_address = True
         self.httpd = socketserver.TCPServer((self.hostname, self.serverport), self._handler_from(self.web_directory))
 
-        logging.info(f'httpd server has been successfully started: http://{self.hostname}:{self.serverport}')
-        self.httpd.serve_forever()
-        
-
+        url = f'http://{self.hostname}:{self.serverport}'        
+        try:
+            logging.info(f'httpd server has been successfully started: <a href={url}>{url}</a>')
+            self.httpd.serve_forever()
+        except:
+            logging.error('Unable to start the webserver')
     
+    #------------------------------------------------------------
     def stop_webserver(self):
         self.httpd.server_close()
         logging.info('httpd server has been successfully stopped')

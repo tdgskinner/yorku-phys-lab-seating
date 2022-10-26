@@ -39,7 +39,7 @@ class OutputWrapper(QtCore.QObject):
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        # To load the last user setting from previous session
+        # Default settings will be set if no stored settings found from previous session
         self.default_settings = {
             'year':'2022', 
             'semester':'Fall',
@@ -57,7 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'n_benches':4,
         }
         self.getSettingValues()
-        #-------------------
+        
         QtWidgets.QMainWindow.__init__(self)
         self.ui = uic.loadUi('YorkULabSeating.ui',self)
 
@@ -66,6 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
         stderr = OutputWrapper(self, False)
         stderr.outputWritten.connect(self.handleOutput)
         
+        # Retrieving settings from previous session 
         self.semester   = self.setting_Course.value('semester')
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
@@ -81,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_group    = self.setting_Course.value('n_group')
         self.n_benches  = self.setting_Course.value('n_benches')       
 
-        # set default values if there was no previous setting
+        # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
         if not self.year: self.year = self.default_settings['year']
         if not self.code: self.code = self.default_settings['code']
@@ -119,8 +120,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pkl_file_name   = self.set_pklfile_name()
 
         self.thread={}
+        self.isWebServerRunning = False
 
-        #--slots
+        #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
@@ -129,10 +131,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_stop_webserver.clicked.connect(self.stop_webserver_worker)
     
     def getSettingValues(self):
+        '''
+        # Load the last user setting from previous session
+        '''
         self.setting_Course = QSettings('YorkLabSeating', 'Course')
         self.setting_Network = QSettings('YorkLabSeating', 'Network')
     
     def save_button_click(self):
+        '''
+        # Save the user setting values with pressing in SAVE button
+        '''
         self.year       = self.lineEdit_year.text() 
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
@@ -202,26 +210,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.thread[1].start()
         self.pushButton_start_webserver.setEnabled(False)
         self.spinBox_exp_id.setEnabled(False)
+        self.pushButton_grouping.setEnabled(False)
+        self.pushButton_htmlgen.setEnabled(False)
         self.pushButton_stop_webserver.setEnabled(True)
+        self.isWebServerRunning = True
     
     def stop_webserver_worker(self):
         self.thread[1].stop()
         self.pushButton_start_webserver.setEnabled(True)
+        self.pushButton_grouping.setEnabled(True)
+        self.pushButton_htmlgen.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
         self.pushButton_stop_webserver.setEnabled(False)
+        self.isWebServerRunning = False
 
-    
     def handleOutput(self, text, stdout):
         color = self.statusbox.textColor()
         self.statusbox.setTextColor(color)
-        #self.statusbox.insertPlainText(text)
+        self.statusbox.setOpenExternalLinks(True)
         self.statusbox.append(text)
         self.statusbox.setTextColor(color)
 
     def closeEvent(self, event):
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Warning")
-        dlg.setText("Are sure you want to close the program?")
+        if self.isWebServerRunning:
+            dlg.setText("The Webserver is running. Are sure you want to close the program? This will terminate the webserver.")
+        else:
+            dlg.setText("Are sure you want to close the program?")
         dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
         button = dlg.exec()
@@ -242,8 +258,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
             self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
-            #---
-            event.accept()
+            try:
+                self.stop_webserver_worker()
+                event.accept()
+                logging.info('The application exited properly.')
+            except:
+                logging.info('The application exited improperly.')
+
         else:
             event.ignore()
 #--------------------------------------------------------------------------------
@@ -256,7 +277,6 @@ class WebServerThread(QtCore.QThread):
         self.is_running = True
         
     def run(self):
-        #print(f'Starting webserver for exp {self.exp_id}')
         logging.info(f'Starting webserver for exp {self.exp_id}')
 
         self.myserver = MyWebServer(self.exp_id, self.host, self.port)
@@ -264,7 +284,6 @@ class WebServerThread(QtCore.QThread):
 
     def stop(self):
         self.is_running = False
-        #print('Stopping webserver...')
         logging.info('Stopping webserver...')
         
         self.myserver.stop_webserver()
@@ -274,7 +293,6 @@ class WebServerThread(QtCore.QThread):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     
-
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = MainWindow()
     mainWindow.show()

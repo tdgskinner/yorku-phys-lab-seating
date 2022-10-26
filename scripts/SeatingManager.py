@@ -58,7 +58,7 @@ def get_number_of_students(stud_csv_path, session, src_dir = None):
     stud_list = list(stud_df['student_id'])
 
     return len(stud_list)
-
+#------------------------------------------------------------        
 def make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_output, src_dir = None):
     if not src_dir:
         src_dir = os.path.join('scripts','src')
@@ -156,52 +156,53 @@ def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
                       
                 newline = "\n"
                 seating_contents = f'''<!DOCTYPE html>
-                            <html>
+                            <html lang="en">
                             <head>
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
                             <link rel="stylesheet" href="style.css?v=1">
+                            <script type="text/javascript" src="time.js"></script>
                             </head>
                             <body>
 
-                            <div class="row", style="padding:0.1cm">
+                            <div class="row", style="padding:0cm">
                                 <div class="column", style="width:20%">
-                                    <img src={os.path.join('img','yorku-logo.jpg')} , style="width:75%">
+                                    <img src={os.path.join('img','yorku-logo.jpg')} , style="height:30px">
                                 </div>
-                                <div class="column", style="width:70%">
-                                    <center>
-                                        <h1>Welcome to the {coursename} {code} Lab</h1>
-                                        <h2>{df_exp_metadata['day'].iloc[0]}, {df_exp_metadata['date'].iloc[0]}, at {df_exp_metadata['time'].iloc[0]}</h2>
-                                        <h2><p>TA: {TA_name}</p></h2>
-                                    </center>
-
+                                <div class="column", style="width:65%">
+                                    <h2> </h2>
+                                </div>
+                                <div class="column", style="width:15%"></div>
+                                    <h3><span id="ct"> </span></h3>
                                 </div>
                             </div>
                             
-
                             <div class="row", style="padding:0cm">
-                                <div class="column", style="width:50%">
+                                <div class="column", style="width:40%">
                                     <div class="vertical-menu", style="width:100%">
-                                        <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
+                                        <h2><a href="#" class="active"><b>Group 1</b></a></h2>
+                                        <h3>{df_exp_metadata['day'].iloc[0]}, {df_exp_metadata['date'].iloc[0]}</h3>
+                                        <h3>Session: {df_exp_metadata['time'].iloc[0]}</h3>
+                                        <h3>TA: {TA_name}</h3>
+                                        
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
                                           </div>
                                     </div>
-                                    
                                 </div>
 
-                                <div class="column", style="width:50%">
+                                <div class="column", style="width:60%">
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
                                     </div>
-                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="width:100%" ></center>
+                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:800px" ></center>
                                 </div>
                             </div>
                             
                             <div class="footer">
-                                        <p><b>Please refresh the page if the date/time is not correctly displayed<br>    
-                                    </div>
+                                <p>Please refresh the page if the date/time is not correctly displayed</p>    
+                            </div>
                             </body>
                             </html>
                             '''
@@ -230,7 +231,6 @@ if __name__ == "__main__":
         logging.error('accepted arguments: <grouping> OR <htmlgen>')
         exit()
     
-
     # parsing the config parameters
     exp_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['exp_csv_file'] )
     stud_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['stud_csv_file'] )
