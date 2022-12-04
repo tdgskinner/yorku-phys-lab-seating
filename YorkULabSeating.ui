@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
-    <height>431</height>
+    <width>1307</width>
+    <height>939</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>YorkU PHYS Lab Seating</string>
@@ -23,7 +29,7 @@
       <x>20</x>
       <y>10</y>
       <width>721</width>
-      <height>391</height>
+      <height>471</height>
      </rect>
     </property>
     <property name="font">
@@ -59,7 +65,7 @@
         <x>0</x>
         <y>10</y>
         <width>721</width>
-        <height>111</height>
+        <height>191</height>
        </rect>
       </property>
       <property name="font">
@@ -73,21 +79,16 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="gridLayoutWidget_3">
+      <widget class="QWidget" name="gridLayoutWidget_2">
        <property name="geometry">
         <rect>
-         <x>9</x>
-         <y>10</y>
-         <width>701</width>
-         <height>102</height>
+         <x>0</x>
+         <y>0</y>
+         <width>721</width>
+         <height>191</height>
         </rect>
        </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-        </font>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_4" columnstretch="10,10,20,20" columnminimumwidth="0,0,0,0">
+       <layout class="QGridLayout" name="gridLayout_3">
         <item row="2" column="2">
          <widget class="QPushButton" name="pushButton_start_webserver">
           <property name="font">
@@ -103,25 +104,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="pushButton_htmlgen">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Generate html</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="2">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QPushButton" name="pushButton_grouping">
           <property name="font">
@@ -134,39 +116,20 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="font">
-           <font>
-            <family>Arial Hebrew</family>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Seating operations</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Experiment Number</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="spinBox_exp_id">
-          <property name="minimum">
-           <number>1</number>
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="value">
-           <number>1</number>
+          <property name="text">
+           <string>Exp. Number</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
+        <item row="3" column="2">
          <widget class="QPushButton" name="pushButton_stop_webserver">
           <property name="font">
            <font>
@@ -181,6 +144,80 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="spinBox_exp_id">
+          <property name="font">
+           <font>
+            <pointsize>20</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Seating Generator</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <widget class="QLabel" name="label_10">
+          <property name="font">
+           <font>
+            <family>Arial Hebrew</family>
+            <pointsize>13</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Web Server</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="QLabel" name="label_8">
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pushButton_htmlgen">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Generate html</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -188,7 +225,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>130</y>
+        <y>210</y>
         <width>721</width>
         <height>231</height>
        </rect>
@@ -207,10 +244,10 @@
       <widget class="QWidget" name="verticalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>5</y>
-         <width>701</width>
-         <height>211</height>
+         <x>0</x>
+         <y>0</y>
+         <width>721</width>
+         <height>231</height>
         </rect>
        </property>
        <property name="font">
@@ -249,44 +286,6 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_5">
-      <property name="geometry">
-       <rect>
-        <x>427</x>
-        <y>27</y>
-        <width>221</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>../../../Desktop/yorku-logo.png</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_10">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>30</y>
-        <width>211</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>YorkU_logo_S.png</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_settings">
      <attribute name="title">
@@ -297,8 +296,8 @@
        <rect>
         <x>0</x>
         <y>20</y>
-        <width>331</width>
-        <height>321</height>
+        <width>721</width>
+        <height>331</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -307,42 +306,32 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="gridLayoutWidget_3">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>10</y>
-         <width>321</width>
-         <height>311</height>
+         <x>-1</x>
+         <y>-1</y>
+         <width>721</width>
+         <height>331</height>
         </rect>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="10" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_save_settings">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(253, 128, 8);</string>
-          </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="3" column="2">
+         <widget class="QPushButton" name="pushButton_6">
           <property name="text">
-           <string>Save</string>
+           <string>Brows</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="lineEdit_ngroups">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_exp_csv_2">
           <property name="text">
-           <string>6</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_35">
-          <property name="text">
-           <string>Max # of groups</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QLabel" name="label_33">
+         <widget class="QLabel" name="label_12">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -350,12 +339,59 @@
            </font>
           </property>
           <property name="text">
-           <string>TA Name</string>
+           <string>Host address</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_year">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Input lists</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
+         <widget class="QLineEdit" name="lineEdit_nbenches_2">
+          <property name="text">
+           <string>4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Port number</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="QLineEdit" name="lineEdit_ngroups_2">
+          <property name="text">
+           <string>6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QLineEdit" name="lineEdit_year_2">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -367,8 +403,8 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_31">
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_33">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -376,19 +412,12 @@
            </font>
           </property>
           <property name="text">
-           <string>Course Name</string>
+           <string>Year</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_session">
-          <property name="text">
-           <string>LAB 02</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_code">
+        <item row="3" column="4">
+         <widget class="QLineEdit" name="lineEdit_code_2">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -400,35 +429,15 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_ta">
-          <property name="text">
-           <string>Mohammad Kareem</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_coursename">
-          <property name="text">
-           <string>PHYS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_32">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Session</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_29">
+         <widget class="QLabel" name="label_44">
+          <property name="text">
+           <string>Time table</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_41">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -436,12 +445,12 @@
            </font>
           </property>
           <property name="text">
-           <string>Code</string>
+           <string>Exp. table</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_27">
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_32">
           <property name="font">
            <font>
             <pointsize>18</pointsize>
@@ -450,12 +459,46 @@
            </font>
           </property>
           <property name="text">
-           <string>Course Info</string>
+           <string>Course Details</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="comboBox_semester">
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pushButton_5">
+          <property name="text">
+           <string>Brows</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="label_36">
+          <property name="text">
+           <string>Semester</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="lineEdit_host_2">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>127.0.0.1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButton_4">
+          <property name="text">
+           <string>Brows</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QComboBox" name="comboBox_semester_2">
           <item>
            <property name="text">
             <string>Fall</string>
@@ -473,15 +516,35 @@
           </item>
          </widget>
         </item>
+        <item row="5" column="3">
+         <widget class="QLabel" name="label_45">
+          <property name="text">
+           <string>Max # of groups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="QLabel" name="label_46">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Course Code</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_exp_csv_4">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_34">
-          <property name="text">
-           <string>Semester</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_28">
+         <widget class="QLabel" name="label_43">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -489,80 +552,31 @@
            </font>
           </property>
           <property name="text">
-           <string>Year</string>
+           <string>Student list</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_11">
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="lineEdit_port_2">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Max # of benches</string>
+           <string>5000</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
-         <widget class="QLineEdit" name="lineEdit_nbenches">
-          <property name="text">
-           <string>4</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QFrame" name="frame_3">
-      <property name="geometry">
-       <rect>
-        <x>340</x>
-        <y>20</y>
-        <width>381</width>
-        <height>321</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>361</width>
-         <height>291</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
         <item row="5" column="0">
-         <widget class="QLabel" name="label_39">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
+         <widget class="QLabel" name="label_31">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="text">
-           <string>Experiment list</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_38">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Input directory</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_30">
           <property name="font">
            <font>
             <pointsize>18</pointsize>
@@ -575,136 +589,50 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_42">
-          <property name="text">
-           <string>File name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_37">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Input files (.csv)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_41">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Database (.pkl)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Host</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_40">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Student list</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_host">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>127.0.0.1</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_port">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+         <widget class="QLineEdit" name="lineEdit_exp_csv_3">
           <property name="text">
-           <string>5000</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_data_dir">
+        <item row="6" column="3">
+         <widget class="QLabel" name="label_14">
           <property name="text">
-           <string>data</string>
+           <string>Max # of benches</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_exp_csv">
+        <item row="4" column="3">
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>exp_autogen_list.csv</string>
+           <string>Session</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_stud_csv">
-          <property name="text">
-           <string>student_autogen_list.csv</string>
+        <item row="4" column="4">
+         <widget class="QComboBox" name="comboBox_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="lineEdit_pkl">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
+        <item row="7" column="3" colspan="2">
+         <widget class="QPushButton" name="pushButton_save_settings_2">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(253, 128, 8);</string>
           </property>
           <property name="text">
-           <string>seatingDB_</string>
+           <string>Save</string>
           </property>
          </widget>
         </item>
@@ -722,7 +650,7 @@
         <x>0</x>
         <y>0</y>
         <width>721</width>
-        <height>351</height>
+        <height>431</height>
        </rect>
       </property>
       <property name="html">
@@ -762,7 +690,7 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.0, October 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.1, Dec 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_9">
@@ -792,13 +720,15 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>755</width>
+     <width>1307</width>
      <height>24</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="YorkU_logo_S.qrc"/>
+ </resources>
  <connections/>
 </ui>
