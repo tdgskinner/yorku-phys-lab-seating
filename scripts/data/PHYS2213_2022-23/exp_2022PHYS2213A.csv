@@ -1,0 +1,15 @@
+exp_id, exp_title, exp_img, exp_tip
+1,Introduction to Laboratory Equipment,img_exp1.png, tip_exp1.txt
+2,Field Mapping and Gauss's Law,Thursday,img_exp2.png, tip_exp2.txt
+3,Coulomb's Law,img_exp3.png, tip_exp3.txt
+4,Speed of LIght in a Fibre,Thursday,img_exp4.png, tip_exp4.txt
+5,Capacitors,Thursday,img_exp5.png, tip_exp5.txt
+6,Resistivity,Thursday,img_exp6.png, tip_exp6.txt
+7,Magnetic Fields and Forces,img_exp7.png, tip_exp7.txt
+8,Introduction to Optics,img_exp8.png, tip_exp8.txt
+9,Polarization,Thursday,img_exp9.png, tip_exp9.txt
+10,Verdet Constant,img_exp10.png, tip_exp10.txt
+11,Michelson Interferometer,Thursday,img_exp11.png, tip_exp11.txt
+12,Diffraction Spectrometer,img_exp12.png, tip_exp12.txt
+13,Acousto-Optic Modulator,img_exp13.png, tip_exp13.txt
+14,Microwaves,img_exp14.png, tip_exp14.txt
