@@ -2,6 +2,7 @@ import sys , os
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QSettings
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog
 
 import logging
 import scripts.SeatingManager as seating
@@ -45,13 +46,14 @@ class MainWindow(QtWidgets.QMainWindow):
             'semester':'Fall',
             'code':'2213',
             'coursename':'PHYS',
-            'session':'LAB 02',
+            'session':'',
+            'session_list': [],
             'ta_name':'Mohammad Kareem',
             'hostname':'127.0.0.1',
             'portnumber':'5000',
             'data_dir':'data',
-            'exp_csv_path':'exp_autogen_list.csv',
-            'stud_csv_path':'student_autogen_list.csv',
+            #'exp_csv_path':'exp_autogen_list.csv',
+            #'stud_csv_path':'student_autogen_list.csv',
             'exp_id':1,
             'n_group':6,
             'n_benches':4,
@@ -72,12 +74,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.setting_Course.value('code')
         self.coursename = self.setting_Course.value('coursename')
         self.session    = self.setting_Course.value('session')
+        self.session_list = self.setting_Course.value('session_list')
         self.TA_name    = self.setting_Course.value('ta_name')
         self.hostname   = self.setting_Network.value('hostname')
         self.portnumber = self.setting_Network.value('portnumber')
         self.data_dir   = self.setting_Course.value('data_dir')
         self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
         self.stud_csv_path = self.setting_Course.value('stud_csv_path')
+        self.time_csv_path = self.setting_Course.value('time_csv_path')
         self.exp_id = self.setting_Course.value('exp_id')
         self.n_group    = self.setting_Course.value('n_group')
         self.n_benches  = self.setting_Course.value('n_benches')       
@@ -87,36 +91,40 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.year: self.year = self.default_settings['year']
         if not self.code: self.code = self.default_settings['code']
         if not self.coursename: self.coursename = self.default_settings['coursename']
-        if not self.session: self.session = self.default_settings['session']
+        #if not self.session: self.session = self.default_settings['session']
+        #if not self.session_list: self.session_list = self.default_settings['session_list']
         if not self.TA_name: self.TA_name = self.default_settings['ta_name']
         if not self.hostname: self.hostname = self.default_settings['hostname']
         if not self.portnumber: self.portnumber = self.default_settings['portnumber']
         if not self.data_dir: self.data_dir = self.default_settings['data_dir']
-        if not self.exp_csv_path: self.exp_csv_path = self.default_settings['exp_csv_path']
-        if not self.stud_csv_path: self.stud_csv_path = self.default_settings['stud_csv_path']
+        #if not self.exp_csv_path: self.exp_csv_path = self.default_settings['exp_csv_path']
+        #if not self.stud_csv_path: self.stud_csv_path = self.default_settings['stud_csv_path']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
         if not self.n_group: self.n_group = self.default_settings['n_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         
-        self.lineEdit_ta.setText(self.TA_name)
+        #self.lineEdit_ta.setText(self.TA_name)
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code) 
-        self.lineEdit_coursename.setText(self.coursename) 
-        self.lineEdit_session.setText(self.session)
+        #self.lineEdit_coursename.setText(self.coursename) 
+        if self.session_list:
+            self.comboBox_session.addItems(self.session_list)
+            self.comboBox_session.setCurrentText(self.session)
         self.lineEdit_ngroups.setText(str(self.n_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.lineEdit_host.setText(self.hostname)
         self.lineEdit_port.setText(self.portnumber)
-        self.lineEdit_data_dir.setText(self.data_dir)
+        #self.lineEdit_data_dir.setText(self.data_dir)
         self.spinBox_exp_id.setValue(self.exp_id)
         self.lineEdit_exp_csv.setText(self.exp_csv_path)
         self.lineEdit_stud_csv.setText(self.stud_csv_path)
-        
-        self.exp_csv_path = os.path.join('scripts', self.data_dir, self.exp_csv_path )
-        self.stud_csv_path = os.path.join('scripts', self.data_dir, self.stud_csv_path )
+        self.lineEdit_time_csv.setText(self.time_csv_path)
 
-        self.lineEdit_pkl.setEnabled(False)
+        #self.exp_csv_path = os.path.join('scripts', self.data_dir, self.exp_csv_path )
+        #self.stud_csv_path = os.path.join('scripts', self.data_dir, self.stud_csv_path )
+
+        #self.lineEdit_pkl.setEnabled(False)
         self.pkl_file_name   = self.set_pklfile_name()
 
         self.thread={}
@@ -129,7 +137,32 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinBox_exp_id.valueChanged.connect(self.set_spin_value)
         self.pushButton_start_webserver.clicked.connect(self.start_webserver_worker)
         self.pushButton_stop_webserver.clicked.connect(self.stop_webserver_worker)
+
+        self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
+        self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
+        self.pushButton_time_brows.clicked.connect(lambda: self.browsefiles('time'))
     
+    def browsefiles(self, category):
+        fname=QFileDialog.getOpenFileName(self, 'Open file', os.path.join('scripts','data'),'CSV file (*.csv)')
+        if category == 'time':
+            self.lineEdit_time_csv.setText(fname[0])
+            self.time_csv_path = fname[0]
+            self.extract_sessions(self.time_csv_path)
+        elif category == 'exp':
+            self.lineEdit_exp_csv.setText(fname[0])
+            self.exp_csv_path = fname[0]
+        elif category == 'stud':
+            self.lineEdit_stud_csv.setText(fname[0])
+            self.stud_csv_path = fname[0]
+    
+    def extract_sessions(self, time_csv_path):
+        self.session_list = seating.get_session_list(time_csv_path)
+        #logging.debug(f'there are {len(self.session_list)} sessions in this course!')
+        self.comboBox_session.clear()
+        if self.session_list:
+            self.comboBox_session.addItems(self.session_list)
+        
+
     def getSettingValues(self):
         '''
         # Load the last user setting from previous session
@@ -144,18 +177,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.lineEdit_year.text() 
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
-        self.coursename = self.lineEdit_coursename.text() 
-        self.session    = self.lineEdit_session.text()
-        self.TA_name    = self.lineEdit_ta.text() 
+        #self.coursename = self.lineEdit_coursename.text() 
+        self.session   = self.comboBox_session.currentText()
+        #self.TA_name    = self.lineEdit_ta.text() 
         self.n_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
         
         self.hostname   = self.lineEdit_host.text()
         self.portnumber = self.lineEdit_port.text()
         
-        self.data_dir   = self.lineEdit_data_dir.text()
-        self.exp_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_exp_csv.text() )
-        self.stud_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_stud_csv.text() )
+        #self.data_dir   = self.lineEdit_data_dir.text()
+        #self.exp_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_exp_csv.text() )
+        #self.stud_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_stud_csv.text() )
 
         self.pkl_file_name   = self.set_pklfile_name()
         
@@ -170,7 +203,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_pklfile_name(self):
         pklfile_name_list = ['SeatingDB', self.semester, self.year, self.code, self.session.replace(" ", "")]
         pklfile_name = '_'.join(pklfile_name_list)+'.pkl'
-        self.lineEdit_pkl.setText(pklfile_name)    
+        #self.lineEdit_pkl.setText(pklfile_name)    
         return pklfile_name
 
     def set_spin_value(self):
@@ -201,7 +234,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"{self.lineEdit_pkl.text()} does not exit. Run Grouping first to generate it.")
+            #dlg.setText(f"{self.lineEdit_pkl.text()} does not exit. Run Grouping first to generate it.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
 
@@ -244,27 +277,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             #--- store the current setting in the system before closing the app
-            self.setting_Course.setValue('ta_name', self.lineEdit_ta.text())
+            #self.setting_Course.setValue('ta_name', self.lineEdit_ta.text())
             self.setting_Course.setValue('year', self.lineEdit_year.text() )
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
-            self.setting_Course.setValue('coursename', self.lineEdit_coursename.text() )
-            self.setting_Course.setValue('session', self.lineEdit_session.text())
+            #self.setting_Course.setValue('coursename', self.lineEdit_coursename.text() )
+            self.setting_Course.setValue('session', self.comboBox_session.currentText())
+            self.setting_Course.setValue('session_list', self.session_list)
             self.setting_Network.setValue('hostname', self.lineEdit_host.text())
             self.setting_Network.setValue('portnumber', self.lineEdit_port.text())
-            self.setting_Course.setValue('data_dir', self.lineEdit_data_dir.text())
+            #self.setting_Course.setValue('data_dir', self.lineEdit_data_dir.text())
             self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
             self.setting_Course.setValue('stud_csv_path', self.lineEdit_stud_csv.text())
+            self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
             self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
-                self.stop_webserver_worker()
+                if self.isWebServerRunning:
+                    self.stop_webserver_worker()
                 event.accept()
-                logging.info('The application exited properly.')
-            except:
-                logging.info('The application exited improperly.')
-
+                logging.debug('The application exited properly.')
+            except Exception as e:
+                logging.error(f'The application exited improperly: {e}')
+            
         else:
             event.ignore()
 #--------------------------------------------------------------------------------

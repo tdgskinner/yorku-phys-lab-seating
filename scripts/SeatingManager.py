@@ -58,6 +58,29 @@ def get_number_of_students(stud_csv_path, session, src_dir = None):
     stud_list = list(stud_df['student_id'])
 
     return len(stud_list)
+
+#------------------------------------------------------------
+def get_session_list(time_csv_path):
+    sessions = []
+    days_dicts = {
+            'M':'Monday',
+            'T':'Tuesday',
+            'W':'Wednesday',
+            'R':'Thursday',
+            'F':'Friday',
+            }
+    time_df= pandas.read_csv(time_csv_path)
+    Day_list = list(time_df['Day'])
+    
+    time_list = list(time_df['Start Time'])
+    session_list = list(zip(Day_list, time_list))
+
+    for session in session_list:
+        sessions.append(f'{days_dicts[session[0]]}, {session[1]}')
+    
+    print(len(sessions))
+    return sessions.sort()
+
 #------------------------------------------------------------        
 def make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_output, src_dir = None):
     if not src_dir:

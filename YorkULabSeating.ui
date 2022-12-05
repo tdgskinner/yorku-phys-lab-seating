@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1307</width>
-    <height>939</height>
+    <width>754</width>
+    <height>526</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,7 +41,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="usesScrollButtons">
      <bool>true</bool>
@@ -89,8 +89,32 @@
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pushButton_grouping">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Generate groups</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="2">
          <widget class="QPushButton" name="pushButton_start_webserver">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
@@ -104,33 +128,73 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="pushButton_grouping">
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_htmlgen">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
            </font>
           </property>
           <property name="text">
-           <string>Generate groups</string>
+           <string>Generate html</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label_6">
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_10">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <family>Arial Hebrew</family>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Exp. Number</string>
+           <string>Web Server</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Seating Generator</string>
           </property>
          </widget>
         </item>
         <item row="3" column="2">
          <widget class="QPushButton" name="pushButton_stop_webserver">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
@@ -146,9 +210,15 @@
         </item>
         <item row="3" column="1">
          <widget class="QSpinBox" name="spinBox_exp_id">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
-            <pointsize>20</pointsize>
+            <pointsize>18</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -164,57 +234,16 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
-           <string>Seating Generator</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" colspan="2">
-         <widget class="QLabel" name="label_10">
-          <property name="font">
-           <font>
-            <family>Arial Hebrew</family>
-            <pointsize>13</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Web Server</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="QLabel" name="label_8">
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="pushButton_htmlgen">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Generate html</string>
+           <string>Exp. Number</string>
           </property>
          </widget>
         </item>
@@ -286,6 +315,31 @@
        </layout>
       </widget>
      </widget>
+     <widget class="QLabel" name="label_11">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>20</y>
+        <width>181</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>YorkU_logo_S.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_settings">
      <attribute name="title">
@@ -295,9 +349,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>20</y>
+        <y>10</y>
         <width>721</width>
-        <height>331</height>
+        <height>341</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -309,22 +363,22 @@
       <widget class="QWidget" name="gridLayoutWidget_3">
        <property name="geometry">
         <rect>
-         <x>-1</x>
-         <y>-1</y>
-         <width>721</width>
-         <height>331</height>
+         <x>9</x>
+         <y>9</y>
+         <width>701</width>
+         <height>321</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="3" column="2">
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="pushButton_time_brows">
           <property name="text">
            <string>Brows</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_exp_csv_2">
+         <widget class="QLineEdit" name="lineEdit_exp_csv">
           <property name="text">
            <string/>
           </property>
@@ -364,7 +418,7 @@
          </widget>
         </item>
         <item row="6" column="4">
-         <widget class="QLineEdit" name="lineEdit_nbenches_2">
+         <widget class="QLineEdit" name="lineEdit_nbenches">
           <property name="text">
            <string>4</string>
           </property>
@@ -384,14 +438,14 @@
          </widget>
         </item>
         <item row="5" column="4">
-         <widget class="QLineEdit" name="lineEdit_ngroups_2">
+         <widget class="QLineEdit" name="lineEdit_ngroups">
           <property name="text">
            <string>6</string>
           </property>
          </widget>
         </item>
         <item row="1" column="4">
-         <widget class="QLineEdit" name="lineEdit_year_2">
+         <widget class="QLineEdit" name="lineEdit_year">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -417,7 +471,7 @@
          </widget>
         </item>
         <item row="3" column="4">
-         <widget class="QLineEdit" name="lineEdit_code_2">
+         <widget class="QLineEdit" name="lineEdit_code">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -464,7 +518,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="pushButton_stud_brows">
           <property name="text">
            <string>Brows</string>
           </property>
@@ -478,7 +532,7 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_host_2">
+         <widget class="QLineEdit" name="lineEdit_host">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -491,14 +545,14 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="pushButton_exp_brows">
           <property name="text">
            <string>Brows</string>
           </property>
          </widget>
         </item>
         <item row="2" column="4">
-         <widget class="QComboBox" name="comboBox_semester_2">
+         <widget class="QComboBox" name="comboBox_semester">
           <item>
            <property name="text">
             <string>Fall</string>
@@ -537,7 +591,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_exp_csv_4">
+         <widget class="QLineEdit" name="lineEdit_time_csv">
           <property name="text">
            <string/>
           </property>
@@ -557,7 +611,7 @@
          </widget>
         </item>
         <item row="7" column="1">
-         <widget class="QLineEdit" name="lineEdit_port_2">
+         <widget class="QLineEdit" name="lineEdit_port">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -590,7 +644,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_exp_csv_3">
+         <widget class="QLineEdit" name="lineEdit_stud_csv">
           <property name="text">
            <string/>
           </property>
@@ -617,7 +671,7 @@
          </widget>
         </item>
         <item row="4" column="4">
-         <widget class="QComboBox" name="comboBox_2">
+         <widget class="QComboBox" name="comboBox_session">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -627,7 +681,7 @@
          </widget>
         </item>
         <item row="7" column="3" colspan="2">
-         <widget class="QPushButton" name="pushButton_save_settings_2">
+         <widget class="QPushButton" name="pushButton_save_settings">
           <property name="styleSheet">
            <string notr="true">background-color: rgb(253, 128, 8);</string>
           </property>
@@ -720,7 +774,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1307</width>
+     <width>754</width>
      <height>24</height>
     </rect>
    </property>
