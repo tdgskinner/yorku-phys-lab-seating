@@ -259,11 +259,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
-                self.stop_webserver_worker()
+                if self.isWebServerRunning:
+                    self.stop_webserver_worker()
                 event.accept()
-                logging.info('The application exited properly.')
-            except:
-                logging.info('The application exited improperly.')
+                logging.debug('The application exited properly.')
+            except Exception as e:
+                logging.error(f'The application exited improperly: {e}')
 
         else:
             event.ignore()
@@ -291,7 +292,7 @@ class WebServerThread(QtCore.QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG)
     
     app = QtWidgets.QApplication(sys.argv)
     mainWindow = MainWindow()
