@@ -41,4 +41,8 @@ student_id,last_name,first_name,email,session_id,irrelevant_01,irrelevant_02,irr
 213396627,Vertlib,Mark,hidden@my.yorku.ca,LAB 03,LECT01,SC BSC H SP N SC/PHAS>SS NO,4,RA
 217014549,Youssef,Abanoub,hidden@my.yorku.ca,LAB 03,LECT01,SC BSC O OR N SC/SCIE NO,3,RA
 216282857,Zhang,Tianyu,hidden@my.yorku.ca,LAB 03,LECT01,SC BSC H SP N SC/PHAS>AR NO,2,RA
+<<<<<<< HEAD
 216768160,Zhang,Ziran,hidden@163.com,LAB 03,LECT01,SC BSC H HO N SC/PHAS>PH NO,3,RA
+=======
+216768160,Zhang,Ziran,hidden@163.com,LAB 03,LECT01,SC BSC H HO N SC/PHAS>PH NO,3,RA
+>>>>>>> df275df02bd65c7723111f374790f637a84b11a5
