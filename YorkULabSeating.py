@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog
 
 import logging
 import scripts.SeatingManager as seating
-from scripts.webserver import MyWebServer
+#from scripts.webserver import MyWebServer
+from scripts.remote_copy import MyWebServer
 
 
 class OutputWrapper(QtCore.QObject):
@@ -136,7 +137,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
         self.spinBox_exp_id.valueChanged.connect(self.set_spin_value)
         self.pushButton_copyfiles.clicked.connect(self.start_webserver_worker)
-        self.pushButton_restartPCs.clicked.connect(self.stop_webserver_worker)
+        self.pushButton_rebootPCs.clicked.connect(self.stop_webserver_worker)
 
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
@@ -245,7 +246,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinBox_exp_id.setEnabled(False)
         self.pushButton_grouping.setEnabled(False)
         self.pushButton_htmlgen.setEnabled(False)
-        self.pushButton_restartPCs.setEnabled(True)
+        self.pushButton_rebootPCs.setEnabled(True)
         self.isWebServerRunning = True
     
     def stop_webserver_worker(self):
@@ -254,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_grouping.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
-        self.pushButton_restartPCs.setEnabled(False)
+        self.pushButton_rebootPCs.setEnabled(False)
         self.isWebServerRunning = False
 
     def handleOutput(self, text, stdout):
@@ -320,9 +321,9 @@ class WebServerThread(QtCore.QThread):
 
     def stop(self):
         self.is_running = False
-        logging.info('Stopping webserver...')
+        logging.info('Rebooting group PCs...')
         
-        self.myserver.stop_webserver()
+        self.myserver.reboot_Pcs()
         self.terminate()
 
 #-------------------------------------------------
