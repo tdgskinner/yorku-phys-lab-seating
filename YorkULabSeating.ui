@@ -41,7 +41,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>true</bool>
@@ -107,27 +107,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_start_webserver">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(66, 255, 75);</string>
-          </property>
-          <property name="text">
-           <string>START webserver</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
          <widget class="QPushButton" name="pushButton_htmlgen">
           <property name="sizePolicy">
@@ -163,7 +142,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Web Server</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -188,9 +167,9 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QPushButton" name="pushButton_stop_webserver">
+         <widget class="QPushButton" name="pushButton_restartPCs">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -204,7 +183,7 @@
            <string notr="true">background-color: rgb(252, 53, 48);</string>
           </property>
           <property name="text">
-           <string>STOP webserver</string>
+           <string>Restart All Group PCs</string>
           </property>
          </widget>
         </item>
@@ -244,6 +223,27 @@
           </property>
           <property name="text">
            <string>Exp. Number</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pushButton_copyfiles">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(66, 255, 75);</string>
+          </property>
+          <property name="text">
+           <string>Copy Files</string>
           </property>
          </widget>
         </item>
@@ -711,17 +711,17 @@
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;How to use the program:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1- Go to the setting page and insert the corresponding parameters. Please note the following:&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;a) the session input is case sensitive and should match with the 'session' in the input csv lists&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;b) Click on '&lt;span style=&quot; font-weight:600;&quot;&gt;Grouping&lt;/span&gt;' on the main page to generate a .pkl file containing the seating details of all listed experiments and students in the given session. Repeat this process to generate separate .pkl files with unique names for each session id.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;c) Grouping process tries to create a uniform number of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;span style=&quot; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;span style=&quot; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;' to start hosting the selected experiment seating.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;span style=&quot; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;, where [X] is the group number.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;1- Go to the setting page and insert the corresponding parameters. Please note the following:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;a) the session input is case sensitive and should match with the 'session' in the input csv lists&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;b) Click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Grouping&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' on the main page to generate a .pkl file containing the seating details of all listed experiments and students in the given session. Repeat this process to generate separate .pkl files with unique names for each session id.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;c) Grouping process tries to create a uniform number of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' to start hosting the selected experiment seating.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;, where [X] is the group number.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </widget>
@@ -775,7 +775,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>754</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

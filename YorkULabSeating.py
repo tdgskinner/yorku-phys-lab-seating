@@ -135,8 +135,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
         self.spinBox_exp_id.valueChanged.connect(self.set_spin_value)
-        self.pushButton_start_webserver.clicked.connect(self.start_webserver_worker)
-        self.pushButton_stop_webserver.clicked.connect(self.stop_webserver_worker)
+        self.pushButton_copyfiles.clicked.connect(self.start_webserver_worker)
+        self.pushButton_restartPCs.clicked.connect(self.stop_webserver_worker)
 
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
@@ -241,20 +241,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def start_webserver_worker(self):
         self.thread[1] = WebServerThread(self.exp_id, self.hostname, self.portnumber, parent=None)
         self.thread[1].start()
-        self.pushButton_start_webserver.setEnabled(False)
+        self.pushButton_copyfiles.setEnabled(False)
         self.spinBox_exp_id.setEnabled(False)
         self.pushButton_grouping.setEnabled(False)
         self.pushButton_htmlgen.setEnabled(False)
-        self.pushButton_stop_webserver.setEnabled(True)
+        self.pushButton_restartPCs.setEnabled(True)
         self.isWebServerRunning = True
     
     def stop_webserver_worker(self):
         self.thread[1].stop()
-        self.pushButton_start_webserver.setEnabled(True)
+        self.pushButton_copyfiles.setEnabled(True)
         self.pushButton_grouping.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
-        self.pushButton_stop_webserver.setEnabled(False)
+        self.pushButton_restartPCs.setEnabled(False)
         self.isWebServerRunning = False
 
     def handleOutput(self, text, stdout):
