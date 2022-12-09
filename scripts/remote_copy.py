@@ -4,9 +4,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MyRemoteCopyFile:
-    def __init__(self, destPc='sc-l-ph-dev-gp1'):
-        self.dest_path =r'\\' + destPc+ r'\\seats'
-        self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
+    def __init__(self):
+        pass
     
     #------------------------------------------------------------
     def _force_copy(self, source, dest, type='f'):
@@ -28,9 +27,12 @@ class MyRemoteCopyFile:
                 shutil.copy(source, dest)
         
     #------------------------------------------------------------
-    def _server_dir_prep(self, exp_id):
+    def _server_dir_prep(self, exp_id, gpc):
         cwd = os.getcwd()
         logger.debug(f'cwd: {cwd}')
+
+        self.dest_path =r'\\' + gpc+ r'\\seats'
+        self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
 
         css_path = os.path.join(cwd, 'scripts', 'src', 'style.css')
         js_path = os.path.join(cwd, 'scripts', 'src', 'time.js')
@@ -53,18 +55,10 @@ class MyRemoteCopyFile:
             self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, f))
         
     #------------------------------------------------------------
-    def run_copyfile(self, exp_id):
-        try:
-            self._server_dir_prep(exp_id)
-            logger.info('Html files are copied in all group PCs successfully!')
-        except Exception as e:
-            logger.error(f'Unable to copy files to group Pcs: {e}')
-
-    #------------------------------------------------------------
-    def reboot_Pcs(self):
-        try:
-            targetPc = 'sc-l-ph-dev-gp1'
-            os.system(r'shutdown -m \\' + targetPc+ '.yorku.yorku.ca -r -f -t 0')
-            logger.info('Reboot command sent to all group PCs successfully!')
-        except:
-            logger.error('Unable to send reboot command to group PCs')
+    def run_copyfile(self, exp_id, gpc_list):
+        for gpc in gpc_list:
+            try:
+                self._server_dir_prep(exp_id, gpc)
+                logger.debug(f'Html files are copied in {gpc} successfully!')
+            except Exception as e:
+                logger.error(f'Unable to copy files to group PC {gpc}: {e}')
