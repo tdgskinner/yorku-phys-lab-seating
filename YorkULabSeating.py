@@ -2,10 +2,14 @@ import sys , os
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QSettings
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog
+from PyQt6.QtGui import QIcon
 
 import logging
 import scripts.SeatingManager as seating
-from scripts.webserver import MyWebServer
+import scripts.GPcManager as gpc
+
+from scripts.remote_copy import MyRemoteCopyFile
 
 
 class OutputWrapper(QtCore.QObject):
@@ -45,16 +49,15 @@ class MainWindow(QtWidgets.QMainWindow):
             'semester':'Fall',
             'code':'2213',
             'coursename':'PHYS',
-            'session':'LAB 02',
-            'ta_name':'Mohammad Kareem',
-            'hostname':'127.0.0.1',
-            'portnumber':'5000',
-            'data_dir':'data',
-            'exp_csv_path':'exp_autogen_list.csv',
-            'stud_csv_path':'student_autogen_list.csv',
+            'session_id':'',
+            'session_list': [],
+            'gpc_list': [],
+            'ta_name':'Best TA',
             'exp_id':1,
             'n_group':6,
             'n_benches':4,
+            'pkl_name':'dummy.pkl',
+            'pkl_path': 'dummy_pkl_path.pkl'
         }
         self.getSettingValues()
         
@@ -70,66 +73,92 @@ class MainWindow(QtWidgets.QMainWindow):
         self.semester   = self.setting_Course.value('semester')
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
-        self.coursename = self.setting_Course.value('coursename')
-        self.session    = self.setting_Course.value('session')
-        self.TA_name    = self.setting_Course.value('ta_name')
-        self.hostname   = self.setting_Network.value('hostname')
-        self.portnumber = self.setting_Network.value('portnumber')
-        self.data_dir   = self.setting_Course.value('data_dir')
+        self.session_id = self.setting_Course.value('session_id')
+        self.session_list = self.setting_Course.value('session_list')
         self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
         self.stud_csv_path = self.setting_Course.value('stud_csv_path')
+        self.time_csv_path = self.setting_Course.value('time_csv_path')
+        self.gpc_txt_path = self.setting_Course.value('gpc_txt_path')
+        self.gpc_list = self.setting_Course.value('gpc_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.n_group    = self.setting_Course.value('n_group')
-        self.n_benches  = self.setting_Course.value('n_benches')       
+        self.n_benches  = self.setting_Course.value('n_benches')
+        self.pkl_file_name = self.setting_Course.value('pkl_name')
+        self.pkl_path = self.setting_Course.value('pkl_path')     
 
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
         if not self.year: self.year = self.default_settings['year']
         if not self.code: self.code = self.default_settings['code']
-        if not self.coursename: self.coursename = self.default_settings['coursename']
-        if not self.session: self.session = self.default_settings['session']
-        if not self.TA_name: self.TA_name = self.default_settings['ta_name']
-        if not self.hostname: self.hostname = self.default_settings['hostname']
-        if not self.portnumber: self.portnumber = self.default_settings['portnumber']
-        if not self.data_dir: self.data_dir = self.default_settings['data_dir']
-        if not self.exp_csv_path: self.exp_csv_path = self.default_settings['exp_csv_path']
-        if not self.stud_csv_path: self.stud_csv_path = self.default_settings['stud_csv_path']
+        if not self.session_id: self.session_id = self.default_settings['session_id']
+        if not self.session_list: self.session_list = self.default_settings['session_list']
+        if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
         if not self.n_group: self.n_group = self.default_settings['n_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
+        if not self.pkl_file_name: self.pkl_file_name = self.default_settings['pkl_name']
+        if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
         
-        self.lineEdit_ta.setText(self.TA_name)
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
-        self.lineEdit_code.setText(self.code) 
-        self.lineEdit_coursename.setText(self.coursename) 
-        self.lineEdit_session.setText(self.session)
+        self.lineEdit_code.setText(self.code)
+        if self.session_list:
+            self.comboBox_session.addItems(self.session_list.keys())
+            self.comboBox_session.setCurrentIndex(-1)
+            
         self.lineEdit_ngroups.setText(str(self.n_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
-        self.lineEdit_host.setText(self.hostname)
-        self.lineEdit_port.setText(self.portnumber)
-        self.lineEdit_data_dir.setText(self.data_dir)
         self.spinBox_exp_id.setValue(self.exp_id)
         self.lineEdit_exp_csv.setText(self.exp_csv_path)
         self.lineEdit_stud_csv.setText(self.stud_csv_path)
-        
-        self.exp_csv_path = os.path.join('scripts', self.data_dir, self.exp_csv_path )
-        self.stud_csv_path = os.path.join('scripts', self.data_dir, self.stud_csv_path )
+        self.lineEdit_time_csv.setText(self.time_csv_path)
+        self.lineEdit_gpc_txt.setText(self.gpc_txt_path)
 
-        self.lineEdit_pkl.setEnabled(False)
-        self.pkl_file_name   = self.set_pklfile_name()
 
         self.thread={}
-        self.isWebServerRunning = False
+        self.isCopyFileRunning = False
 
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
-        self.spinBox_exp_id.valueChanged.connect(self.set_spin_value)
-        self.pushButton_start_webserver.clicked.connect(self.start_webserver_worker)
-        self.pushButton_stop_webserver.clicked.connect(self.stop_webserver_worker)
+        self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
+        self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
+        self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
+        self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
+        self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
+        self.pushButton_time_brows.clicked.connect(lambda: self.browsefiles('time'))
+        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefiles('gpc'))
     
+    def browsefiles(self, category):
+        fname=QFileDialog.getOpenFileName(self, 'Open file', os.path.join('scripts','data'),'Image Files (*.csv *.txt)')
+        if category == 'time':
+            self.lineEdit_time_csv.setText(fname[0])
+            self.time_csv_path = fname[0]
+            if fname[0]:
+                self.extract_sessions(self.time_csv_path)
+        elif category == 'exp':
+            self.lineEdit_exp_csv.setText(fname[0])
+            self.exp_csv_path = fname[0]
+        elif category == 'stud':
+            self.lineEdit_stud_csv.setText(fname[0])
+            self.stud_csv_path = fname[0]
+        elif category == 'gpc':
+            self.lineEdit_gpc_txt.setText(fname[0])
+            self.gpc_txt_path = fname[0]
+            logging.debug(f'--gpc_txt_path:{self.gpc_txt_path}')
+            if fname[0]:
+                self.gpc_list =gpc.extract_gpc_list(self.gpc_txt_path)
+    
+    def extract_sessions(self, time_csv_path):
+        self.session_list = seating.get_session_list(time_csv_path)
+        logging.debug(f'sessions in this course:{self.session_list.keys()}')
+        self.comboBox_session.clear()
+        if self.session_list:
+            self.comboBox_session.addItems(self.session_list.keys())
+            self.comboBox_session.setCurrentIndex(-1)
+
+
     def getSettingValues(self):
         '''
         # Load the last user setting from previous session
@@ -144,18 +173,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.lineEdit_year.text() 
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
-        self.coursename = self.lineEdit_coursename.text() 
-        self.session    = self.lineEdit_session.text()
-        self.TA_name    = self.lineEdit_ta.text() 
+        
+        self.session   = self.comboBox_session.currentText()
+        if self.session:
+            self.session_id = self.session_list[self.session][0]
+        
         self.n_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
-        
-        self.hostname   = self.lineEdit_host.text()
-        self.portnumber = self.lineEdit_port.text()
-        
-        self.data_dir   = self.lineEdit_data_dir.text()
-        self.exp_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_exp_csv.text() )
-        self.stud_csv_path = os.path.join('scripts', self.data_dir, self.lineEdit_stud_csv.text() )
 
         self.pkl_file_name   = self.set_pklfile_name()
         
@@ -168,16 +192,35 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.exec()
     
     def set_pklfile_name(self):
-        pklfile_name_list = ['SeatingDB', self.semester, self.year, self.code, self.session.replace(" ", "")]
+        pklfile_name_list = ['SeatingDB', self.semester, self.year, self.code, self.session_id.replace(" ", "")]
         pklfile_name = '_'.join(pklfile_name_list)+'.pkl'
-        self.lineEdit_pkl.setText(pklfile_name)    
+        logging.debug(f'pklfile_name:{pklfile_name}')
         return pklfile_name
 
-    def set_spin_value(self):
+    def set_exp_id(self):
         self.exp_id = self.spinBox_exp_id.value()
 
     def generate_groups(self):
-        n_stud = seating.get_number_of_students(self.stud_csv_path, self.session)
+        if not self.session_id:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText(f"Please select a session from the settings tab and save, before generating groups.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return 
+        else:
+            logging.debug(f'selected session_id:{self.session_id}.')
+            if not self.stud_csv_path:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText(f"Please select a student list from the settings tab and save, before generating groups.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            else: 
+                n_stud = seating.get_number_of_students(self.stud_csv_path, self.session_id)
+                logging.info(f'there are {n_stud} students enroled in this session.')
+        
         if n_stud > self.n_benches * self.n_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -185,44 +228,76 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         else:
-            gen_status = seating.make_groups(self.exp_csv_path, self.stud_csv_path, self.session, self.n_group, self.n_benches, self.pkl_file_name )
-            if gen_status == False:
+            if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("Experiment list and/or Student list are(is) empty. Check if 'Session' matches with 'session_id' in both input csv files.")
+                dlg.setText(f"Please select experiments list from the settings tab and save, before generating groups.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
-
+                return
+            else:
+                self.pkl_path = seating.make_groups(self.exp_csv_path, self.stud_csv_path, self.time_csv_path, self.session_id, self.n_group, self.n_benches, self.pkl_file_name )
+                if not self.pkl_path:
+                    dlg = QtWidgets.QMessageBox(self)
+                    dlg.setWindowTitle("Error")
+                    dlg.setText("Experiment list and/or Student list are(is) empty. If not, check the csv headers.")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+            
     def check_pkl(self):
-        pkl_path = os.path.join('scripts', 'src', 'pkl', self.pkl_file_name)
-
-        if os.path.exists(pkl_path):
-            seating.html_generator(self.pkl_file_name, self.coursename, self.code, self.TA_name)
+        if os.path.exists(self.pkl_path):
+            seating.html_generator(self.pkl_path, self.code)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"{self.lineEdit_pkl.text()} does not exit. Run Grouping first to generate it.")
+            dlg.setText(f"pkl file does not exit. Run Grouping first to generate it.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
 
-    def start_webserver_worker(self):
-        self.thread[1] = WebServerThread(self.exp_id, self.hostname, self.portnumber, parent=None)
-        self.thread[1].start()
-        self.pushButton_start_webserver.setEnabled(False)
-        self.spinBox_exp_id.setEnabled(False)
-        self.pushButton_grouping.setEnabled(False)
-        self.pushButton_htmlgen.setEnabled(False)
-        self.pushButton_stop_webserver.setEnabled(True)
-        self.isWebServerRunning = True
+    def start_copyfiles_worker(self):
+        if self.gpc_list:
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, parent=None)
+            self.thread[1].finished.connect(self.on_copyFinished)
+            self.thread[1].start()
+            self.pushButton_copyfiles.setEnabled(False)
+            self.spinBox_exp_id.setEnabled(False)
+            self.pushButton_grouping.setEnabled(False)
+            self.pushButton_htmlgen.setEnabled(False)
+            self.pushButton_rebootPCs.setEnabled(False)
+            self.isCopyFileRunning = True
+        else:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
     
-    def stop_webserver_worker(self):
-        self.thread[1].stop()
-        self.pushButton_start_webserver.setEnabled(True)
+    def on_copyFinished(self):
+        self.pushButton_copyfiles.setEnabled(True)
+        self.spinBox_exp_id.setEnabled(True)
         self.pushButton_grouping.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
-        self.spinBox_exp_id.setEnabled(True)
-        self.pushButton_stop_webserver.setEnabled(False)
-        self.isWebServerRunning = False
+        self.pushButton_rebootPCs.setEnabled(True)
+        self.isCopyFileRunning = False
+    
+    def Reboot_Pcs(self):
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Warning")
+        dlg.setText("Are you sure you want to Reboot all Group Computers?")
+        dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
+        button = dlg.exec()
+        if button == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self.gpc_list:
+                gpc.reboot_Pcs(self.gpc_list)
+            else:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return 
 
     def handleOutput(self, text, stdout):
         color = self.statusbox.textColor()
@@ -234,70 +309,63 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Warning")
-        if self.isWebServerRunning:
-            dlg.setText("The Webserver is running. Are sure you want to close the program? This will terminate the webserver.")
-        else:
-            dlg.setText("Are sure you want to close the program?")
+        dlg.setText("Are you sure you want to close the program?")
         dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
         button = dlg.exec()
 
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             #--- store the current setting in the system before closing the app
-            self.setting_Course.setValue('ta_name', self.lineEdit_ta.text())
             self.setting_Course.setValue('year', self.lineEdit_year.text() )
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
-            self.setting_Course.setValue('coursename', self.lineEdit_coursename.text() )
-            self.setting_Course.setValue('session', self.lineEdit_session.text())
-            self.setting_Network.setValue('hostname', self.lineEdit_host.text())
-            self.setting_Network.setValue('portnumber', self.lineEdit_port.text())
-            self.setting_Course.setValue('data_dir', self.lineEdit_data_dir.text())
+            self.setting_Course.setValue('session_list', self.session_list)
             self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
             self.setting_Course.setValue('stud_csv_path', self.lineEdit_stud_csv.text())
+            self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
+            self.setting_Course.setValue('gpc_txt_path', self.lineEdit_gpc_txt.text())
+            self.setting_Course.setValue('gpc_list', self.gpc_list)
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
             self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
+            self.setting_Course.setValue('pkl_path', self.pkl_path)
             try:
-                if self.isWebServerRunning:
-                    self.stop_webserver_worker()
                 event.accept()
                 logging.debug('The application exited properly.')
             except Exception as e:
                 logging.error(f'The application exited improperly: {e}')
-
+            
         else:
             event.ignore()
 #--------------------------------------------------------------------------------
-class WebServerThread(QtCore.QThread):
-    def __init__(self, exp_id, host, port, parent=None ):
-        super(WebServerThread, self).__init__(parent)
+
+class CopyFileThread(QtCore.QThread):
+    def __init__(self, exp_id, gpc_list, parent=None ):
+        super(CopyFileThread, self).__init__(parent)
         self.exp_id=exp_id
-        self.host = host
-        self.port = port
+        self.gpc_list = gpc_list
         self.is_running = True
+        self.copy_service = MyRemoteCopyFile()
         
     def run(self):
-        logging.info(f'Starting webserver for exp {self.exp_id}')
-
-        self.myserver = MyWebServer(self.exp_id, self.host, self.port)
-        self.myserver.run_webserver()
+        logging.info(f' Starting to copy html files for Exp {self.exp_id}')    
+        self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
+        logging.info(f' Copy to Group PCs finished')
 
     def stop(self):
         self.is_running = False
-        logging.info('Stopping webserver...')
-        
-        self.myserver.stop_webserver()
         self.terminate()
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
+    #logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)
+    app_icon = QIcon("YorkU_icon.jpg")
+    app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.show()
 
     print('Welcome to YorkU PHYS Lab Seating Monitor')
-
     sys.exit(app.exec())

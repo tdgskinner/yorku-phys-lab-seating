@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
-    <height>431</height>
+    <width>754</width>
+    <height>526</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>YorkU PHYS Lab Seating</string>
@@ -23,7 +29,7 @@
       <x>20</x>
       <y>10</y>
       <width>721</width>
-      <height>391</height>
+      <height>471</height>
      </rect>
     </property>
     <property name="font">
@@ -35,7 +41,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="usesScrollButtons">
      <bool>true</bool>
@@ -59,7 +65,7 @@
         <x>0</x>
         <y>10</y>
         <width>721</width>
-        <height>111</height>
+        <height>191</height>
        </rect>
       </property>
       <property name="font">
@@ -73,57 +79,24 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="gridLayoutWidget_3">
+      <widget class="QWidget" name="gridLayoutWidget_2">
        <property name="geometry">
         <rect>
-         <x>9</x>
-         <y>10</y>
-         <width>701</width>
-         <height>102</height>
+         <x>0</x>
+         <y>0</y>
+         <width>491</width>
+         <height>191</height>
         </rect>
        </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-        </font>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_4" columnstretch="10,10,20,20" columnminimumwidth="0,0,0,0">
-        <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_start_webserver">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(66, 255, 75);</string>
-          </property>
-          <property name="text">
-           <string>START webserver</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="pushButton_htmlgen">
-          <property name="font">
-           <font>
-            <family>Arial</family>
-           </font>
-          </property>
-          <property name="text">
-           <string>Generate html</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="2">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="2" column="0">
          <widget class="QPushButton" name="pushButton_grouping">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Arial</family>
@@ -134,8 +107,32 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_8">
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_htmlgen">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="text">
+           <string>Generate html</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_10">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="font">
            <font>
             <family>Arial Hebrew</family>
@@ -145,29 +142,38 @@
            </font>
           </property>
           <property name="text">
-           <string>Seating operations</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Experiment Number</string>
+           <string>Seating Generator</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="spinBox_exp_id">
-          <property name="minimum">
-           <number>1</number>
+        <item row="3" column="2">
+         <widget class="QPushButton" name="pushButton_rebootPCs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="value">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QPushButton" name="pushButton_stop_webserver">
           <property name="font">
            <font>
             <family>Arial</family>
@@ -177,7 +183,67 @@
            <string notr="true">background-color: rgb(252, 53, 48);</string>
           </property>
           <property name="text">
-           <string>STOP webserver</string>
+           <string>Reboot All Group PCs</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="spinBox_exp_id">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Exp. Number</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pushButton_copyfiles">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(66, 255, 75);</string>
+          </property>
+          <property name="text">
+           <string>Copy Files</string>
           </property>
          </widget>
         </item>
@@ -188,7 +254,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>130</y>
+        <y>210</y>
         <width>721</width>
         <height>231</height>
        </rect>
@@ -207,10 +273,10 @@
       <widget class="QWidget" name="verticalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>5</y>
-         <width>701</width>
-         <height>211</height>
+         <x>0</x>
+         <y>0</y>
+         <width>721</width>
+         <height>231</height>
         </rect>
        </property>
        <property name="font">
@@ -249,33 +315,20 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_5">
+     <widget class="QLabel" name="label_11">
       <property name="geometry">
        <rect>
-        <x>427</x>
-        <y>27</y>
-        <width>221</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>../../../Desktop/yorku-logo.png</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_10">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>30</y>
-        <width>211</width>
+        <x>520</x>
+        <y>20</y>
+        <width>181</width>
         <height>41</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <property name="text">
        <string/>
@@ -296,9 +349,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>20</y>
-        <width>331</width>
-        <height>321</height>
+        <y>10</y>
+        <width>721</width>
+        <height>341</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -307,54 +360,65 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="gridLayoutWidget_3">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>10</y>
-         <width>321</width>
-         <height>311</height>
+         <x>9</x>
+         <y>9</y>
+         <width>701</width>
+         <height>321</height>
         </rect>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="10" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_save_settings">
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(253, 128, 8);</string>
-          </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="3" column="2">
+         <widget class="QPushButton" name="pushButton_time_brows">
           <property name="text">
-           <string>Save</string>
+           <string>Brows</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_exp_csv">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_38">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Input lists</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
+         <widget class="QLineEdit" name="lineEdit_nbenches">
+          <property name="text">
+           <string>4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
          <widget class="QLineEdit" name="lineEdit_ngroups">
           <property name="text">
            <string>6</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_35">
-          <property name="text">
-           <string>Max # of groups</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_33">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>TA Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
+        <item row="1" column="4">
          <widget class="QLineEdit" name="lineEdit_year">
           <property name="font">
            <font>
@@ -367,8 +431,8 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_31">
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_33">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -376,18 +440,11 @@
            </font>
           </property>
           <property name="text">
-           <string>Course Name</string>
+           <string>Year</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_session">
-          <property name="text">
-           <string>LAB 02</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
+        <item row="3" column="4">
          <widget class="QLineEdit" name="lineEdit_code">
           <property name="font">
            <font>
@@ -400,35 +457,15 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_ta">
-          <property name="text">
-           <string>Mohammad Kareem</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_coursename">
-          <property name="text">
-           <string>PHYS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_32">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Session</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_29">
+         <widget class="QLabel" name="label_44">
+          <property name="text">
+           <string>Time table</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_41">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -436,12 +473,12 @@
            </font>
           </property>
           <property name="text">
-           <string>Code</string>
+           <string>Exp. table</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_27">
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_32">
           <property name="font">
            <font>
             <pointsize>18</pointsize>
@@ -450,11 +487,32 @@
            </font>
           </property>
           <property name="text">
-           <string>Course Info</string>
+           <string>Course Details</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pushButton_stud_brows">
+          <property name="text">
+           <string>Brows</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="label_36">
+          <property name="text">
+           <string>Semester</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="pushButton_exp_brows">
+          <property name="text">
+           <string>Brows</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
          <widget class="QComboBox" name="comboBox_semester">
           <item>
            <property name="text">
@@ -473,15 +531,15 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_34">
+        <item row="5" column="3">
+         <widget class="QLabel" name="label_45">
           <property name="text">
-           <string>Semester</string>
+           <string>Max # of groups</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_28">
+        <item row="3" column="3">
+         <widget class="QLabel" name="label_46">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -489,155 +547,19 @@
            </font>
           </property>
           <property name="text">
-           <string>Year</string>
+           <string>Course Code</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_11">
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_time_csv">
           <property name="text">
-           <string>Max # of benches</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QLineEdit" name="lineEdit_nbenches">
-          <property name="text">
-           <string>4</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QFrame" name="frame_3">
-      <property name="geometry">
-       <rect>
-        <x>340</x>
-        <y>20</y>
-        <width>381</width>
-        <height>321</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>361</width>
-         <height>291</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_39">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Experiment list</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_38">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Input directory</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_30">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Network</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_42">
-          <property name="text">
-           <string>File name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_37">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Input files (.csv)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_41">
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Database (.pkl)</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Host</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_40">
+         <widget class="QLabel" name="label_43">
           <property name="font">
            <font>
             <weight>50</weight>
@@ -649,62 +571,71 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_host">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>127.0.0.1</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_port">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+         <widget class="QLineEdit" name="lineEdit_stud_csv">
           <property name="text">
-           <string>5000</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_data_dir">
+        <item row="6" column="3">
+         <widget class="QLabel" name="label_14">
           <property name="text">
-           <string>data</string>
+           <string>Max # of benches</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Session</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="QComboBox" name="comboBox_session">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="3" colspan="2">
+         <widget class="QPushButton" name="pushButton_save_settings">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(253, 128, 8);</string>
+          </property>
+          <property name="text">
+           <string>Save</string>
           </property>
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QLineEdit" name="lineEdit_exp_csv">
+         <widget class="QLineEdit" name="lineEdit_gpc_txt">
           <property name="text">
-           <string>exp_autogen_list.csv</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="lineEdit_stud_csv">
+        <item row="5" column="2">
+         <widget class="QPushButton" name="pushButton_gpc_brows">
           <property name="text">
-           <string>student_autogen_list.csv</string>
+           <string>Brows</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="lineEdit_pkl">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_47">
           <property name="text">
-           <string>seatingDB_</string>
+           <string>Group PC list</string>
           </property>
          </widget>
         </item>
@@ -722,24 +653,24 @@
         <x>0</x>
         <y>0</y>
         <width>721</width>
-        <height>351</height>
+        <height>431</height>
        </rect>
       </property>
       <property name="html">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;How to use the program:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1- Go to the setting page and insert the corresponding parameters. Please note the following:&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;a) the session input is case sensitive and should match with the 'session' in the input csv lists&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;b) Click on '&lt;span style=&quot; font-weight:600;&quot;&gt;Grouping&lt;/span&gt;' on the main page to generate a .pkl file containing the seating details of all listed experiments and students in the given session. Repeat this process to generate separate .pkl files with unique names for each session id.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;c) Grouping process tries to create a uniform number of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;span style=&quot; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;span style=&quot; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;' to start hosting the selected experiment seating.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;span style=&quot; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;, where [X] is the group number.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;1- Go to the setting page and insert the corresponding parameters. Please note the following:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;a) the session input is case sensitive and should match with the 'session' in the input csv lists&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;b) Click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Grouping&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' on the main page to generate a .pkl file containing the seating details of all listed experiments and students in the given session. Repeat this process to generate separate .pkl files with unique names for each session id.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;c) Grouping process tries to create a uniform number of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' to start hosting the selected experiment seating.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;, where [X] is the group number.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </widget>
@@ -762,7 +693,7 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.0, October 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.1, Dec 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_9">
@@ -792,13 +723,15 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>755</width>
-     <height>24</height>
+     <width>754</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="YorkU_logo_S.qrc"/>
+ </resources>
  <connections/>
 </ui>

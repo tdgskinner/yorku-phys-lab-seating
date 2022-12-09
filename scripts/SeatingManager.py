@@ -4,8 +4,10 @@ import pandas
 import numpy as np
 import pickle
 import logging
-import configparser as conf
+#import configparser as conf
 import sys, os, shutil
+
+logger = logging.getLogger(__name__)
 
 #------------------------------------------------------------    
 def _rand_group_maker(df, n_group, rand_grp = True):
@@ -25,9 +27,9 @@ def _load_student_groups(pkl_file, print_result= False):
         with open(pkl_file, 'rb') as pickle_file:
 
             exp_dict = pickle.load(pickle_file)
-            logging.info(f'file {pkl_file} is loaded successfully!')
+            logger.debug(f'file {pkl_file} is loaded successfully!')
     except:
-        logging.error(f'Failed to load {pkl_file}', exc_info = True)
+        logger.error(f'Failed to load {pkl_file}', exc_info = True)
     
     if print_result:
         _print_exp_dict(exp_dict)
@@ -47,52 +49,73 @@ def _print_exp_dict(dict):
         print('===============================')
         
 #------------------------------------------------------------
-def get_number_of_students(stud_csv_path, session, src_dir = None):
-    if not src_dir:
-        src_dir = os.path.join('scripts','src')
+def get_number_of_students(stud_csv_path, session):
+    stud_df= pandas.read_csv(stud_csv_path)
 
-    stud_df= pandas.read_csv(stud_csv_path)   
-    
     # filter the list based on the given session_id
-    stud_df = stud_df.loc[stud_df['session_id']==session]
-    stud_list = list(stud_df['student_id'])
+    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
+    
+    return len(stud_df)
 
-    return len(stud_list)
+#-----------------------------------------------------------
+def day_map(day_abr):
+    days_dicts = {
+            'M':'Monday',
+            'T':'Tuesday',
+            'W':'Wednesday',
+            'R':'Thursday',
+            'F':'Friday',
+            }
+    return days_dicts[day_abr]
+
+def get_session_list(time_csv_path):
+    sessions = {}
+    
+    time_df= pandas.read_csv(time_csv_path)
+    Type_list = list(time_df['Type'].str.strip())
+    Day_list = list(time_df['Day'].str.strip())
+    time_list = list(time_df['Start Time'].str.strip())
+    ta_list = list(time_df['Instructor'].str.strip())
+    session_list = list(zip(Type_list, Day_list, time_list, ta_list))
+
+    for session in session_list:
+        sessions[f'{day_map(session[1])}, {session[2]}'] = (session[0],session[3])
+    
+    return sessions
+
 #------------------------------------------------------------        
-def make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_output, src_dir = None):
-    if not src_dir:
-        src_dir = os.path.join('scripts','src')
+def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group, n_benches, pkl_file_name):
     exp_df= pandas.read_csv(exp_csv_path)
     stud_df= pandas.read_csv(stud_csv_path)   
+    time_df= pandas.read_csv(time_csv_path)
     
     # filter the lists based on the given session_id
-    exp_df = exp_df.loc[exp_df['session_id']==session]
-    stud_df = stud_df.loc[stud_df['session_id']==session]
+    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session_id]
 
     exp_list = list(exp_df['exp_id'])
     stud_list = list(stud_df['student_id'])
-    
+    time_list = list(time_df['Type'])
+
     exp_dict = DefaultDict() # exp dict: key = exp_id , value = tuple of (exp meta data) and (student_groups)
     
     # fill the database dictionary
-    if exp_list and stud_list:
+    if exp_list and stud_list and time_list:
         for exp in exp_list:
             students_splits = _rand_group_maker(stud_df, n_group)
-            exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp] , students_splits )
+            exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp], time_df.loc[time_df['Type'].str.strip()==session_id] , students_splits)
     else:
-        logging.error('exp_list or stud_list is empty')
-        return False
+        logger.error('exp_list, time_list, or stud_list is empty')
+        return None
         
-    
+    #pkl_dir = os.path.dirname(stud_csv_path)
+    src_dir = os.path.join('scripts','src')
     pkl_dir = os.path.join(src_dir, 'pkl')
-    pkl_path = os.path.join(pkl_dir, pkl_output)
-
-    logging.debug(f'pkl_dir: {pkl_dir}')
-    logging.debug(f'pkl_path: {pkl_path}')
-    
-    # create src/pkl directory if not exist
     if not os.path.exists(pkl_dir):
         os.makedirs(pkl_dir)
+
+    pkl_path = os.path.join(pkl_dir, pkl_file_name)
+
+    logger.debug(f'pkl_path: {pkl_path}')
 
     # create a binary pickle file to store experiments dictionary
     pkl_f = open(pkl_path,"wb")
@@ -100,27 +123,26 @@ def make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_ou
     # write the python object (dict) to pickle file
     try:
         pickle.dump(exp_dict, pkl_f)
-        logging.info(f'file {pkl_path} is written to disk successfully')
+        logger.info(f' File {pkl_path} is written to disk successfully!')
         
         # close file
         pkl_f.close()
-        return True
+        return pkl_path
     except:
-        logging.error(f'Failed to write {pkl_path} to disk', exc_info = True)
-        return False
+        logger.error(f' Failed to write {pkl_path} to disk', exc_info = True)
+        return None
+      
     
 #------------------------------------------------------------
-def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
-    if not src_dir:
-        src_dir = os.path.join('scripts','src')
-
-    pkl_path = os.path.join(src_dir, 'pkl', pkl_input)
+def html_generator(pkl_path, code):
+    
+    src_dir = os.path.join('scripts','src')
     html_dir = os.path.join(src_dir, 'html')
     img_dir = os.path.join(src_dir, 'img')
 
-    logging.debug(f'pkl_path: {pkl_path}')
-    logging.debug(f'html_dir: {html_dir}')
-    logging.debug(f'img_dir: {img_dir}')
+    logger.debug(f'pkl_path: {pkl_path}')
+    logger.debug(f'html_dir: {html_dir}')
+    logger.debug(f'img_dir: {img_dir}')
 
     #creating a fresh html directory
     if os.path.exists(html_dir):
@@ -130,16 +152,17 @@ def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
     dict = _load_student_groups(pkl_path, print_result=False)
     
     n_exp = len(dict)
-    logging.debug(f'n_exp: {n_exp}')
-    n_group = len(dict[1][1])
-    logging.debug(f'n_group: {n_group}')
+    logger.debug(f'n_exp: {n_exp}')
+    n_group = len(dict[1][2])
+    logger.debug(f'n_group: {n_group}')
  
     for e in range (1, n_exp+1, 1):
         output_dir = os.path.join(html_dir, f'exp{e}')
         df_exp_metadata = dict[e][0]
+        df_time_metadata = dict[e][1]
         
         for g in range(n_group):
-            df = dict[e][1][g].reset_index(drop=True)
+            df = dict[e][2][g].reset_index(drop=True)
             df.index += 1
             
             #creating output directory if not exist
@@ -182,9 +205,7 @@ def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
                                 <div class="column", style="width:40%">
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>Group 1</b></a></h2>
-                                        <h3>{df_exp_metadata['day'].iloc[0]}, {df_exp_metadata['date'].iloc[0]}</h3>
-                                        <h3>Session: {df_exp_metadata['time'].iloc[0]}</h3>
-                                        <h3>TA: {TA_name}</h3>
+                                        <h3>Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</h3>
                                         
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
@@ -206,29 +227,36 @@ def html_generator(pkl_input, coursename, code, TA_name, src_dir = None):
                             </body>
                             </html>
                             '''
-                html_seating_file.write(seating_contents)
+                try:
+                    html_seating_file.write(seating_contents)
+                except:
+                    logger.error(f' Failed to write html files to disk', exc_info = True)
+                    return None
+    logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
+    return html_dir
     
-    logging.info(f'seating html files are generated and saved in: {html_dir}/exp<#>')
+    
                 
 #===========================================================================
+'''
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getlogger().setLevel(logger.DEBUG)
     config = conf.ConfigParser()
     configfile = 'config.conf'
     if os.path.isfile(configfile):
             config.read(configfile)
     else:
-        logging.error(f'Config file {configfile} does not exist.\n Process terminated.')
+        logger.error(f'Config file {configfile} does not exist.\n Process terminated.')
     
     
     arg = sys.argv
 
     if (len(arg) !=2):
-        logging.error('Missing argument: use either grouping: make randomized grouping of the students for each experiment, or htmlgen: to generate html files')
+        logger.error('Missing argument: use either grouping: make randomized grouping of the students for each experiment, or htmlgen: to generate html files')
         exit()
 
     if arg[1].lower() != 'grouping' and arg[1].lower() != 'htmlgen':
-        logging.error('accepted arguments: <grouping> OR <htmlgen>')
+        logger.error('accepted arguments: <grouping> OR <htmlgen>')
         exit()
     
     # parsing the config parameters
@@ -250,3 +278,5 @@ if __name__ == "__main__":
     
     elif arg[1].lower() == 'htmlgen':
         html_generator(pkl_file, coursename, code, TA_name, src_dir = 'src')
+    
+    '''
