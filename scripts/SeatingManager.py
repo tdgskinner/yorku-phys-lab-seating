@@ -123,13 +123,13 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
     # write the python object (dict) to pickle file
     try:
         pickle.dump(exp_dict, pkl_f)
-        logger.info(f'file {pkl_path} is written to disk successfully')
+        logger.info(f' File {pkl_path} is written to disk successfully!')
         
         # close file
         pkl_f.close()
         return pkl_path
     except:
-        logger.error(f'Failed to write {pkl_path} to disk', exc_info = True)
+        logger.error(f' Failed to write {pkl_path} to disk', exc_info = True)
         return None
       
     
@@ -230,8 +230,9 @@ def html_generator(pkl_path, code):
                 try:
                     html_seating_file.write(seating_contents)
                 except:
-                    logger.error(f'Failed to write html files to disk', exc_info = True)
+                    logger.error(f' Failed to write html files to disk', exc_info = True)
                     return None
+    logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
     
     

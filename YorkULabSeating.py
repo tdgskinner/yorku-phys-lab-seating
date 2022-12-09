@@ -3,12 +3,12 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QSettings
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog
+from PyQt6.QtGui import QIcon
 
 import logging
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 
-#from scripts.webserver import MyWebServer
 from scripts.remote_copy import MyRemoteCopyFile
 
 
@@ -53,7 +53,6 @@ class MainWindow(QtWidgets.QMainWindow):
             'session_list': [],
             'gpc_list': [],
             'ta_name':'Best TA',
-            #'data_dir':'data',
             'exp_id':1,
             'n_group':6,
             'n_benches':4,
@@ -118,7 +117,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.thread={}
         self.isCopyFileRunning = False
-        self.copy_service = MyRemoteCopyFile()
 
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
@@ -127,7 +125,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
-
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
         self.pushButton_time_brows.clicked.connect(lambda: self.browsefiles('time'))
@@ -178,7 +175,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.lineEdit_code.text() 
         
         self.session   = self.comboBox_session.currentText()
-        self.session_id = self.session_list[self.session][0]
+        if self.session:
+            self.session_id = self.session_list[self.session][0]
         
         self.n_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
@@ -248,13 +246,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
     def check_pkl(self):
         if os.path.exists(self.pkl_path):
-            html_dir = seating.html_generator(self.pkl_path, self.code)
-            if html_dir:
-                dlg = QtWidgets.QMessageBox(self)
-                dlg.setWindowTitle("Info")
-                dlg.setText(f'Seating html files are generated and written to {html_dir}')
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+            seating.html_generator(self.pkl_path, self.code)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -264,9 +256,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list:
-                logging.info(f'Copy in progress, please wait...')
-                self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
-                logging.info(f'Copy to Group PCs finished')
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, parent=None)
+            self.thread[1].finished.connect(self.on_copyFinished)
+            self.thread[1].start()
+            self.pushButton_copyfiles.setEnabled(False)
+            self.spinBox_exp_id.setEnabled(False)
+            self.pushButton_grouping.setEnabled(False)
+            self.pushButton_htmlgen.setEnabled(False)
+            self.pushButton_rebootPCs.setEnabled(False)
+            self.isCopyFileRunning = True
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -274,17 +272,14 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
-        
-        '''
-        self.thread[1] = CopyFileThread(self.exp_id, parent=None)
-        self.thread[1].start()
-        self.pushButton_copyfiles.setEnabled(False)
-        self.spinBox_exp_id.setEnabled(False)
-        self.pushButton_grouping.setEnabled(False)
-        self.pushButton_htmlgen.setEnabled(False)
-        self.pushButton_rebootPCs.setEnabled(False)
-        self.isCopyFileRunning = True
-        '''
+    
+    def on_copyFinished(self):
+        self.pushButton_copyfiles.setEnabled(True)
+        self.spinBox_exp_id.setEnabled(True)
+        self.pushButton_grouping.setEnabled(True)
+        self.pushButton_htmlgen.setEnabled(True)
+        self.pushButton_rebootPCs.setEnabled(True)
+        self.isCopyFileRunning = False
     
     def Reboot_Pcs(self):
         dlg = QtWidgets.QMessageBox(self)
@@ -303,15 +298,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return 
-        
-        '''
-        self.thread[1].stop()
-        self.pushButton_copyfiles.setEnabled(True)
-        self.pushButton_grouping.setEnabled(True)
-        self.pushButton_htmlgen.setEnabled(True)
-        self.spinBox_exp_id.setEnabled(True)
-        self.pushButton_rebootPCs.setEnabled(True)
-        self.isCopyFileRunning = False'''
 
     def handleOutput(self, text, stdout):
         color = self.statusbox.textColor()
@@ -330,12 +316,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             #--- store the current setting in the system before closing the app
-            #self.setting_Course.setValue('ta_name', self.lineEdit_ta.text())
             self.setting_Course.setValue('year', self.lineEdit_year.text() )
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('session_list', self.session_list)
-            #self.setting_Course.setValue('data_dir', self.lineEdit_data_dir.text())
             self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
             self.setting_Course.setValue('stud_csv_path', self.lineEdit_stud_csv.text())
             self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
@@ -354,32 +338,34 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             event.ignore()
 #--------------------------------------------------------------------------------
-'''
+
 class CopyFileThread(QtCore.QThread):
-    def __init__(self, exp_id, parent=None ):
+    def __init__(self, exp_id, gpc_list, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         self.exp_id=exp_id
+        self.gpc_list = gpc_list
         self.is_running = True
+        self.copy_service = MyRemoteCopyFile()
         
     def run(self):
-        logging.info(f'Starting to copy html files for exp {self.exp_id}')
-
-        self.myserver = MyRemoteCopyFile(self.exp_id)
-        self.myserver.run_copyfile()
+        logging.info(f' Starting to copy html files for Exp {self.exp_id}')    
+        self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
+        logging.info(f' Copy to Group PCs finished')
 
     def stop(self):
         self.is_running = False
         self.terminate()
-'''
+
 #-------------------------------------------------
 if __name__ == '__main__':
     #logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)
+    app_icon = QIcon("YorkU_icon.jpg")
+    app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.show()
 
     print('Welcome to YorkU PHYS Lab Seating Monitor')
-
     sys.exit(app.exec())

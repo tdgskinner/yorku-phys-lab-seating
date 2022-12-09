@@ -59,6 +59,6 @@ class MyRemoteCopyFile:
         for gpc in gpc_list:
             try:
                 self._server_dir_prep(exp_id, gpc)
-                logger.debug(f'Html files are copied in {gpc} successfully!')
+                logger.info(f' html files are copied in {gpc} successfully!')
             except Exception as e:
-                logger.error(f'Unable to copy files to group PC {gpc}: {e}')
+                logger.error(f' Unable to copy files to group PC {gpc}: {e}')
