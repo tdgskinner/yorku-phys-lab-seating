@@ -167,7 +167,7 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QPushButton" name="pushButton_restartPCs">
+         <widget class="QPushButton" name="pushButton_rebootPCs">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -183,7 +183,7 @@
            <string notr="true">background-color: rgb(252, 53, 48);</string>
           </property>
           <property name="text">
-           <string>Restart All Group PCs</string>
+           <string>Reboot All Group PCs</string>
           </property>
          </widget>
         </item>

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import pandas
+import pandas, os
+
 
 def get_session_list(time_csv_path):
     sessions = []
@@ -21,7 +22,25 @@ def get_session_list(time_csv_path):
 
     return sessions
 
-path = '/Users/mohammad/cernbox/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/time_2022PHYS2213A.csv'
-sessions = get_session_list(path)
+def get_number_of_students(stud_csv_path, session):
+    print(f'stud_csv_path={stud_csv_path}')
+    print(f'--session={session}')
+    stud_df= pandas.read_csv(stud_csv_path)
+    print(f'len of stud_df= {len(stud_df)}')
 
-print(sessions)
+    # filter the list based on the given session_id
+    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
+    stud_list = list(stud_df['student_id'])
+    print(f'len of filtered stud= {len(stud_list)}')
+    
+    return len(stud_list)
+
+def make_groups(exp_csv_path):
+    exp_df= pandas.read_csv(exp_csv_path)
+    print(f'exp_df={exp_df}')
+
+
+path = 'C:/Users/mkareem/OneDrive - York University/physLabTech/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/exp_test.csv'
+#sessions = make_groups(path)
+print(os.path.dirname(path))
+
