@@ -124,6 +124,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
         self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
+        self.comboBox_session.currentTextChanged.connect(self.set_session_id)
         self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
@@ -174,9 +175,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
         
-        self.session   = self.comboBox_session.currentText()
-        if self.session:
-            self.session_id = self.session_list[self.session][0]
+        #self.session   = self.comboBox_session.currentText()
+        #if self.session:
+        #    self.session_id = self.session_list[self.session][0]
         
         self.n_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
@@ -199,6 +200,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_exp_id(self):
         self.exp_id = self.spinBox_exp_id.value()
+
+    def set_session_id(self):
+        self.session   = self.comboBox_session.currentText()
+        if self.session:
+            self.session_id = self.session_list[self.session][0]
+
 
     def generate_groups(self):
         if not self.session_id:
