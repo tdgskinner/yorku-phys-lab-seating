@@ -179,14 +179,15 @@ def html_generator(pkl_path, code):
                       
                 newline = "\n"
                 # <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                # <link rel="stylesheet" href="style.css?v=1">
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
                             <head>
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
-                            <meta http-equiv="refresh" content="30">
-                            <link rel="stylesheet" href="style.css?v=1">
+                            <meta http-equiv="refresh" content="5">
+                            <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
                             </head>
                             <body>
@@ -221,10 +222,6 @@ def html_generator(pkl_path, code):
                                     </div>
                                     <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:800px" ></center>
                                 </div>
-                            </div>
-                            
-                            <div class="footer">
-                                <p>Please refresh the page if the date/time is not correctly displayed</p>    
                             </div>
                             </body>
                             </html>

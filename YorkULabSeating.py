@@ -355,7 +355,7 @@ class CopyFileThread(QtCore.QThread):
         self.copy_service = MyRemoteCopyFile()
         
     def run(self):
-        logging.info(f' Starting to copy html files for Exp {self.exp_id}')    
+        logging.info(f' Starting to copy html files for Exp {self.exp_id}. Please wait ...')
         self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
         logging.info(f' Copy to Group PCs finished')
 
