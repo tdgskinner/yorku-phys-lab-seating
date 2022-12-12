@@ -4,7 +4,7 @@ import pandas
 import numpy as np
 import pickle
 import logging
-#import configparser as conf
+import random
 import sys, os, shutil
 
 logger = logging.getLogger(__name__)
@@ -178,12 +178,14 @@ def html_generator(pkl_path, code):
                     stud_list.append(row)
                       
                 newline = "\n"
+                # <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
                             <head>
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
+                            <meta http-equiv="refresh" content="30">
                             <link rel="stylesheet" href="style.css?v=1">
                             <script type="text/javascript" src="time.js"></script>
                             </head>

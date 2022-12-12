@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pandas, os
+import random
 
 
 def get_session_list(time_csv_path):
@@ -39,8 +40,15 @@ def make_groups(exp_csv_path):
     exp_df= pandas.read_csv(exp_csv_path)
     print(f'exp_df={exp_df}')
 
+def get_css_ver():
+    var = round(random.randint(0, 1000)/100, 2 )
+    print(var)
 
-path = 'C:/Users/mkareem/OneDrive - York University/physLabTech/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/exp_test.csv'
+get_css_ver()
+
+
+
+#path = 'C:/Users/mkareem/OneDrive - York University/physLabTech/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/exp_test.csv'
 #sessions = make_groups(path)
-print(os.path.dirname(path))
+#print(os.path.dirname(path))
 

@@ -92,7 +92,7 @@
         <item row="2" column="0">
          <widget class="QPushButton" name="pushButton_grouping">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -110,7 +110,7 @@
         <item row="2" column="1">
          <widget class="QPushButton" name="pushButton_htmlgen">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -146,30 +146,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>18</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Seating Generator</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="2">
          <widget class="QPushButton" name="pushButton_rebootPCs">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -229,7 +209,7 @@
         <item row="2" column="2">
          <widget class="QPushButton" name="pushButton_copyfiles">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -247,7 +227,46 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Seating Generator</string>
+          </property>
+         </widget>
+        </item>
        </layout>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>540</x>
+         <y>0</y>
+         <width>141</width>
+         <height>181</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>yorku.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
       </widget>
      </widget>
      <widget class="QFrame" name="frame_6">
@@ -314,31 +333,6 @@
         </item>
        </layout>
       </widget>
-     </widget>
-     <widget class="QLabel" name="label_11">
-      <property name="geometry">
-       <rect>
-        <x>520</x>
-        <y>20</y>
-        <width>181</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>YorkU_logo_S.png</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_settings">
@@ -414,7 +408,7 @@
         <item row="5" column="4">
          <widget class="QLineEdit" name="lineEdit_ngroups">
           <property name="text">
-           <string>6</string>
+           <string>10</string>
           </property>
          </widget>
         </item>
@@ -453,7 +447,7 @@
            </font>
           </property>
           <property name="text">
-           <string>2213</string>
+           <string>1801</string>
           </property>
          </widget>
         </item>
@@ -581,7 +575,7 @@
         <item row="6" column="3">
          <widget class="QLabel" name="label_14">
           <property name="text">
-           <string>Max # of benches</string>
+           <string>Max # of seats</string>
           </property>
          </widget>
         </item>
@@ -660,17 +654,19 @@
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;How to use the program:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;1- Go to the setting page and insert the corresponding parameters. Please note the following:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;a) the session input is case sensitive and should match with the 'session' in the input csv lists&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;b) Click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Grouping&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' on the main page to generate a .pkl file containing the seating details of all listed experiments and students in the given session. Repeat this process to generate separate .pkl files with unique names for each session id.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;c) Grouping process tries to create a uniform number of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;2- Once the .pkl files are generated, click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;Generate Html'&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;3 - Finally, on the main page, select the required experiment id and click on '&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;START webserver&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' to start hosting the selected experiment seating.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;4 - From the group PCs, open a web browser and visit &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;http://hostname:port/g[X].html&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;, where [X] is the group number.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;5 - The GUI must be running during the lab session. Once the session is done, click on 'STOP webserver' and close the application.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;1- Go to the setting page and load the corresponding input files. Make sure to select the correct file in each field, otherwise, the program might crash as it is expecting certain headers in each CSV file. Press save once you are done with the settings.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;2) On the main page, press &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;'Generate Groups'&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; to generate a .pkl file containing the seating details of all listed experiments and students in the given session.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;  a) Grouping process tries to create a uniform number (as much as possible) of students per group according to the 'Max # of groups' value. To have more students per group, reduce this value accordingly.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;3- Once the .pkl files are generated, press &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;'Generate HTML&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;' to generate the seating HTML files per group. The seating files for each experiment will be stored in a separate directory labeled with the experiment id.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;4 - Select the target Experiment number and press the&lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt; 'Copy Files'&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; button to copy the generated HTML files of the corresponding experiment to all group pcs listed in the given text file.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;5 - Press &lt;/span&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;'Reboot All Group PCs'&lt;/span&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt; to reboot the listed group PCs.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:13pt;&quot;&gt;6 - Each Group PC will automatically load the corresponding group page in Windows Kiosk mode.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </widget>
@@ -693,7 +689,7 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Monitor&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.1, Dec 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;Research Associate&lt;/p&gt;&lt;p&gt;Department of Physics and Astronomy&lt;/p&gt;&lt;p&gt;York University&lt;/p&gt;&lt;p&gt;4700 Keele St, Toronto ON Canada M3J 1P3&lt;/p&gt;&lt;p&gt;Office: 234 Petrie Science and Engineering Bldg.&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Assigner&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 2.1, Dec 2022&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri,sans-serif'; font-size:10pt; color:#000000;&quot;&gt;Laboratory Technologist&lt;/span&gt;&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;p&gt;Department of Physics &amp;amp; Astronomy&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Faculty of Science | &lt;/span&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000; text-transform:uppercase;&quot;&gt;York University&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Petrie Science &amp;amp; Engineering 122&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;4700 Keele Street Toronto ON, Canada M3J 1P3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_9">
@@ -731,7 +727,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
-  <include location="YorkU_logo_S.qrc"/>
+  <include location="YorkU_Images.qrc"/>
  </resources>
  <connections/>
 </ui>
