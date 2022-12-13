@@ -186,7 +186,7 @@ def html_generator(pkl_path, code):
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
-                            <meta http-equiv="refresh" content="5">
+                            <meta http-equiv="refresh" content="60">
                             <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
                             </head>

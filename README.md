@@ -39,18 +39,15 @@ python3 YorkULabSeating.py
 ---
 ---
 
-**version 1.0, September 2022**
+**version 2.1, September 2022**
 
-The program is Written by:
-
-Mohammad Kareem, Ph.D.
-
-Research Associate
-
-Department of Physics and Astronomy
-
-York University
-
-4700 Keele St, Toronto ON Canada M3J 1P3
-
+Developed by Mohammad Kareem
+Laboratory Technologist
 mkareem@yorku.ca
+Department of Physics & Astronomy
+Faculty of Science | York University
+Petrie Science & Engineering 122
+4700 Keele Street Toronto ON, Canada M3J 1P3
+
+**to do**
+- Automation of csv headers, or read columns by index
