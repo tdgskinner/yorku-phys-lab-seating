@@ -36,6 +36,7 @@ class MyRemoteCopyFile:
         css_path = os.path.join(cwd, 'scripts', 'src', 'style.css')
         js_path = os.path.join(cwd, 'scripts', 'src', 'time.js')
         img_dir_path = os.path.join(cwd, 'scripts', 'src' ,'img')
+        tip_dir_path = os.path.join(cwd, 'scripts', 'src' ,'tip')
 
         html_path = os.path.join(cwd, 'scripts', 'src', 'html', f'exp{exp_id}')
         html_files = os.listdir(html_path)
@@ -49,6 +50,7 @@ class MyRemoteCopyFile:
         self._force_copy(css_path, os.path.join(self.web_directory,'style.css'))
         self._force_copy(js_path, os.path.join(self.web_directory,'time.js'))
         self._force_copy(img_dir_path, os.path.join(self.web_directory,'img'), type='dir')
+        self._force_copy(tip_dir_path, os.path.join(self.web_directory,'tip'), type='dir')
 
         for f in html_files:
             self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, f))

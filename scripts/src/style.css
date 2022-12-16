@@ -4,12 +4,13 @@ body {
 
 .vertical-menu {
     width: 40%;
+    padding: 6px;
   }
   
   .vertical-menu a {
     color: black;
     display: block;
-    padding: 12px;
+    padding: 6px;
     text-decoration: none;
   }
   
@@ -42,15 +43,17 @@ body {
     column-gap: 10px;
     grid-template-columns: auto auto;
     background-color: #b71414;
-    padding: 10px;
+    padding: 5px;
+    height:150px;
   }
   
   .grid-item {
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
-    padding: 20px;
+    padding: 5px;
     font-size: 25px;
     text-align: center;
+    height:72px;
   }
 
   .footer {
@@ -60,4 +63,8 @@ body {
     width:99%;
     height:40px;
     background-color: #b71414;
+}
+
+.tip {
+  font-size: 25px;
 }

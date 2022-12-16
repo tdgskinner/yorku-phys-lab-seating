@@ -186,7 +186,7 @@ def html_generator(pkl_path, code):
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
-                            <meta http-equiv="refresh" content="60">
+                            <meta http-equiv="refresh" content="10">
                             <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
                             </head>
@@ -205,22 +205,25 @@ def html_generator(pkl_path, code):
                             </div>
                             
                             <div class="row", style="padding:0cm">
-                                <div class="column", style="width:40%">
+                                <div class="column", style="width:50%">
                                     <div class="vertical-menu", style="width:100%">
-                                        <h2><a href="#" class="active"><b>Group 1</b></a></h2>
-                                        <h3>Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</h3>
-                                        
+                                        <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
+                                        <h3 style="font-size:22px">Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</h3>
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
-                                          </div>
+                                        </div>
+                                        <div class="vertical-menu", style="width:100%">
+                                            <h3 style="font-size:22px">Useful tip: ... </h3>
+                                            <object data="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }"></object>   
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="column", style="width:60%">
+                                <div class="column", style="width:50%">
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
                                     </div>
-                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:800px" ></center>
+                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:500px" ></center>
                                 </div>
                             </div>
                             </body>

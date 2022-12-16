@@ -2,14 +2,16 @@
 sc-l-ph-dev-gp1.yorku.yorku.ca
 #sc-l-ph-dev-gp1.yorku.yorku.ca
 #sc-l-ph-dev-gp1.yorku.yorku.ca
+#130.63.169.249
 
 #-- 102F Group PC names:
-#SC-LABS-PH-GRP1
-#SC-LABS-PH-GRP2
-#SC-LABS-PH-GRP3
-#SC-LABS-PH-GRP4
-#SC-LABS-PH-GRP5
-#SC-LABS-PH-GRP6
-#SC-LABS-PH-GRP7
-#SC-LABS-PH-GRP8
-#SC-LABS-PH-GRP9
+#SC-L-PH-BC-GR01.yorku.yorku.ca
+#SC-L-PH-BC-GR02.yorku.yorku.ca
+#SC-L-PH-BC-GR03.yorku.yorku.ca
+#SC-L-PH-BC-GR04.yorku.yorku.ca
+#SC-L-PH-BC-GR05.yorku.yorku.ca
+#SC-L-PH-BC-GR06.yorku.yorku.ca
+#SC-L-PH-BC-GR07.yorku.yorku.ca
+#SC-L-PH-BC-GR08.yorku.yorku.ca
+#SC-L-PH-BC-GR09.yorku.yorku.ca
+#SC-L-PH-BC-GR10.yorku.yorku.ca
