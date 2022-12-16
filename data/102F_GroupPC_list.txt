@@ -1,7 +1,7 @@
 #this is a test PC
-sc-l-ph-dev-gp1
-#sc-l-ph-dev-gp1
-#sc-l-ph-dev-gp1
+sc-l-ph-dev-gp1.yorku.yorku.ca
+#sc-l-ph-dev-gp1.yorku.yorku.ca
+#sc-l-ph-dev-gp1.yorku.yorku.ca
 
 #-- 102F Group PC names:
 #SC-LABS-PH-GRP1

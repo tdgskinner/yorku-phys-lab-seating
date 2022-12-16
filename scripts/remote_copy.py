@@ -18,8 +18,7 @@ class MyRemoteCopyFile:
             except:
                 shutil.rmtree(dest)
                 shutil.copytree(source, dest)
-        else:
-            
+        else: 
             try: 
                 shutil.copy(source, dest)
             except:
@@ -31,7 +30,7 @@ class MyRemoteCopyFile:
         cwd = os.getcwd()
         logger.debug(f'cwd: {cwd}')
 
-        self.dest_path =r'\\' + gpc+ r'\\seats'
+        self.dest_path =r'\\' + gpc+ r'\\phys'
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
 
         css_path = os.path.join(cwd, 'scripts', 'src', 'style.css')
@@ -56,9 +55,15 @@ class MyRemoteCopyFile:
         
     #------------------------------------------------------------
     def run_copyfile(self, exp_id, gpc_list):
+        status = {}
         for gpc in gpc_list:
             try:
                 self._server_dir_prep(exp_id, gpc)
-                logger.info(f' html files are copied in {gpc} successfully!')
+                logger.info(f' html files are copied in {gpc} successfully!')               
+                status[gpc] = True        
             except Exception as e:
-                logger.error(f' Unable to copy files to group PC {gpc}: {e}')
+                logger.debug(f' Unable to copy files to group PC {gpc}: {e}')
+                status[gpc] = False
+        
+        return status
+

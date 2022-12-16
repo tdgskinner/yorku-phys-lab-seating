@@ -44,9 +44,15 @@ def get_css_ver():
     var = round(random.randint(0, 1000)/100, 2 )
     print(var)
 
-get_css_ver()
+#get_css_ver()
 
+status = {1:True, 2:True, 3:False}
 
+if all(status.values()):
+    print('All OK')
+else:
+    res = [key for key, value in status.items() if not value]
+    print(f'Not good: {res}')
 
 #path = 'C:/Users/mkareem/OneDrive - York University/physLabTech/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/exp_test.csv'
 #sessions = make_groups(path)

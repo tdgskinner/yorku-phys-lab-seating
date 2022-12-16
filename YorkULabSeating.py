@@ -132,7 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefiles('gpc'))
     
     def browsefiles(self, category):
-        fname=QFileDialog.getOpenFileName(self, 'Open file', os.path.join('scripts','data'),'Image Files (*.csv *.txt)')
+        fname=QFileDialog.getOpenFileName(self, 'Open file', 'data','Input Files (*.csv *.txt)')
         if category == 'time':
             self.lineEdit_time_csv.setText(fname[0])
             self.time_csv_path = fname[0]
@@ -205,6 +205,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.session   = self.comboBox_session.currentText()
         if self.session:
             self.session_id = self.session_list[self.session][0]
+            logging.debug(f'---set_session_id:{self.session_id}')
 
 
     def generate_groups(self):
@@ -355,9 +356,14 @@ class CopyFileThread(QtCore.QThread):
         self.copy_service = MyRemoteCopyFile()
         
     def run(self):
-        logging.info(f' Starting to copy html files for Exp {self.exp_id}. Please wait ...')
-        self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
-        logging.info(f' Copy to Group PCs finished')
+        logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
+        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
+        
+        if all(status.values()):
+            logging.info(' html files are copied to all Group PCs successfully')
+        else:
+            res = [key for key, value in status.items() if not value]
+            logging.info(f' Failed to copy html files to: {res}')
 
     def stop(self):
         self.is_running = False
