@@ -50,7 +50,11 @@ def _print_exp_dict(dict):
         
 #------------------------------------------------------------
 def get_number_of_students(stud_csv_path, session):
-    stud_df= pandas.read_csv(stud_csv_path)
+    # adding header to student list
+    stud_df= pandas.read_csv(stud_csv_path, header=None, names=get_studList_header())
+    #--- drop rows with nan
+    stud_df = stud_df.dropna()
+    stud_df=stud_df.dropna().reset_index(drop=True)
 
     # filter the list based on the given session_id
     stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
@@ -71,23 +75,40 @@ def day_map(day_abr):
 def get_session_list(time_csv_path):
     sessions = {}
     
-    time_df= pandas.read_csv(time_csv_path)
+    time_df = pandas.read_csv(time_csv_path)
+    #--- drop rows with nan
+    time_df = time_df.dropna()
+    time_df=time_df.dropna().reset_index(drop=True)
+
     Type_list = list(time_df['Type'].str.strip())
     Day_list = list(time_df['Day'].str.strip())
     time_list = list(time_df['Start Time'].str.strip())
     ta_list = list(time_df['Instructor'].str.strip())
     session_list = list(zip(Type_list, Day_list, time_list, ta_list))
-
+    
     for session in session_list:
         sessions[f'{day_map(session[1])}, {session[2]}'] = (session[0],session[3])
     
     return sessions
 
+#------------------------------------------------------------
+def get_studList_header():
+    header = ["student_id","surname","first_name","email","session_id","lect_id","programme_title","study_level","registration_status"]
+    return header
 #------------------------------------------------------------        
 def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group, n_benches, pkl_file_name):
-    exp_df= pandas.read_csv(exp_csv_path)
-    stud_df= pandas.read_csv(stud_csv_path)   
+    exp_df= pandas.read_csv(exp_csv_path)  
+    stud_df= pandas.read_csv(stud_csv_path, header=None, names= get_studList_header())
     time_df= pandas.read_csv(time_csv_path)
+
+    #--- drop rows with nan
+    exp_df = exp_df.dropna()
+    exp_df = exp_df.dropna().reset_index(drop=True)
+    stud_df = stud_df.dropna()
+    stud_df = stud_df.dropna().reset_index(drop=True)
+    time_df = time_df.dropna()
+    time_df = time_df.dropna().reset_index(drop=True)
+
     
     # filter the lists based on the given session_id
     stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session_id]
@@ -178,8 +199,6 @@ def html_generator(pkl_path, code):
                     stud_list.append(row)
                       
                 newline = "\n"
-                # <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
-                # <link rel="stylesheet" href="style.css?v=1">
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
                             <head>
@@ -213,7 +232,7 @@ def html_generator(pkl_path, code):
                                             {newline.join(stud for stud in stud_list)}
                                         </div>
                                         <div class="vertical-menu", style="width:100%">
-                                            <h3 style="font-size:22px">Useful tip: ... </h3>
+                                            <h3 style="font-size:22px">Useful tip:</h3>
                                             <object data="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }"></object>   
                                         </div>
                                     </div>

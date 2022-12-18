@@ -49,7 +49,6 @@ class MainWindow(QtWidgets.QMainWindow):
             'semester':'Fall',
             'code':'2213',
             'coursename':'PHYS',
-            'session_id':'',
             'session_list': [],
             'gpc_list': [],
             'ta_name':'Best TA',
@@ -73,7 +72,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.semester   = self.setting_Course.value('semester')
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
-        self.session_id = self.setting_Course.value('session_id')
         self.session_list = self.setting_Course.value('session_list')
         self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
         self.stud_csv_path = self.setting_Course.value('stud_csv_path')
@@ -83,21 +81,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.exp_id = self.setting_Course.value('exp_id')
         self.n_group    = self.setting_Course.value('n_group')
         self.n_benches  = self.setting_Course.value('n_benches')
-        self.pkl_file_name = self.setting_Course.value('pkl_name')
-        self.pkl_path = self.setting_Course.value('pkl_path')     
 
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
         if not self.year: self.year = self.default_settings['year']
         if not self.code: self.code = self.default_settings['code']
-        if not self.session_id: self.session_id = self.default_settings['session_id']
         if not self.session_list: self.session_list = self.default_settings['session_list']
         if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
         if not self.n_group: self.n_group = self.default_settings['n_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
-        if not self.pkl_file_name: self.pkl_file_name = self.default_settings['pkl_name']
-        if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
         
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
@@ -114,7 +107,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_time_csv.setText(self.time_csv_path)
         self.lineEdit_gpc_txt.setText(self.gpc_txt_path)
 
-
+        self.session_id = None
+        self.pkl_path = None
         self.thread={}
         self.isCopyFileRunning = False
 
@@ -124,7 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
         self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
-        self.comboBox_session.currentTextChanged.connect(self.set_session_id)
+        self.comboBox_session.activated.connect(self.set_session_id)
         self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
@@ -174,16 +168,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.lineEdit_year.text() 
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
-        
-        #self.session   = self.comboBox_session.currentText()
-        #if self.session:
-        #    self.session_id = self.session_list[self.session][0]
-        
         self.n_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
-
-        self.pkl_file_name   = self.set_pklfile_name()
-        
         self.exp_id     = self.spinBox_exp_id.value()
         
         dlg = QtWidgets.QMessageBox(self)
@@ -212,7 +198,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.session_id:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"Please select a session from the settings tab and save, before generating groups.")
+            dlg.setText(f"Please select a session before generating groups.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return 
@@ -227,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else: 
                 n_stud = seating.get_number_of_students(self.stud_csv_path, self.session_id)
-                logging.info(f'there are {n_stud} students enroled in this session.')
+                logging.info(f' There are {n_stud} students enroled in this session.')
         
         if n_stud > self.n_benches * self.n_group:
             dlg = QtWidgets.QMessageBox(self)
@@ -244,6 +230,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.exec()
                 return
             else:
+                self.pkl_file_name   = self.set_pklfile_name()
                 self.pkl_path = seating.make_groups(self.exp_csv_path, self.stud_csv_path, self.time_csv_path, self.session_id, self.n_group, self.n_benches, self.pkl_file_name )
                 if not self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
@@ -253,9 +240,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.exec()
             
     def check_pkl(self):
-        if os.path.exists(self.pkl_path):
-            logging.debug(f'self.pkl_path: {self.pkl_path}')
-            seating.html_generator(self.pkl_path, self.code)
+        if self.pkl_path:
+            if os.path.exists(self.pkl_path):
+                logging.debug(f'self.pkl_path: {self.pkl_path}')
+                seating.html_generator(self.pkl_path, self.code)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -337,7 +325,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
             self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
-            self.setting_Course.setValue('pkl_path', self.pkl_path)
             try:
                 event.accept()
                 logging.debug('The application exited properly.')
@@ -372,8 +359,8 @@ class CopyFileThread(QtCore.QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
-    #logging.getLogger().setLevel(logging.INFO)
+    #logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
