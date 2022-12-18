@@ -206,7 +206,7 @@ def html_generator(pkl_path):
                             <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
-                            <meta http-equiv="refresh" content="10">
+                            <meta http-equiv="refresh" content="60">
                             <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
                             </head>
@@ -214,10 +214,10 @@ def html_generator(pkl_path):
 
                             <div class="row", style="padding:0cm">
                                 <div class="column", style="width:20%">
-                                    <img src={os.path.join('img','yorku-logo.jpg')} , style="height:30px">
+                                    <img src=yorku-logo.jpg , style="height:30px">
                                 </div>
                                 <div class="column", style="width:65%">
-                                    <h2> </h2>
+                                    <h3 style="font-size:23px"><center>Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</center></h3>
                                 </div>
                                 <div class="column", style="width:15%"></div>
                                     <h3><span id="ct"> </span></h3>
@@ -228,7 +228,6 @@ def html_generator(pkl_path):
                                 <div class="column", style="width:50%">
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
-                                        <h3 style="font-size:22px">Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</h3>
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
                                         </div>

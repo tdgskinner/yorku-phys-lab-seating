@@ -255,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.src_dir:
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, remote=False, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, remote=True, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -373,8 +373,8 @@ class CopyFileThread(QtCore.QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.DEBUG)
-    #logging.getLogger().setLevel(logging.INFO)
+    #logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
