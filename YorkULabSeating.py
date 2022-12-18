@@ -74,6 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.setting_Course.value('code')
         self.session_list = self.setting_Course.value('session_list')
         self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
+        self.src_dir  = self.setting_Course.value('src_dir')
         self.stud_csv_path = self.setting_Course.value('stud_csv_path')
         self.time_csv_path = self.setting_Course.value('time_csv_path')
         self.gpc_txt_path = self.setting_Course.value('gpc_txt_path')
@@ -135,6 +136,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif category == 'exp':
             self.lineEdit_exp_csv.setText(fname[0])
             self.exp_csv_path = fname[0]
+            self.src_dir = os.path.dirname(self.exp_csv_path)
         elif category == 'stud':
             self.lineEdit_stud_csv.setText(fname[0])
             self.stud_csv_path = fname[0]
@@ -243,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.pkl_path:
             if os.path.exists(self.pkl_path):
                 logging.debug(f'self.pkl_path: {self.pkl_path}')
-                seating.html_generator(self.pkl_path, self.code)
+                seating.html_generator(self.pkl_path)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -252,8 +254,8 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.exec()
 
     def start_copyfiles_worker(self):
-        if self.gpc_list:
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, parent=None)
+        if self.gpc_list and self.src_dir:
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, remote=False, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -262,10 +264,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
-        else:
+        elif not self.gpc_list and self.src_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
+        elif not self.src_dir:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText(f"Exp source dir not found. Reload the exp csv file from setting tab.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
@@ -318,6 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('session_list', self.session_list)
             self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
+            self.setting_Course.setValue('src_dir', self.src_dir)
             self.setting_Course.setValue('stud_csv_path', self.lineEdit_stud_csv.text())
             self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
             self.setting_Course.setValue('gpc_txt_path', self.lineEdit_gpc_txt.text())
@@ -336,16 +346,20 @@ class MainWindow(QtWidgets.QMainWindow):
 #--------------------------------------------------------------------------------
 
 class CopyFileThread(QtCore.QThread):
-    def __init__(self, exp_id, gpc_list, parent=None ):
+    def __init__(self, exp_id, gpc_list, src_dir, remote, parent=None ):
         super(CopyFileThread, self).__init__(parent)
+        
         self.exp_id=exp_id
         self.gpc_list = gpc_list
+        self.src_dir = src_dir
+
         self.is_running = True
-        self.copy_service = MyRemoteCopyFile()
+        self.copy_service = MyRemoteCopyFile(remote)
+        
         
     def run(self):
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
-        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list)
+        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.src_dir)
         
         if all(status.values()):
             logging.info(' html files are copied to all Group PCs successfully')
@@ -359,8 +373,8 @@ class CopyFileThread(QtCore.QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    #logging.getLogger().setLevel(logging.DEBUG)
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG)
+    #logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")

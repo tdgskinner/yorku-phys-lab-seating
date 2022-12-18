@@ -128,9 +128,11 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
         logger.error('exp_list, time_list, or stud_list is empty')
         return None
         
-    #pkl_dir = os.path.dirname(stud_csv_path)
-    src_dir = os.path.join('scripts','src')
-    pkl_dir = os.path.join(src_dir, 'pkl')
+    out_dir = 'output'
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    
+    pkl_dir = os.path.join(out_dir, 'pkl')
     if not os.path.exists(pkl_dir):
         os.makedirs(pkl_dir)
 
@@ -155,15 +157,14 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path, code):
+def html_generator(pkl_path):
     
-    src_dir = os.path.join('scripts','src')
-    html_dir = os.path.join(src_dir, 'html')
-    img_dir = os.path.join(src_dir, 'img')
+    out_dir = 'output'
+    html_dir = os.path.join(out_dir, 'html')
 
     logger.debug(f'pkl_path: {pkl_path}')
     logger.debug(f'html_dir: {html_dir}')
-    logger.debug(f'img_dir: {img_dir}')
+    
 
     #creating a fresh html directory
     if os.path.exists(html_dir):
@@ -294,10 +295,10 @@ if __name__ == "__main__":
 
     #-- Create experiment_student groups and store in pkl file (do this once per course)
     if arg[1].lower() == 'grouping':
-        make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_file, src_dir = 'src')
+        make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_file, out_dir = 'src')
 
     
     elif arg[1].lower() == 'htmlgen':
-        html_generator(pkl_file, coursename, code, TA_name, src_dir = 'src')
+        html_generator(pkl_file, coursename, code, TA_name, out_dir = 'src')
     
     '''

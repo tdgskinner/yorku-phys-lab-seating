@@ -1,8 +1,6 @@
 __pycache__/
 *.py[cod]
 .DS_Store
-scripts/src/html/
+output/
 *.pkl
 test.py
-scripts/src/pkl/
-scripts/LabSeatingWeb/
