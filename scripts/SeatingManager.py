@@ -199,6 +199,7 @@ def html_generator(pkl_path):
                     row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
                     stud_list.append(row)
                 newline = "\n"
+                #<iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" style="background-color:rgb(255, 230, 230);border:2px solid #b71414;" width="100%" height="290px"></iframe> 
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
                             <head>
@@ -208,6 +209,7 @@ def html_generator(pkl_path):
                             <meta http-equiv="refresh" content="60">
                             <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
+                            
                             </head>
                             <body>
 
@@ -231,9 +233,11 @@ def html_generator(pkl_path):
                                             {newline.join(stud for stud in stud_list)}
                                         </div>
                                         <h4> Useful tip:</h4>
-
-                                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" style="background-color:rgb(255, 230, 230);border:2px solid #b71414;" width="100%" height="290px"></iframe>   
-                                        
+                                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
+                                                    style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
+                                                    width="100%"
+                                                    height="290px">
+                                            </iframe>
                                     </div>
                                 </div>
 

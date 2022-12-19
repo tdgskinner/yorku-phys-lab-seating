@@ -1,15 +1,15 @@
 exp_id,exp_title,exp_img,exp_tip
-1,Introduction to Laboratory Equipment,img_exp1.png,Tip_exp1.txt
-2,Field Mapping and Gauss's Law,img_exp2.png,Tip_exp2.txt
-3,Coulomb's Law,img_exp3.png,Tip_exp3.txt
-4,Speed of LIght in a Fibre,img_exp4.png,Tip_exp4.txt
-5,Capacitors,img_exp5.png,Tip_exp5.txt
-6,Resistivity,img_exp6.png,Tip_exp6.txt
-7,Magnetic Fields and Forces,img_exp7.png,Tip_exp7.txt
-8,Introduction to Optics,img_exp8.png,Tip_exp8.txt
-9,Polarization,img_exp9.png,Tip_exp9.txt
-10,Verdet Constant,img_exp10.png,Tip_exp10.txt
-11,Michelson Interferometer,img_exp11.png,Tip_exp11.txt
-12,Diffraction Spectrometer,img_exp12.png,Tip_exp12.txt
-13,Acousto-Optic Modulator,img_exp13.png,Tip_exp13.txt
-14,Microwaves,img_exp14.png,Tip_exp14.txt
+1,Introduction to Laboratory Equipment,img_exp1.png,Tip_exp1.html
+2,Field Mapping and Gauss's Law,img_exp2.png,Tip_exp2.html
+3,Coulomb's Law,img_exp3.png,Tip_exp3.html
+4,Speed of LIght in a Fibre,img_exp4.png,Tip_exp4.html
+5,Capacitors,img_exp5.png,Tip_exp5.html
+6,Resistivity,img_exp6.png,Tip_exp6.html
+7,Magnetic Fields and Forces,img_exp7.png,Tip_exp7.html
+8,Introduction to Optics,img_exp8.png,Tip_exp8.html
+9,Polarization,img_exp9.png,Tip_exp9.html
+10,Verdet Constant,img_exp10.png,Tip_exp10.html
+11,Michelson Interferometer,img_exp11.png,Tip_exp11.html
+12,Diffraction Spectrometer,img_exp12.png,Tip_exp12.html
+13,Acousto-Optic Modulator,img_exp13.png,Tip_exp13.html
+14,Microwaves,img_exp14.png,Tip_exp14.html

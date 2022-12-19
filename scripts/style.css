@@ -65,6 +65,7 @@ body {
     background-color: #b71414;
 }
 
-iframe {
-  font-size: 30px;
+.myiframe {
+  font-family: Sans-serif;
+  font-size: 18px;
 }

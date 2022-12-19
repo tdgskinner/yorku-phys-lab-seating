@@ -1,10 +1,5 @@
-#this is a test PC
-sc-l-ph-dev-gp1.yorku.yorku.ca
-#sc-l-ph-dev-gp1.yorku.yorku.ca
-#sc-l-ph-dev-gp1.yorku.yorku.ca
-#130.63.169.249
-
-#-- 102F Group PC names:
+#-- BC 102F Group PC names:
+#-------------------------------------
 #SC-L-PH-BC-GR01.yorku.yorku.ca
 #SC-L-PH-BC-GR02.yorku.yorku.ca
 #SC-L-PH-BC-GR03.yorku.yorku.ca
@@ -15,3 +10,7 @@ sc-l-ph-dev-gp1.yorku.yorku.ca
 #SC-L-PH-BC-GR08.yorku.yorku.ca
 #SC-L-PH-BC-GR09.yorku.yorku.ca
 #SC-L-PH-BC-GR10.yorku.yorku.ca
+
+#-------------------------------------
+#this is a test PC
+sc-l-ph-dev-gp1.yorku.yorku.ca
