@@ -198,7 +198,6 @@ def html_generator(pkl_path):
                 for i in range(len(df)):
                     row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
                     stud_list.append(row)
-                      
                 newline = "\n"
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
@@ -231,10 +230,10 @@ def html_generator(pkl_path):
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
                                         </div>
-                                        <div class="vertical-menu", style="width:100%">
-                                            <h3 style="font-size:22px">Useful tip:</h3>
-                                            <object data="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }"></object>   
-                                        </div>
+                                        <h4> Useful tip:</h4>
+
+                                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" style="background-color:rgb(255, 230, 230);border:2px solid #b71414;" width="100%" height="290px"></iframe>   
+                                        
                                     </div>
                                 </div>
 

@@ -44,16 +44,16 @@ body {
     grid-template-columns: auto auto;
     background-color: #b71414;
     padding: 5px;
-    height:150px;
+    height:160px;
   }
   
   .grid-item {
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
-    padding: 5px;
+    
     font-size: 25px;
     text-align: center;
-    height:72px;
+    height:75px;
   }
 
   .footer {
@@ -65,6 +65,6 @@ body {
     background-color: #b71414;
 }
 
-.tip {
-  font-size: 25px;
+iframe {
+  font-size: 30px;
 }

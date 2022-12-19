@@ -111,6 +111,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.session_id = None
         self.pkl_path = None
         self.thread={}
+        self.LocalCopyMode = False
         self.isCopyFileRunning = False
 
         #--signal and slots
@@ -125,6 +126,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
         self.pushButton_time_brows.clicked.connect(lambda: self.browsefiles('time'))
         self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefiles('gpc'))
+        self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
+        self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
     
     def browsefiles(self, category):
         fname=QFileDialog.getOpenFileName(self, 'Open file', 'data','Input Files (*.csv *.txt)')
@@ -155,6 +158,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_session.addItems(self.session_list.keys())
             self.comboBox_session.setCurrentIndex(-1)
 
+    def set_debug_mode(self):
+        debug_mode = self.checkBox_debugMode.isChecked()
+        if debug_mode:
+            logging.getLogger().setLevel(logging.DEBUG)
+        else:
+            logging.getLogger().setLevel(logging.INFO)
+    
+    def set_copy_mode(self):
+        self.LocalCopyMode = self.checkBox_localCopy.isChecked()
 
     def getSettingValues(self):
         '''
@@ -175,7 +187,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.exp_id     = self.spinBox_exp_id.value()
         
         dlg = QtWidgets.QMessageBox(self)
-        dlg.setWindowTitle("Inof")
+        dlg.setWindowTitle("Inof.")
         dlg.setText("Settings saved")
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         dlg.exec()
@@ -200,7 +212,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.session_id:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"Please select a session before generating groups.")
+            dlg.setText("Please select a <b>session</b> before generating groups.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return 
@@ -215,12 +227,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else: 
                 n_stud = seating.get_number_of_students(self.stud_csv_path, self.session_id)
-                logging.info(f' There are {n_stud} students enroled in this session.')
+                logging.debug(f' There are {n_stud} students enroled in this session.')
         
         if n_stud > self.n_benches * self.n_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"There are no enough seats for {n_stud} students. Either increase the number of groups or the number of benches per group and try again.")
+            dlg.setText(f"There are <b>no enough seats for {n_stud} students in {self.n_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         else:
@@ -234,7 +246,13 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
                 self.pkl_path = seating.make_groups(self.exp_csv_path, self.stud_csv_path, self.time_csv_path, self.session_id, self.n_group, self.n_benches, self.pkl_file_name )
-                if not self.pkl_path:
+                if self.pkl_path:
+                    dlg = QtWidgets.QMessageBox(self)
+                    dlg.setWindowTitle("Info.")
+                    dlg.setText(f"<b>{n_stud} enroled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")
                     dlg.setText("Experiment list and/or Student list are(is) empty. If not, check the csv headers.")
@@ -255,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.src_dir:
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, remote=True, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -292,6 +310,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setWindowTitle("Warning")
         dlg.setText("Are you sure you want to Reboot all Group Computers?")
         dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+        dlg.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
         button = dlg.exec()
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
@@ -317,6 +336,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.setWindowTitle("Warning")
         dlg.setText("Are you sure you want to close the program?")
         dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+        dlg.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
         button = dlg.exec()
 
@@ -346,15 +366,15 @@ class MainWindow(QtWidgets.QMainWindow):
 #--------------------------------------------------------------------------------
 
 class CopyFileThread(QtCore.QThread):
-    def __init__(self, exp_id, gpc_list, src_dir, remote, parent=None ):
+    def __init__(self, exp_id, gpc_list, src_dir, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         
         self.exp_id=exp_id
         self.gpc_list = gpc_list
         self.src_dir = src_dir
-
+        self.localCopy = localCopy
         self.is_running = True
-        self.copy_service = MyRemoteCopyFile(remote)
+        self.copy_service = MyRemoteCopyFile(self.localCopy)
         
         
     def run(self):
@@ -362,7 +382,7 @@ class CopyFileThread(QtCore.QThread):
         status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.src_dir)
         
         if all(status.values()):
-            logging.info(' html files are copied to all Group PCs successfully')
+            logging.info(' html files are copied to target PC(s) successfully')
         else:
             res = [key for key, value in status.items() if not value]
             logging.info(f' Failed to copy html files to: {res}')

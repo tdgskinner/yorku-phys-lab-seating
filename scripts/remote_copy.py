@@ -4,8 +4,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MyRemoteCopyFile:
-    def __init__(self, remote):
-        self.do_remote = remote # True = remote target PC, False = local PC (for tests)
+    def __init__(self, localCopy):
+        self.do_localCopy = localCopy # False = copy to remote target PC, True = copy to local PC (for test)
+        logger.debug(f'remoteCopy service initiated with localCopy= {self.do_localCopy}')
     
     #------------------------------------------------------------
     def _force_copy(self, source, dest, type='f'):
@@ -29,10 +30,10 @@ class MyRemoteCopyFile:
     def _server_dir_prep(self, exp_id, gpc, src_dir):
         cwd = os.getcwd()
        
-        if self.do_remote:
-            self.dest_path =r'\\' + gpc+ r'\\phys'
-        else:
+        if self.do_localCopy:
             self.dest_path = src_dir
+        else:
+            self.dest_path =r'\\' + gpc+ r'\\phys'
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
 
@@ -64,14 +65,16 @@ class MyRemoteCopyFile:
     #------------------------------------------------------------
     def run_copyfile(self, exp_id, gpc_list, src_dir):
         status = {}
+
+        if self.do_localCopy: gpc_list = ['LOCAL PC']
         for gpc in gpc_list:
             try:
                 self._server_dir_prep(exp_id, gpc, src_dir)
                 logger.info(f' html files are copied in {gpc} successfully!')               
                 status[gpc] = True        
             except Exception as e:
-                logger.debug(f' Unable to copy files to group PC {gpc}: {e}')
+                logger.debug(f' Unable to copy html files to {gpc}: {e}')
                 status[gpc] = False
-        
+
         return status
 
