@@ -133,7 +133,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
     
     def browsefile(self, category):
-        fname=QFileDialog.getOpenFileName(self, 'Open file', 'data','Input Files (*.csv *.txt)')
+        logging.debug(f'self.src_dir: {self.src_dir}')
+        if self.src_dir:
+            fname=QFileDialog.getOpenFileName(self, 'Open file', directory=self.src_dir, filter='Input file (*.csv *.txt)')
+        else:
+            fname=QFileDialog.getOpenFileName(self, 'Open file', directory='data', filter='Input file (*.csv *.txt)')
+        
         if category == 'time':
             self.lineEdit_time_csv.setText(fname[0])
             self.time_csv_path = fname[0]
@@ -150,8 +155,12 @@ class MainWindow(QtWidgets.QMainWindow):
             if fname[0]:
                 self.gpc_list =gpc.extract_gpc_list(self.gpc_txt_path)
         
-    def browsefiles(self, category):
-        fnames=QFileDialog.getOpenFileNames(self, 'Open file', 'data','Input Files (*.csv *.txt)')
+    def browsefiles(self):
+        if self.src_dir:
+            fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory=self.src_dir, filter='Input files (*.csv *.txt)')
+        else:
+            fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory='data', filter='Input files (*.csv *.txt)')
+        
         self.lineEdit_stud_csv.setText(','.join(str(s) for s in fnames[0] ))
         self.stud_csv_path_list = fnames[0]
     
