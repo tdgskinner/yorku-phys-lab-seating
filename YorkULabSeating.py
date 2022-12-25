@@ -105,7 +105,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.spinBox_exp_id.setValue(self.exp_id)
         self.lineEdit_exp_csv.setText(self.exp_csv_path)
-        self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
+        if self.stud_csv_path_list:
+            self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
+            
         self.lineEdit_time_csv.setText(self.time_csv_path)
         self.lineEdit_gpc_txt.setText(self.gpc_txt_path)
 
