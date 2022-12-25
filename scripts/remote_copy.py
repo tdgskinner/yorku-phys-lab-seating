@@ -27,7 +27,7 @@ class MyRemoteCopyFile:
                 shutil.copy(source, dest)
         
     #------------------------------------------------------------
-    def _server_dir_prep(self, exp_id, gpc, src_dir):
+    def _server_dir_prep(self, exp_id, gpc, src_dir, code):
         cwd = os.getcwd()
        
         if self.do_localCopy:
@@ -36,14 +36,14 @@ class MyRemoteCopyFile:
             self.dest_path =r'\\' + gpc+ r'\\phys'
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
-
+        out_dir = f'output_{code}'
         css_path = os.path.join(cwd, 'scripts', 'style.css')
         js_path = os.path.join(cwd, 'scripts', 'time.js')
         YUlogo_path = os.path.join(cwd,'yorku-logo.jpg')
         img_dir_path = os.path.join(src_dir ,'img')
         tip_dir_path = os.path.join(src_dir, 'tip')
 
-        html_path = os.path.join(cwd, 'output', 'html', f'exp{exp_id}')
+        html_path = os.path.join(cwd, out_dir, 'html', f'exp{exp_id}')
         html_files = os.listdir(html_path)
         logger.debug(f'---img_dir_path= {img_dir_path}')
         
@@ -63,13 +63,13 @@ class MyRemoteCopyFile:
             self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, f))
         
     #------------------------------------------------------------
-    def run_copyfile(self, exp_id, gpc_list, src_dir):
+    def run_copyfile(self, exp_id, gpc_list, src_dir, code):
         status = {}
 
         if self.do_localCopy: gpc_list = ['LOCAL PC']
         for gpc in gpc_list:
             try:
-                self._server_dir_prep(exp_id, gpc, src_dir)
+                self._server_dir_prep(exp_id, gpc, src_dir, code)
                 logger.info(f' html files are copied in {gpc} successfully!')               
                 status[gpc] = True        
             except Exception as e:

@@ -6,6 +6,7 @@ import pickle
 import logging
 import random
 import sys, os, shutil
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +50,39 @@ def _print_exp_dict(dict):
         print('===============================')
         
 #------------------------------------------------------------
-def get_number_of_students(stud_csv_path, session):
-    # adding header to student list
-    stud_df= pandas.read_csv(stud_csv_path, header=None, names=get_studList_header())
-    #--- drop rows with nan
-    stud_df = stud_df.dropna()
-    stud_df=stud_df.dropna().reset_index(drop=True)
+def concat_stud_lists(stud_csv_path_list):
+    stud_dfs = []
+    for i, path in enumerate(stud_csv_path_list):
+        df = pandas.read_csv(path, index_col= False, header=None)
+        # handle two different data length in student list depending on the lab course
+        n_col = len(list(df.columns))
+        if n_col == 9 or n_col ==10:
+            # adding header to student list
+            df.columns = get_studList_header(n_col)
+        else:
+            logger.error('number of columns in stud csv files is not supported. Suppoerted numbers are 9 and 10.')
+    
+        # drop nan
+        df = df.dropna()
+    
+        # drop LAB 99
+        df = df.loc[df['session_id'].str.strip()!='LAB 99']
+    
+        # append suffix to session_id
+        if i >0:
+            df['session_id'] = df['session_id'].add(f'_{i}')
+        
+        stud_dfs.append(df)
 
+    # merge all lists into one df with distinc session_id
+    return pandas.concat(stud_dfs, axis=0)
+
+
+#------------------------------------------------------------
+def get_number_of_students(stud_csv_path_list, session):
+    
+    stud_df = concat_stud_lists(stud_csv_path_list)
+    
     # filter the list based on the given session_id
     stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
     
@@ -92,23 +119,22 @@ def get_session_list(time_csv_path):
     return sessions
 
 #------------------------------------------------------------
-def get_studList_header():
-    header = ["student_id","surname","first_name","email","session_id","lect_id","programme_title","study_level","registration_status"]
-    return header
+def get_studList_header(col):
+    header_10 = ["student_id","surname","first_name","email","session_id","lect_id","tutr_id","programme_title","study_level","registration_status"]
+    header_9 = ["student_id","surname","first_name","email","session_id","lect_id","programme_title","study_level","registration_status"]
+    return header_10 if col==10 else header_9
+
 #------------------------------------------------------------        
-def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group, n_benches, pkl_file_name):
+def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_stud, n_benches, code, pkl_file_name):
     exp_df= pandas.read_csv(exp_csv_path)  
-    stud_df= pandas.read_csv(stud_csv_path, header=None, names= get_studList_header())
     time_df= pandas.read_csv(time_csv_path)
+    stud_df = concat_stud_lists(stud_csv_path_list)
 
     #--- drop rows with nan
     exp_df = exp_df.dropna()
     exp_df = exp_df.dropna().reset_index(drop=True)
-    stud_df = stud_df.dropna()
-    stud_df = stud_df.dropna().reset_index(drop=True)
     time_df = time_df.dropna()
     time_df = time_df.dropna().reset_index(drop=True)
-
     
     # filter the lists based on the given session_id
     stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session_id]
@@ -119,6 +145,7 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
 
     exp_dict = DefaultDict() # exp dict: key = exp_id , value = tuple of (exp meta data) and (student_groups)
     
+    n_group = math.ceil(n_stud/n_benches)
     # fill the database dictionary
     if exp_list and stud_list and time_list:
         for exp in exp_list:
@@ -128,7 +155,7 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
         logger.error('exp_list, time_list, or stud_list is empty')
         return None
         
-    out_dir = 'output'
+    out_dir = f'output_{code}'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     
@@ -150,16 +177,16 @@ def make_groups(exp_csv_path, stud_csv_path, time_csv_path, session_id, n_group,
         
         # close file
         pkl_f.close()
-        return pkl_path
+        return pkl_path, n_group
     except:
         logger.error(f' Failed to write {pkl_path} to disk', exc_info = True)
         return None
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path):
+def html_generator(pkl_path, code):
     
-    out_dir = 'output'
+    out_dir = f'output_{code}'
     html_dir = os.path.join(out_dir, 'html')
 
     logger.debug(f'pkl_path: {pkl_path}')
@@ -198,8 +225,7 @@ def html_generator(pkl_path):
                 for i in range(len(df)):
                     row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
                     stud_list.append(row)
-                newline = "\n"
-                #<iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" style="background-color:rgb(255, 230, 230);border:2px solid #b71414;" width="100%" height="290px"></iframe> 
+                newline = "\n" 
                 seating_contents = f'''<!DOCTYPE html>
                             <html lang="en">
                             <head>
@@ -218,7 +244,7 @@ def html_generator(pkl_path):
                                     <img src=yorku-logo.jpg , style="height:30px">
                                 </div>
                                 <div class="column", style="width:65%">
-                                    <h3 style="font-size:23px"><center>Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</center></h3>
+                                    <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</center></h3>
                                 </div>
                                 <div class="column", style="width:15%"></div>
                                     <h3><span id="ct"> </span></h3>
@@ -259,48 +285,3 @@ def html_generator(pkl_path):
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
     
-    
-                
-#===========================================================================
-'''
-if __name__ == "__main__":
-    logging.getlogger().setLevel(logger.DEBUG)
-    config = conf.ConfigParser()
-    configfile = 'config.conf'
-    if os.path.isfile(configfile):
-            config.read(configfile)
-    else:
-        logger.error(f'Config file {configfile} does not exist.\n Process terminated.')
-    
-    
-    arg = sys.argv
-
-    if (len(arg) !=2):
-        logger.error('Missing argument: use either grouping: make randomized grouping of the students for each experiment, or htmlgen: to generate html files')
-        exit()
-
-    if arg[1].lower() != 'grouping' and arg[1].lower() != 'htmlgen':
-        logger.error('accepted arguments: <grouping> OR <htmlgen>')
-        exit()
-    
-    # parsing the config parameters
-    exp_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['exp_csv_file'] )
-    stud_csv_path = os.path.join(config['Inputs']['data_dir'], config['Inputs']['stud_csv_file'] )
-    n_group=int(config['Course']['max_groups'])
-    n_benches=int(config['Course']['n_benches'])
-    pkl_file = config['Database']['file_name']
-    session = config['Course']['session']
-    
-    coursename= config['Course']['coursename']
-    code = config['Course']['code']
-    TA_name = config['Course']['TA_name']
-
-    #-- Create experiment_student groups and store in pkl file (do this once per course)
-    if arg[1].lower() == 'grouping':
-        make_groups(exp_csv_path, stud_csv_path, session, n_group, n_benches, pkl_file, out_dir = 'src')
-
-    
-    elif arg[1].lower() == 'htmlgen':
-        html_generator(pkl_file, coursename, code, TA_name, out_dir = 'src')
-    
-    '''

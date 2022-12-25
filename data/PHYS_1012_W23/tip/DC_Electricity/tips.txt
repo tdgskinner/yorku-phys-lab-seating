@@ -1,0 +1,10 @@
+Login to Laptop using your passport York account only.
+Otherwise (from any other account) your journal submission to TA computer will failed.
+Check if instrument rack USB-HUB cable is not connected to laptop at the beginner of the LAB.
+Connect this cable to laptop before using Wavefor_ver2.vi and or SCOPE TO DESKTOP applications.
+In SCOPE TO DESKTOP application check "VISA resource name" (left bottom corner) and change SCOPE-25 to SCOPE-N,
+where N is your laptop number (use menu arrow).
+Never fill the Journal Template Excel file!!! Copy the Template to your Desktop not to the LAB folder.
+Please DO NOT create any your own file in the LAB folder, otherwise you lose 1 mark for the lab.
+Logout from your account at the end of Lab and disconnect instrument USB-HUB cable from your laptop.
+

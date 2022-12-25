@@ -1,0 +1,7 @@
+Login with Passport York to laptop. For further steps use your email in the form name@yorku.ca (do not use myyorku)!!
+Each student should collect own data by connecting USB cable from the MiniQuest Interface to the own laptop.
+Follow the manual instruction precisely.The word "computer" in the manual should be read as "laptop"
+CLEAN LAB AT THE END: DO NOT CLOSE LAPTOP LID, 
+DO NOT SHUTDOWN (POWER OFF LAPTOP), 
+DO NOT DISCONNECT POWER CORD
+In case if we found that laptop was not left in clean state student can get 1 mark deduction.

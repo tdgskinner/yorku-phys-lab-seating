@@ -47,13 +47,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.default_settings = {
             'year':'2022', 
             'semester':'Fall',
-            'code':'2213',
+            'code':'xxxx',
             'coursename':'PHYS',
             'session_list': [],
             'gpc_list': [],
             'ta_name':'Best TA',
             'exp_id':1,
-            'n_group':6,
+            'n_max_group':6,
             'n_benches':4,
             'pkl_name':'dummy.pkl',
             'pkl_path': 'dummy_pkl_path.pkl'
@@ -75,12 +75,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.session_list = self.setting_Course.value('session_list')
         self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
         self.src_dir  = self.setting_Course.value('src_dir')
-        self.stud_csv_path = self.setting_Course.value('stud_csv_path')
+        self.stud_csv_path_list = self.setting_Course.value('stud_csv_path_list')
         self.time_csv_path = self.setting_Course.value('time_csv_path')
         self.gpc_txt_path = self.setting_Course.value('gpc_txt_path')
         self.gpc_list = self.setting_Course.value('gpc_list')
         self.exp_id = self.setting_Course.value('exp_id')
-        self.n_group    = self.setting_Course.value('n_group')
+        self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
 
         # Default settings is set if no stored settings found from previous session
@@ -90,21 +90,22 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.session_list: self.session_list = self.default_settings['session_list']
         if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
-        if not self.n_group: self.n_group = self.default_settings['n_group']
+        if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
         if self.session_list:
-            self.comboBox_session.addItems(self.session_list.keys())
+            list_helper = sorted(list(self.session_list.keys()))
+            self.comboBox_session.addItems(list_helper)
             self.comboBox_session.setCurrentIndex(-1)
             
-        self.lineEdit_ngroups.setText(str(self.n_group))
+        self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.spinBox_exp_id.setValue(self.exp_id)
         self.lineEdit_exp_csv.setText(self.exp_csv_path)
-        self.lineEdit_stud_csv.setText(self.stud_csv_path)
+        self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
         self.lineEdit_time_csv.setText(self.time_csv_path)
         self.lineEdit_gpc_txt.setText(self.gpc_txt_path)
 
@@ -122,14 +123,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.comboBox_session.activated.connect(self.set_session_id)
         self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
-        self.pushButton_exp_brows.clicked.connect(lambda: self.browsefiles('exp'))
-        self.pushButton_stud_brows.clicked.connect(lambda: self.browsefiles('stud'))
-        self.pushButton_time_brows.clicked.connect(lambda: self.browsefiles('time'))
-        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefiles('gpc'))
+        self.pushButton_exp_brows.clicked.connect(lambda: self.browsefile('exp'))
+        self.pushButton_stud_brows.clicked.connect(self.browsefiles)
+        self.pushButton_time_brows.clicked.connect(lambda: self.browsefile('time'))
+        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefile('gpc'))
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
     
-    def browsefiles(self, category):
+    def browsefile(self, category):
         fname=QFileDialog.getOpenFileName(self, 'Open file', 'data','Input Files (*.csv *.txt)')
         if category == 'time':
             self.lineEdit_time_csv.setText(fname[0])
@@ -140,22 +141,25 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lineEdit_exp_csv.setText(fname[0])
             self.exp_csv_path = fname[0]
             self.src_dir = os.path.dirname(self.exp_csv_path)
-        elif category == 'stud':
-            self.lineEdit_stud_csv.setText(fname[0])
-            self.stud_csv_path = fname[0]
         elif category == 'gpc':
             self.lineEdit_gpc_txt.setText(fname[0])
             self.gpc_txt_path = fname[0]
             logging.debug(f'--gpc_txt_path:{self.gpc_txt_path}')
             if fname[0]:
                 self.gpc_list =gpc.extract_gpc_list(self.gpc_txt_path)
+        
+    def browsefiles(self, category):
+        fnames=QFileDialog.getOpenFileNames(self, 'Open file', 'data','Input Files (*.csv *.txt)')
+        self.lineEdit_stud_csv.setText(','.join(str(s) for s in fnames[0] ))
+        self.stud_csv_path_list = fnames[0]
     
     def extract_sessions(self, time_csv_path):
         self.session_list = seating.get_session_list(time_csv_path)
         logging.debug(f'sessions in this course:{self.session_list.keys()}')
         self.comboBox_session.clear()
         if self.session_list:
-            self.comboBox_session.addItems(self.session_list.keys())
+            list_helper = sorted(list(self.session_list.keys()))
+            self.comboBox_session.addItems(list_helper)
             self.comboBox_session.setCurrentIndex(-1)
 
     def set_debug_mode(self):
@@ -182,7 +186,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.lineEdit_year.text() 
         self.semester   = self.comboBox_semester.currentText()
         self.code       = self.lineEdit_code.text() 
-        self.n_group    = int(self.lineEdit_ngroups.text())
+        self.n_max_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
         self.exp_id     = self.spinBox_exp_id.value()
         
@@ -218,7 +222,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return 
         else:
             logging.debug(f'selected session_id:{self.session_id}.')
-            if not self.stud_csv_path:
+            if not self.stud_csv_path_list:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
                 dlg.setText(f"Please select a student list from the settings tab and save, before generating groups.")
@@ -226,13 +230,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.exec()
                 return
             else: 
-                n_stud = seating.get_number_of_students(self.stud_csv_path, self.session_id)
+                n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id)
                 logging.debug(f' There are {n_stud} students enroled in this session.')
         
-        if n_stud > self.n_benches * self.n_group:
+        if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"There are <b>no enough seats for {n_stud} students in {self.n_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
+            dlg.setText(f"There are <b>no enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         else:
@@ -245,11 +249,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path = seating.make_groups(self.exp_csv_path, self.stud_csv_path, self.time_csv_path, self.session_id, self.n_group, self.n_benches, self.pkl_file_name )
+                self.pkl_path, n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
-                    dlg.setText(f"<b>{n_stud} enroled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
+                    dlg.setText(f"<b>{n_stud} enroled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                 else:
@@ -263,7 +267,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.pkl_path:
             if os.path.exists(self.pkl_path):
                 logging.debug(f'self.pkl_path: {self.pkl_path}')
-                seating.html_generator(self.pkl_path)
+                seating.html_generator(self.pkl_path, self.code)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -273,7 +277,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.src_dir:
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, localCopy = self.LocalCopyMode, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -348,12 +352,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('session_list', self.session_list)
             self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
             self.setting_Course.setValue('src_dir', self.src_dir)
-            self.setting_Course.setValue('stud_csv_path', self.lineEdit_stud_csv.text())
+            self.setting_Course.setValue('stud_csv_path_list', self.stud_csv_path_list)
             self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
             self.setting_Course.setValue('gpc_txt_path', self.lineEdit_gpc_txt.text())
             self.setting_Course.setValue('gpc_list', self.gpc_list)
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
-            self.setting_Course.setValue('n_group', int(self.lineEdit_ngroups.text()) )
+            self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
                 event.accept()
@@ -366,12 +370,13 @@ class MainWindow(QtWidgets.QMainWindow):
 #--------------------------------------------------------------------------------
 
 class CopyFileThread(QtCore.QThread):
-    def __init__(self, exp_id, gpc_list, src_dir, localCopy, parent=None ):
+    def __init__(self, exp_id, gpc_list, src_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         
         self.exp_id=exp_id
         self.gpc_list = gpc_list
         self.src_dir = src_dir
+        self.code = code
         self.localCopy = localCopy
         self.is_running = True
         self.copy_service = MyRemoteCopyFile(self.localCopy)
@@ -379,7 +384,7 @@ class CopyFileThread(QtCore.QThread):
         
     def run(self):
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
-        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.src_dir)
+        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.src_dir, self.code)
         
         if all(status.values()):
             logging.info(' html files are copied to target PC(s) successfully')

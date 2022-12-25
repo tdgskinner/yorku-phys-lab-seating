@@ -1,0 +1,8 @@
+#-- BC 102D Group PC names:
+#-------------------------------------
+SC-L-PH-BC3-GR1.yorku.yorku.ca
+SC-L-PH-BC3-GR2.yorku.yorku.ca
+SC-L-PH-BC3-GR3.yorku.yorku.ca
+SC-L-PH-BC3-GR4.yorku.yorku.ca
+SC-L-PH-BC3-GR5.yorku.yorku.ca
+SC-L-PH-BC3-GR6.yorku.yorku.ca

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import pandas, os
+import pandas as pd
+import os
 import random
 
 
-def get_session_list(time_csv_path):
-    sessions = []
+def day_map(day_abr):
     days_dicts = {
             'M':'Monday',
             'T':'Tuesday',
@@ -12,49 +12,39 @@ def get_session_list(time_csv_path):
             'R':'Thursday',
             'F':'Friday',
             }
-    time_df= pandas.read_csv(time_csv_path)
-    Day_list = list(time_df['Day'])
+    return days_dicts[day_abr]
+
+def get_studList_header(col):
+    header_10 = ["student_id","surname","first_name","email","session_id","lect_id","tutr_id","programme_title","study_level","registration_status"]
+    header_9 = ["student_id","surname","first_name","email","session_id","lect_id","programme_title","study_level","registration_status"]
+    return header_10 if col==10 else header_9
+
+
+path_list = [r'C:\Users\mkareem\Documents\PHYS_1801_W23\stud_2022PHYS1801M.csv', r'C:\Users\mkareem\Documents\PHYS_1801_W23\stud_2022PHYS1801N.csv']
+stud_dfs = []
+
+for i, path in enumerate(path_list):
+    df = pd.read_csv(path, index_col= False, header=None)
+    # handle two different data length in student list depending on the lab course
+    n_col = len(list(df.columns))
+    if n_col == 9 or n_col ==10:
+        df.columns = get_studList_header(n_col)
+    else:
+        print('number of columns is not supported')
     
-    time_list = list(time_df['Start Time'])
-    session_list = list(zip(Day_list, time_list))
-
-    for session in session_list:
-        sessions.append(f'{days_dicts[session[0]]}, {session[1]}')
-
-    return sessions
-
-def get_number_of_students(stud_csv_path, session):
-    print(f'stud_csv_path={stud_csv_path}')
-    print(f'--session={session}')
-    stud_df= pandas.read_csv(stud_csv_path)
-    print(f'len of stud_df= {len(stud_df)}')
-
-    # filter the list based on the given session_id
-    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
-    stud_list = list(stud_df['student_id'])
-    print(f'len of filtered stud= {len(stud_list)}')
+    # drop nan
+    df = df.dropna()
     
-    return len(stud_list)
+    # drop LAB 99
+    df = df.loc[df['session_id'].str.strip()!='LAB 99']
+    
+    # append suffix to session_id to concat multiple lists 
+    df['session_id'] = df['session_id'].add(f'_{i}')
+    stud_dfs.append(df)
 
-def make_groups(exp_csv_path):
-    exp_df= pandas.read_csv(exp_csv_path)
-    print(f'exp_df={exp_df}')
 
-def get_css_ver():
-    var = round(random.randint(0, 1000)/100, 2 )
-    print(var)
+print(stud_dfs[0]["session_id"])
+print(stud_dfs[1]["session_id"])
 
-#get_css_ver()
-
-status = {1:True, 2:True, 3:False}
-
-if all(status.values()):
-    print('All OK')
-else:
-    res = [key for key, value in status.items() if not value]
-    print(f'Not good: {res}')
-
-#path = 'C:/Users/mkareem/OneDrive - York University/physLabTech/yorku-phys-lab-seating/scripts/data/PHYS2213_2022-23/exp_test.csv'
-#sessions = make_groups(path)
-#print(os.path.dirname(path))
-
+merged_df = pd.concat(stud_dfs, axis=0)
+print(merged_df["session_id"])

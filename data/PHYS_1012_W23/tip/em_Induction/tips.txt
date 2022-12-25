@@ -1,0 +1,2 @@
+Please connect Power supply Alligators to the ends of wires specially left for that purpose.
+Otherwise (connecting Alligators between screws of the wire board will create bulges and can damage thin wires).

@@ -1,0 +1,9 @@
+Login with Passport York to laptop.
+Each student should collect own data by connecting USB cable
+from the MiniQuest Interface to the own laptop.
+Follow the manual instruction precisely.
+The word "computer" in the manual should be read as "laptop"
+ZERO spring: CTRL-O
+COLLECT
+"Include a screen capture of Logger Pro" 
+means use Snipping Tool (Window App) to capture Logger Pro screen

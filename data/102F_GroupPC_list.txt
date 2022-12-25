@@ -12,5 +12,5 @@
 #SC-L-PH-BC-GR10.yorku.yorku.ca
 
 #-------------------------------------
-#this is a test PC
-sc-l-ph-dev-gp1.yorku.yorku.ca
+# TA PC
+SC-L-PH-BC-ta1.yorku.yorku.ca
