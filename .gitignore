@@ -5,3 +5,4 @@ output/
 *.pkl
 test.py
 **/LabSeatingWeb
+stud_*.csv
