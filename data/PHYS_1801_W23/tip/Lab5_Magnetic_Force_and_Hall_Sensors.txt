@@ -1,0 +1,6 @@
+ALWAYS RETURN MAGNET TO BREADBOARD WHEN NOT IN USE.
+
+Lab Activity 1 - Ensure to show your TA the magnet turns the LED on and off!
+
+Lab Activity 2 - Radius of Disk: 6.7 cm +/- 0.1 cm
+Ensure to show your speedometer to the TA.

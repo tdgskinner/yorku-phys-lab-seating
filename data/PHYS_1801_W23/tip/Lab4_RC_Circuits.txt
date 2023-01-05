@@ -1,0 +1,10 @@
+Use the middle and one of the outer legs of the potentiometer when connecting your RC circuit.
+
+Pay attention to the circuit diagram - the location of ground is very important. (The black alligator clip is grounded.)
+
+Get to know the Function Generator!  
+Ensure the TTL symbol is activated by pressing the SHIFT button followed by the WAVE button!
+Activate the TTL output using OUTPUT ON button.  LED green indicator should be visible. 
+
+
+
