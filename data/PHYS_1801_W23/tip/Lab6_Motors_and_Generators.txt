@@ -1,7 +1,0 @@
-Motors and Generators, 
-
-During this lab you will work in pairs and with your entire group.  Each group member must collect data for a different applied voltage, Va, to the motor.  Share your data with each other and then you can calculate the average resistance of the motor.
-
-Ensure all cables are not touching the motor or generator in your experimental setup.
-
-Do not exceed 8.0 V for the applied voltage, Va.
