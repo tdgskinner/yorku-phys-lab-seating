@@ -1,6 +1,0 @@
-
-Ensure the BNC cable is properly connected to the Oscilloscope and Function Generator.
-
-Always connect the black alligator clips at the same point.  This is common ground.
-
-When measuring AC volts use the V~ setting on the DMM.

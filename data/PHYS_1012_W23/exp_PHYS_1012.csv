@@ -1,6 +1,6 @@
 exp_id,exp_title,exp_img,exp_tip
-1,Introduction to ,img_exp1.png,Tip_exp1.html
-2,,img_exp2.png,Tip_exp2.html
-3,,img_exp3.png,Tip_exp3.html
-4,,img_exp4.png,Tip_exp4.html
-5,,img_exp5.png,Tip_exp5.html
+1,Introduction to Circuits and the Oscilloscope,img_exp1.png,Tip_exp1.html
+2,RC Circuits,img_exp2.png,Tip_exp2.html
+3,Charge/Mass Ratio of Electron & Induction,e_m_Induction.jpg,Tip_em_Induction.html
+4,Physics of the Eye,Physics_of_Eye.jpg,Tip_Physics_of_the_Eye.html
+5,Diffraction of Light & Spectroscopy,Diffraction.jpg,Tip_Diffraction.html
