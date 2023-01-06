@@ -11,7 +11,7 @@ import math
 logger = logging.getLogger(__name__)
 
 #------------------------------------------------------------    
-def _rand_group_maker(df, n_group, rand_grp = True):
+def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
     
     if rand_grp:
         df_shuffled = df.sample(frac=1)
@@ -19,6 +19,15 @@ def _rand_group_maker(df, n_group, rand_grp = True):
         df_shuffled = df.sample(frac=1, random_state=42)
     
     df_splits = np.array_split(df_shuffled, int(n_group))
+    
+    # Keep maximum number of pair students working together
+    if optimize:
+        if sum(i <n_benches for i in [len(grp) for grp in df_splits]) > 1:
+            if len(df_splits[-1])%2 ==1 and len(df_splits[-1]!=1):
+                last, df_splits[-1] = df_splits[-1].iloc[-1], df_splits[-1].iloc[:-1]
+                df_splits[-2].loc[len(df_splits[-2])] = last
+            
+    
     return df_splits
 
 #------------------------------------------------------------        
@@ -97,7 +106,7 @@ def day_map(day_abr):
             'R':'Thursday',
             'F':'Friday',
             }
-    return days_dicts[day_abr]
+    return days_dicts[day_abr.strip()]
 
 def get_session_list(time_csv_path):
     sessions = {}
@@ -105,7 +114,7 @@ def get_session_list(time_csv_path):
     time_df = pandas.read_csv(time_csv_path)
     #--- drop rows with nan
     time_df = time_df.dropna()
-    time_df=time_df.dropna().reset_index(drop=True)
+    time_df = time_df.dropna().reset_index(drop=True)
 
     Type_list = list(time_df['Type'].str.strip())
     Day_list = list(time_df['Day'].str.strip())
@@ -141,7 +150,7 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
 
     exp_list = list(exp_df['exp_id'])
     stud_list = list(stud_df['student_id'])
-    time_list = list(time_df['Type'])
+    time_list = list(time_df['Type'].str.strip())
 
     exp_dict = DefaultDict() # exp dict: key = exp_id , value = tuple of (exp meta data) and (student_groups)
     
@@ -149,7 +158,7 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
     # fill the database dictionary
     if exp_list and stud_list and time_list:
         for exp in exp_list:
-            students_splits = _rand_group_maker(stud_df, n_group)
+            students_splits = _rand_group_maker(stud_df, n_group, n_benches, optimize=True)
             exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp], time_df.loc[time_df['Type'].str.strip()==session_id] , students_splits)
     else:
         logger.error('exp_list, time_list, or stud_list is empty')
