@@ -420,7 +420,7 @@ class CopyFileThread(QtCore.QThread):
             logging.info(' html files are copied to target PC(s) successfully')
         else:
             res = [key for key, value in status.items() if not value]
-            logging.info(f' Failed to copy html files to: {res}')
+            logging.error(f' Failed to copy html files to: {res}')
 
     def stop(self):
         self.is_running = False
