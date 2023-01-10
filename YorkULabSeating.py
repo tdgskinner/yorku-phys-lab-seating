@@ -51,7 +51,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'coursename':'PHYS',
             'session_list': [],
             'gpc_list': [],
-            'ta_name':'Best TA',
+            #'ta_name':'Best TA',
             'exp_id':1,
             'n_max_group':6,
             'n_benches':4,
@@ -116,6 +116,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.thread={}
         self.LocalCopyMode = False
         self.isCopyFileRunning = False
+        
+        self.lineEdit_TAname.setEnabled(False)
+        self.overwite_ta_name = False
+        self.ta_name = None
 
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
@@ -131,6 +135,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefile('gpc'))
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
+        self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
     
     def browsefile(self, category):
         logging.debug(f'self.src_dir: {self.src_dir}')
@@ -182,6 +187,15 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def set_copy_mode(self):
         self.LocalCopyMode = self.checkBox_localCopy.isChecked()
+    
+    def set_ta_name_mode(self):
+        self.overwite_ta_name = self.checkBox_TAname_overwrite.isChecked()
+        if self.overwite_ta_name:
+            self.lineEdit_TAname.setEnabled(True)
+        else:
+            self.lineEdit_TAname.setEnabled(False)
+
+
 
     def getSettingValues(self):
         '''
@@ -278,7 +292,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.pkl_path:
             if os.path.exists(self.pkl_path):
                 logging.debug(f'self.pkl_path: {self.pkl_path}')
-                seating.html_generator(self.pkl_path, self.code)
+                
+                if self.overwite_ta_name:
+                    self.ta_name = self.lineEdit_TAname.text()
+                else: self.ta_name = None
+                
+                seating.html_generator(self.pkl_path, self.code, self.ta_name)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")

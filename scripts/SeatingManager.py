@@ -119,11 +119,13 @@ def get_session_list(time_csv_path):
     Type_list = list(time_df['Type'].str.strip())
     Day_list = list(time_df['Day'].str.strip())
     time_list = list(time_df['Start Time'].str.strip())
-    ta_list = list(time_df['Instructor'].str.strip())
-    session_list = list(zip(Type_list, Day_list, time_list, ta_list))
+    #ta_list = list(time_df['Instructor'].str.strip())
+    #session_list = list(zip(Type_list, Day_list, time_list, ta_list))
+    session_list = list(zip(Type_list, Day_list, time_list))
     
     for session in session_list:
-        sessions[f'{day_map(session[1])}, {session[2]}'] = (session[0],session[3])
+        #sessions[f'{day_map(session[1])}, {session[2]}'] = (session[0],session[3])
+        sessions[f'{day_map(session[1])}, {session[2]}'] = session[0]
     
     return sessions
 
@@ -193,8 +195,8 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path, code):
-    
+def html_generator(pkl_path, code, ta_name = None):
+    logger.debug(f'ta_name = {ta_name}')
     out_dir = f'output_{code}'
     html_dir = os.path.join(out_dir, 'html')
 
@@ -218,6 +220,9 @@ def html_generator(pkl_path, code):
         output_dir = os.path.join(html_dir, f'exp{e}')
         df_exp_metadata = dict[e][0]
         df_time_metadata = dict[e][1]
+
+        if ta_name == None:
+            ta_name = df_time_metadata['Instructor'].iloc[0]
         
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
@@ -253,7 +258,7 @@ def html_generator(pkl_path, code):
                                     <img src=yorku-logo.jpg , style="height:30px">
                                 </div>
                                 <div class="column", style="width:65%">
-                                    <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {df_time_metadata['Instructor'].iloc[0]}</center></h3>
+                                    <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
                                 </div>
                                 <div class="column", style="width:15%"></div>
                                     <h3><span id="ct"> </span></h3>
