@@ -2,8 +2,11 @@ import sys , os
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QSettings
-from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget
+from PyQt6.QtGui import QIcon, QPixmap
+
+from PyQt6.QtWidgets import  QLabel, QVBoxLayout
 
 import logging
 import scripts.SeatingManager as seating
@@ -41,6 +44,32 @@ class OutputWrapper(QtCore.QObject):
         except AttributeError:
             pass
 
+class LabLayoutWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self, lab_layout_file):
+        super().__init__()
+        
+        pixmap = QPixmap(lab_layout_file)
+            
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Lab Layout")
+        flags = dialog.windowFlags()
+        flags |= QtCore.Qt.WindowType.WindowMaximizeButtonHint
+        dialog.setWindowFlags(flags)
+
+        layout = QVBoxLayout()
+            
+        label = QLabel(dialog)
+        label.setPixmap(pixmap)
+        label.resize(pixmap.width(), pixmap.height())
+
+        layout.addWidget(label)
+        self.setLayout(layout)
+
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         # Default settings will be set if no stored settings found from previous session
@@ -51,7 +80,6 @@ class MainWindow(QtWidgets.QMainWindow):
             'coursename':'PHYS',
             'session_list': [],
             'gpc_list': [],
-            #'ta_name':'Best TA',
             'exp_id':1,
             'n_max_group':6,
             'n_benches':4,
@@ -136,7 +164,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
+
+        self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
     
+    def show_lab_layout(self):
+        if self.src_dir:
+            lab_layout_file = os.path.join(self.src_dir, 'lab_layout.jpg')
+            
+            if os.path.isfile(lab_layout_file):
+                self.lablayout = LabLayoutWindow(lab_layout_file)
+                self.lablayout.show()
+            else:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No lab_layout.jpg found in PHYS_* directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+        else:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Source directory not found. Please select the exp csv file first and try again. The lab_layout.jpg file should be placed in same directory as the csv files.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+        
     def browsefile(self, category):
         logging.debug(f'self.src_dir: {self.src_dir}')
         if self.src_dir:
@@ -171,11 +221,11 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def extract_sessions(self, time_csv_path):
         self.session_list = seating.get_session_list(time_csv_path)
-        logging.debug(f'sessions in this course:{self.session_list.keys()}')
         self.comboBox_session.clear()
         if self.session_list:
             list_helper = sorted(list(self.session_list.keys()))
             self.comboBox_session.addItems(list_helper)
+            logging.debug(f'---sessions loaded:{list_helper}')
             self.comboBox_session.setCurrentIndex(-1)
 
     def set_debug_mode(self):
@@ -232,8 +282,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_session_id(self):
         self.session   = self.comboBox_session.currentText()
+        
         if self.session:
-            self.session_id = self.session_list[self.session][0]
+            self.session_id = self.session_list[self.session]
             logging.debug(f'---set_session_id:{self.session_id}')
 
 

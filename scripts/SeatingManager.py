@@ -119,12 +119,9 @@ def get_session_list(time_csv_path):
     Type_list = list(time_df['Type'].str.strip())
     Day_list = list(time_df['Day'].str.strip())
     time_list = list(time_df['Start Time'].str.strip())
-    #ta_list = list(time_df['Instructor'].str.strip())
-    #session_list = list(zip(Type_list, Day_list, time_list, ta_list))
     session_list = list(zip(Type_list, Day_list, time_list))
     
     for session in session_list:
-        #sessions[f'{day_map(session[1])}, {session[2]}'] = (session[0],session[3])
         sessions[f'{day_map(session[1])}, {session[2]}'] = session[0]
     
     return sessions

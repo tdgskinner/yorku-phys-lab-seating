@@ -1,10 +1,10 @@
 exp_id,exp_title,exp_img,exp_tip
-1,Introduction to DC Circuits,under_development.jpg,Lab1_DC_Circuits.html
-2,Voltage Divider and Intro. to Computer DAQ & LabVIEW,under_development.jpg,Lab2_Intro_to_DAQ.html
-3,Digital Thermometer and Part 2 of Intro. to Computer DAQ & LabVIEW,under_development.jpg,Lab3_Bridge_Circuits_and_DT.html
-4,RC Circuits,under_development.jpg,Lab4_RC_Circuits.html
-5,The Hall Effect and Hall Sensors,under_development.jpg,Lab5_Magnetic_Force_and_Hall_Sensors.html
-6,Motors and Generators,under_development.jpg,Lab6_Motors_and_Generators.html
-7,Digital Oscilloscope,under_development.jpg,Lab7_Digital_Oscilloscope.html
-8,LRC Circuits,under_development.jpg,Lab8_RLC_Circuits.html
-9,Semiconductor Optical Devices,under_development.jpg,Lab9_Electronic_Circuits.html
+1,Exp1,no_image.jpg,Lab1-Uncertainties-and-Logger-Pro.html
+2,Exp2,no_image.jpg,Lab2-Motion-in-a-Straight-Line.html
+3,Exp3,no_image.jpg,Lab3-Friction.html
+4,Exp4,no_image.jpg,Lab4-Energy-Investigation.html
+5,Exp5,no_image.jpg,Lab5-Collision.html
+6,Exp6,no_image.jpg,Lab6-Angular-Motion.html
+7,Exp7,no_image.jpg,Lab7-Static-Equilibrium.html
+8,Exp8,no_image.jpg,Lab8-Elasticity.html
+9,Exp9,no_image.jpg,Lab9-Oscillations.html

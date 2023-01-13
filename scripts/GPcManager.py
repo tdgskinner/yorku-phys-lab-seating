@@ -7,7 +7,7 @@ def reboot_Pcs(pc_list):
     for targetPc in pc_list:
         try:
             os.system(r'shutdown -m \\' + targetPc+ ' -r -f -t 0')
-            logger.debug(f' Reboot command sent to {targetPc} successfully!')
+            logger.info(f' Reboot command sent to {targetPc} successfully!')
         except:
             logger.error(f' Unable to send reboot command to {targetPc}')
 
