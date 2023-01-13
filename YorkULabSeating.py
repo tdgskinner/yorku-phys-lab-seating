@@ -319,7 +319,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"Please select experiments list from the settings tab and save, before generating groups.")
+                dlg.setText(f"Please select experiments list from the settings tab before generating groups.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
@@ -332,6 +332,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setText(f"<b>{n_stud} enroled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
+                    self.pushButton_grouping.setEnabled(False)
+
                 else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")
@@ -363,7 +365,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
             self.spinBox_exp_id.setEnabled(False)
-            self.pushButton_grouping.setEnabled(False)
+            #self.pushButton_grouping.setEnabled(False)
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
@@ -385,7 +387,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_copyFinished(self):
         self.pushButton_copyfiles.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
-        self.pushButton_grouping.setEnabled(True)
+        #self.pushButton_grouping.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.pushButton_rebootPCs.setEnabled(True)
         self.isCopyFileRunning = False
