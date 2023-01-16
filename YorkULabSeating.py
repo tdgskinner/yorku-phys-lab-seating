@@ -74,10 +74,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         # Default settings will be set if no stored settings found from previous session
         self.default_settings = {
-            'year':'2022', 
-            'semester':'Fall',
+            'year':'2023', 
+            'semester':'Winter',
             'code':'xxxx',
-            'coursename':'PHYS',
             'session_list': [],
             'gpc_list': [],
             'exp_id':1,
@@ -350,7 +349,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                seating.html_generator(self.pkl_path, self.code, self.ta_name)
+                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, self.ta_name)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")

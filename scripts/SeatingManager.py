@@ -192,7 +192,7 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path, code, ta_name = None):
+def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
     logger.debug(f'ta_name = {ta_name}')
     out_dir = f'output_{code}'
     html_dir = os.path.join(out_dir, 'html')
@@ -293,6 +293,77 @@ def html_generator(pkl_path, code, ta_name = None):
                 except:
                     logger.error(f' Failed to write html files to disk', exc_info = True)
                     return None
+        #Creating blank html page
+        if n_max_group > n_group:
+            logger.debug('Creating blank html page')
+            
+            for g in range(n_group, n_max_group):
+                blank_f_html = os.path.join(output_dir, f'g{g+1}.html')
+                
+                with open(blank_f_html, 'w') as blank_html_seating_file:
+                    blank_stud_list = []
+                    for i in range(n_benches):
+                        row = '<div class="grid-item"><a href="#"> Not assigned </a></div>'
+                        blank_stud_list.append(row)
+                    newline = "\n" 
+                    blank_seating_contents = f'''<!DOCTYPE html>
+                                <html lang="en">
+                                <head>
+                                <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+                                <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
+                                <meta name="viewport" content="width=device-width, initial-scale=1">
+                                <meta http-equiv="refresh" content="30">
+                                <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                                <script type="text/javascript" src="time.js"></script>
+                                
+                                </head>
+                                <body>
+
+                                <div class="row", style="padding:0cm">
+                                    <div class="column", style="width:20%">
+                                        <img src=yorku-logo.jpg , style="height:30px">
+                                    </div>
+                                    <div class="column", style="width:65%">
+                                        <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
+                                    </div>
+                                    <div class="column", style="width:15%"></div>
+                                        <h3><span id="ct"> </span></h3>
+                                    </div>
+                                </div>
+                                
+                                <div class="row", style="padding:0cm">
+                                    <div class="column", style="width:50%">
+                                        <div class="vertical-menu", style="width:100%">
+                                            <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
+                                            <div class="grid-container">
+                                                {newline.join(stud for stud in blank_stud_list)}
+                                            </div>
+                                            <h4> Useful tip:</h4>
+                                                <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
+                                                        style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
+                                                        width="100%"
+                                                        height="290px">
+                                                </iframe>
+                                        </div>
+                                    </div>
+
+                                    <div class="column", style="width:50%">
+                                        <div class="vertical-menu", style="width:100%">
+                                            <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
+                                        </div>
+                                        <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:500px" ></center>
+                                    </div>
+                                </div>
+                                </body>
+                                </html>
+                                '''
+                    try:
+                        blank_html_seating_file.write(blank_seating_contents)
+                    except:
+                        logger.error(f' Failed to write blank html files to disk', exc_info = True)
+                        return None
+
+                
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
     
