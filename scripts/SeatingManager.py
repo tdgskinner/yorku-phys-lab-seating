@@ -273,7 +273,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                                             <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
                                                     style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
                                                     width="100%"
-                                                    height="290px">
+                                                    height="270px">
                                             </iframe>
                                     </div>
                                 </div>
