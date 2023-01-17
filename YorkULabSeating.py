@@ -332,6 +332,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
+                    self.comboBox_session.setEnabled(False)
 
                 else:
                     dlg = QtWidgets.QMessageBox(self)
