@@ -1,8 +1,0 @@
-DO NOT MOVE TRACKS !!!!
-Tracks are leveled just check if they are < +/-0.1 deg from horizontal position.
-Track legs are secured by plastic nuts at the the top and should be unscrewed
-before adjusting the legs if it is really needs.
-CLEAN LAB AT THE END: DO NOT CLOSE LAPTOP LID, 
-DO NOT SHUTDOWN (POWER OFF LAPTOP), 
-DO NOT DISCONNECT POWER CORD (RECONNECT IT if you disconnect it during lab)
-In case if we found that laptop was not left in clean state student can get 1 mark deduction. 

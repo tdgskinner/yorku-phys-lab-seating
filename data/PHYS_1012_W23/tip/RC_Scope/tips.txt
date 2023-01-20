@@ -1,6 +1,0 @@
-Please move coils very gently along the rail only. Never pull out the coils. 
-If the screw stuck use pluers provided. 
-Do not uncrew coils completely, if you did it report TA to fix it.
-To remove middle rod for the next exercise move coils to the right, unscrew rod,
-move rod right, then toward, them left. At the end of lab mount rod back in the same way.
-Do not perform the probe coil experiment with rod inside the coils.

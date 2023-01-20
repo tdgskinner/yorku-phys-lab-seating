@@ -1,2 +1,0 @@
-Login with Passport York to laptop.
-Each student should collect own data

@@ -49,10 +49,10 @@ class LabLayoutWindow(QWidget):
     This "window" is a QWidget. If it has no parent, it
     will appear as a free-floating window as we want.
     """
-    def __init__(self, lab_layout_file):
+    def __init__(self, layout_out):
         super().__init__()
         
-        pixmap = QPixmap(lab_layout_file)
+        pixmap = QPixmap(layout_out)
             
         dialog = QDialog(self)
         dialog.setWindowTitle("Lab Layout")
@@ -79,6 +79,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'code':'xxxx',
             'session_list': [],
             'gpc_list': [],
+            'laptop_list': [],
             'exp_id':1,
             'n_max_group':6,
             'n_benches':4,
@@ -106,6 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.time_csv_path = self.setting_Course.value('time_csv_path')
         self.gpc_txt_path = self.setting_Course.value('gpc_txt_path')
         self.gpc_list = self.setting_Course.value('gpc_list')
+        self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
@@ -116,6 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.code: self.code = self.default_settings['code']
         if not self.session_list: self.session_list = self.default_settings['session_list']
         if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
+        if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
@@ -147,6 +150,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_TAname.setEnabled(False)
         self.overwite_ta_name = False
         self.ta_name = None
+        self.layout_out = None
+        self.pushButton_labLayout.setEnabled(False)
 
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
@@ -156,6 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.comboBox_session.activated.connect(self.set_session_id)
         self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
+        self.pushButton_rebootLaptops.clicked.connect(self.Reboot_Laptops)
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefile('exp'))
         self.pushButton_stud_brows.clicked.connect(self.browsefiles)
         self.pushButton_time_brows.clicked.connect(lambda: self.browsefile('time'))
@@ -167,22 +173,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
     
     def show_lab_layout(self):
+        # Populating layout image:
         if self.src_dir:
-            lab_layout_file = os.path.join(self.src_dir, 'lab_layout.jpg')
+            self.layout_src = os.path.join(self.src_dir, 'lab_layout.jpg')
+            if os.path.isfile(self.layout_src):
+                seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
+
+        self.out_dir = f'output_{self.code}'
+        if os.path.exists(self.out_dir):
+            self.layout_out = os.path.join(self.out_dir, 'lab_layout_grp.jpg')
             
-            if os.path.isfile(lab_layout_file):
-                self.lablayout = LabLayoutWindow(lab_layout_file)
+            if os.path.isfile(self.layout_out):
+                self.lablayout = LabLayoutWindow(self.layout_out)
                 self.lablayout.show()
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("No lab_layout.jpg found in PHYS_* directory.")
+                dlg.setText("No lab_layout_grp.jpg found in output_XXXX directory.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("Source directory not found. Please select the exp csv file first and try again. The lab_layout.jpg file should be placed in same directory as the csv files.")
+            dlg.setText("Source directory not found. Please generate groups first.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
@@ -207,7 +220,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.gpc_txt_path = fname[0]
             logging.debug(f'--gpc_txt_path:{self.gpc_txt_path}')
             if fname[0]:
-                self.gpc_list =gpc.extract_gpc_list(self.gpc_txt_path)
+                self.gpc_list, self.laptop_list =gpc.extract_gpc_list(self.gpc_txt_path)
         
     def browsefiles(self):
         if self.src_dir:
@@ -333,7 +346,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
                     self.comboBox_session.setEnabled(False)
-
                 else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")
@@ -351,6 +363,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 else: self.ta_name = None
                 
                 seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, self.ta_name)
+                self.pushButton_labLayout.setEnabled(True)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -365,7 +378,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
             self.spinBox_exp_id.setEnabled(False)
-            #self.pushButton_grouping.setEnabled(False)
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
@@ -409,6 +421,25 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
+                return
+    
+    def Reboot_Laptops(self):
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Warning")
+        dlg.setText("Are you sure you want to Reboot all Laptops?")
+        dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+        dlg.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
+        button = dlg.exec()
+        if button == QtWidgets.QMessageBox.StandardButton.Yes:
+            if self.laptop_list:
+                gpc.reboot_Pcs(self.laptop_list)
+            else:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText(f"No Laptop name found in Laptop list. Check the input txt file")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
                 return 
 
     def handleOutput(self, text, stdout):
@@ -439,6 +470,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
             self.setting_Course.setValue('gpc_txt_path', self.lineEdit_gpc_txt.text())
             self.setting_Course.setValue('gpc_list', self.gpc_list)
+            self.setting_Course.setValue('laptop_list', self.laptop_list)
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))

@@ -7,6 +7,7 @@ import logging
 import random
 import sys, os, shutil
 import math
+from PIL import Image, ImageFont, ImageDraw
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,18 @@ def day_map(day_abr):
             }
     return days_dicts[day_abr.strip()]
 
+def cord_map(code):
+    # coordinate map of the PHYS lab layouts
+    cord_base_18xx = [(30, 240),(160, 240),(30, 300),(160, 300)]
+    cord_diff_1801 = [(0,0),(290,-100),(290,150),(650,-50),(650,230),(980,250),(730,480),(1030, 520)]
+    cord_diff_1800 = [(0,430),(0,215)]
+    
+    
+    cord_dict = {}
+    cord_dict['1801'] = [cord_base_18xx, cord_diff_1801]
+    cord_dict['1800'] = [cord_base_18xx, cord_diff_1800]
+    return cord_dict[code]
+
 def get_session_list(time_csv_path):
     sessions = {}
     
@@ -185,6 +198,7 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
         
         # close file
         pkl_f.close()
+        
         return pkl_path, n_group
     except:
         logger.error(f' Failed to write {pkl_path} to disk', exc_info = True)
@@ -293,10 +307,9 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                 except:
                     logger.error(f' Failed to write html files to disk', exc_info = True)
                     return None
+        
         #Creating blank html page
         if n_max_group > n_group:
-            logger.debug('Creating blank html page')
-            
             for g in range(n_group, n_max_group):
                 blank_f_html = os.path.join(output_dir, f'g{g+1}.html')
                 
@@ -366,4 +379,50 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                 
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
+
+def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
+    out_dir = f'output_{code}'
+    
+    if not os.path.exists(out_dir):
+        logger.error(f'output_{code} does not exist.')
+        return None
+    if int(code) not in [1800, 1801]:
+        logger.error(f'{code} layout is not supported yet.')
+        return None
+    
+    cord = cord_map(code)
+    text_char_limit = 15
+    text_color = 'red'  
+
+    lab_layout_out_file = os.path.join(out_dir, 'lab_layout_grp.jpg')
+    
+    # Open the layout image
+    myLayout = Image.open(layout_src)
+
+    # Define Font
+    textFont = ImageFont.truetype('arial.ttf', 15)
+
+    g_cor =[]
+    for g in range(len(cord[1])):
+        tmp = []
+        for i in range(n_benches):
+            tmp.append((cord[0][i][0]+cord[1][g][0], cord[0][i][1]+cord[1][g][1]))
+        g_cor.append(tmp)
+
+    editImage = ImageDraw.Draw(myLayout)
+
+    dict = _load_student_groups(pkl_path, print_result=False)
+    n_group = len(dict[1][2])
+
+    for g in range(n_group):
+        df = dict[exp_id][2][g].reset_index(drop=True)
+        df.index += 1
+       
+        for i in range(len(df)):
+            stud_name = df.iloc[i,2] +' '+ df.iloc[i,1]
+            editImage.text(g_cor[g][i], stud_name[:text_char_limit], (text_color), font=textFont)
+
+    #save Image
+    myLayout.save(lab_layout_out_file)
+
     
