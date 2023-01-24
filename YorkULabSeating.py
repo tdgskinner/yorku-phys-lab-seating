@@ -13,6 +13,7 @@ import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 
 from scripts.remote_copy import MyRemoteCopyFile
+from scripts.remote_reboot import Remote_PC_Reboot
 
 
 class OutputWrapper(QtCore.QObject):
@@ -105,7 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.src_dir  = self.setting_Course.value('src_dir')
         self.stud_csv_path_list = self.setting_Course.value('stud_csv_path_list')
         self.time_csv_path = self.setting_Course.value('time_csv_path')
-        self.gpc_txt_path = self.setting_Course.value('gpc_txt_path')
+        self.pc_txt_path = self.setting_Course.value('gpc_txt_path')
         self.gpc_list = self.setting_Course.value('gpc_list')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
@@ -139,13 +140,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
             
         self.lineEdit_time_csv.setText(self.time_csv_path)
-        self.lineEdit_gpc_txt.setText(self.gpc_txt_path)
+        self.lineEdit_gpc_txt.setText(self.pc_txt_path)
 
         self.session_id = None
         self.pkl_path = None
         self.thread={}
         self.LocalCopyMode = False
         self.isCopyFileRunning = False
+        self.is_gpc_reboot_running = False
+        self.is_laptop_reboot_running = False
         
         self.lineEdit_TAname.setEnabled(False)
         self.overwite_ta_name = False
@@ -160,12 +163,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.comboBox_session.activated.connect(self.set_session_id)
-        self.pushButton_rebootPCs.clicked.connect(self.Reboot_Pcs)
-        self.pushButton_rebootLaptops.clicked.connect(self.Reboot_Laptops)
+        self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
+        self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
         self.pushButton_exp_brows.clicked.connect(lambda: self.browsefile('exp'))
         self.pushButton_stud_brows.clicked.connect(self.browsefiles)
         self.pushButton_time_brows.clicked.connect(lambda: self.browsefile('time'))
-        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefile('gpc'))
+        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefile('pc'))
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
@@ -215,12 +218,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lineEdit_exp_csv.setText(fname[0])
             self.exp_csv_path = fname[0]
             self.src_dir = os.path.dirname(self.exp_csv_path)
-        elif category == 'gpc':
+        elif category == 'pc':
             self.lineEdit_gpc_txt.setText(fname[0])
-            self.gpc_txt_path = fname[0]
-            logging.debug(f'--gpc_txt_path:{self.gpc_txt_path}')
+            self.pc_txt_path = fname[0]
+            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             if fname[0]:
-                self.gpc_list, self.laptop_list =gpc.extract_gpc_list(self.gpc_txt_path)
+                self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
         
     def browsefiles(self):
         if self.src_dir:
@@ -399,12 +402,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_copyFinished(self):
         self.pushButton_copyfiles.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
-        #self.pushButton_grouping.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.pushButton_rebootPCs.setEnabled(True)
         self.isCopyFileRunning = False
     
-    def Reboot_Pcs(self):
+    #----------------- Reboot thread
+    def start_gpc_reboot_worker(self):
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Warning")
         dlg.setText("Are you sure you want to Reboot all Group Computers?")
@@ -414,7 +417,12 @@ class MainWindow(QtWidgets.QMainWindow):
         button = dlg.exec()
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.gpc_list:
-                gpc.reboot_Pcs(self.gpc_list)
+                self.thread[2] = Reboot_PC_Thread(self.gpc_list, parent=None)
+                self.thread[2].finished.connect(self.on_gpc_rebootFinished)
+                self.thread[2].start()
+                
+                self.pushButton_rebootPCs.setEnabled(False)
+                self.is_gpc_reboot_running = True
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
@@ -422,26 +430,40 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
+
+    def on_gpc_rebootFinished(self):
+        self.pushButton_rebootPCs.setEnabled(True)
+        self.is_gpc_reboot_running = False
     
-    def Reboot_Laptops(self):
+    def start_laptop_reboot_worker(self):
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Warning")
-        dlg.setText("Are you sure you want to Reboot all Laptops?")
+        dlg.setText("<b>WARNING!</b>  Are you sure you want to Reboot all Laptops? Students may lose their unsaved work!")
         dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
         button = dlg.exec()
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.laptop_list:
-                gpc.reboot_Pcs(self.laptop_list)
+                self.thread[3] = Reboot_PC_Thread(self.laptop_list, parent=None)
+                self.thread[3].finished.connect(self.on_laptop_rebootFinished)
+                self.thread[3].start()
+                
+                self.pushButton_rebootLaptops.setEnabled(False)
+                self.is_laptop_reboot_running = True
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"No Laptop name found in Laptop list. Check the input txt file")
+                dlg.setText(f"No Laptop found in laptop list. Check the input txt file")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
-                return 
+                return
 
+    def on_laptop_rebootFinished(self):
+        self.pushButton_rebootLaptops.setEnabled(True)
+        self.is_laptop_reboot_running = False
+
+    #----------------------------------
     def handleOutput(self, text, stdout):
         color = self.statusbox.textColor()
         self.statusbox.setTextColor(color)
@@ -511,9 +533,33 @@ class CopyFileThread(QtCore.QThread):
         self.is_running = False
         self.terminate()
 
+#--------------------------------------------------------------------------------
+
+class Reboot_PC_Thread(QtCore.QThread):
+    def __init__(self, pc_list, parent=None ):
+        super(Reboot_PC_Thread, self).__init__(parent)
+        self.pc_list = pc_list
+        self.is_running = True
+        self.reboot_service = Remote_PC_Reboot()
+        
+        
+    def run(self):
+        logging.info(f' Rebooting PCs. Please wait ...')
+        status = self.reboot_service.reboot_Pcs(self.pc_list)
+        
+        if all(status.values()):
+            logging.info(' All PCs rebooted successfully')
+        else:
+            res = [key for key, value in status.items() if not value]
+            logging.error(f' Failed to send reboot command to: {res}')
+
+    def stop(self):
+        self.is_running = False
+        self.terminate()
+
+
 #-------------------------------------------------
 if __name__ == '__main__':
-    #logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().setLevel(logging.INFO)
     
     app = QtWidgets.QApplication(sys.argv)

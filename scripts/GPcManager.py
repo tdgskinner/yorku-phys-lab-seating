@@ -4,16 +4,7 @@ import re
 
 logger = logging.getLogger(__name__)
 
-def reboot_Pcs(pc_list):
-    for targetPc in pc_list:
-        try:
-            os.system(r'shutdown -m \\' + targetPc+ ' -r -f -t 5')
-            logger.info(f' Reboot command sent to {targetPc} successfully!')
-        except:
-            logger.error(f' Unable to send reboot command to {targetPc}')
-
-
-def extract_gpc_list(pc_txt_path):
+def extract_pc_list(pc_txt_path):
     gpc_list = []
     laptop_list = []
     laptop_identifier = re.compile('-L\d+')
