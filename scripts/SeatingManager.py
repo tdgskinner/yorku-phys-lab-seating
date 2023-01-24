@@ -111,14 +111,26 @@ def day_map(day_abr):
 
 def cord_map(code):
     # coordinate map of the PHYS lab layouts
-    cord_base_18xx = [(30, 240),(160, 240),(30, 300),(160, 300)]
-    cord_diff_1801 = [(0,0),(290,-100),(290,150),(650,-50),(650,230),(980,250),(730,480),(1030, 520)]
-    cord_diff_1800 = [(0,430),(0,215)]
+    cord_base_bc102F = [(30, 240),(160, 240),(30, 300),(160, 300)]
+    cord_diff_bc102F_l = [(0,0),(290,-100),(290,150),(650,-50),(650,230),(980,250),(730,480),(1030, 520)]
+    cord_diff_bc102F_s = [(0,430),(0,215)]
     
+    cord_base_bc102cd = [(560, 50),(710, 50),(560, 120),(710, 120)]
+    cord_diff_bc102cd = [(0,0),(-275,0),(-550,0), (-550,380),(-275,380),(0,380)]
     
     cord_dict = {}
-    cord_dict['1801'] = [cord_base_18xx, cord_diff_1801]
-    cord_dict['1800'] = [cord_base_18xx, cord_diff_1800]
+    cord_dict['1801'] = [cord_base_bc102F, cord_diff_bc102F_l]
+    cord_dict['1800'] = [cord_base_bc102F, cord_diff_bc102F_s]
+
+    cord_dict['1012'] = [cord_base_bc102cd, cord_diff_bc102cd]
+    cord_dict['1412'] = [cord_base_bc102cd, cord_diff_bc102cd]
+    cord_dict['1422'] = [cord_base_bc102cd, cord_diff_bc102cd]
+
+    cord_dict['1011'] = [cord_base_bc102cd, cord_diff_bc102cd]
+    cord_dict['1411'] = [cord_base_bc102cd, cord_diff_bc102cd]
+    cord_dict['1421'] = [cord_base_bc102cd, cord_diff_bc102cd]
+
+
     return cord_dict[code]
 
 def get_session_list(time_csv_path):
@@ -386,7 +398,7 @@ def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
     if not os.path.exists(out_dir):
         logger.error(f'output_{code} does not exist.')
         return None
-    if int(code) not in [1800, 1801]:
+    if int(code) not in [1800, 1801, 1011, 1012, 1411, 1412, 1421, 1422]:
         logger.error(f'{code} layout is not supported yet.')
         return None
     
