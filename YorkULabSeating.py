@@ -128,7 +128,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
         if self.session_list:
-            list_helper = sorted(list(self.session_list.keys()))
+            list_helper = sorted(list(self.session_list.keys()), key=self.sort_helper)
+            #list_helper = sorted(list(self.session_list.keys()))
             self.comboBox_session.addItems(list_helper)
             self.comboBox_session.setCurrentIndex(-1)
             
@@ -234,11 +235,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_stud_csv.setText(','.join(str(s) for s in fnames[0] ))
         self.stud_csv_path_list = fnames[0]
     
+    def sort_helper(self, item):
+            day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
+            return (day_sort[item[:3]], item.split(",")[1].strip())
+
     def extract_sessions(self, time_csv_path):
         self.session_list = seating.get_session_list(time_csv_path)
         self.comboBox_session.clear()
+
         if self.session_list:
-            list_helper = sorted(list(self.session_list.keys()))
+            list_helper = sorted(list(self.session_list.keys()), key=self.sort_helper)
+            #list_helper = sorted(list(self.session_list.keys()))
+            
             self.comboBox_session.addItems(list_helper)
             logging.debug(f'---sessions loaded:{list_helper}')
             self.comboBox_session.setCurrentIndex(-1)
@@ -300,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if self.session:
             self.session_id = self.session_list[self.session]
-            logging.debug(f'---set_session_id:{self.session_id}')
+            logging.info(f' Selected session_id:{self.session_id}')
 
 
     def generate_groups(self):
@@ -322,7 +330,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else: 
                 n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id)
-                logging.debug(f' There are {n_stud} students enroled in this session.')
+                logging.debug(f' There are {n_stud} students enrolled in this session.')
         
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
@@ -344,7 +352,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
-                    dlg.setText(f"<b>{n_stud} enroled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
+                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
