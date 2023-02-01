@@ -181,19 +181,16 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.src_dir:
             self.layout_src = os.path.join(self.src_dir, 'lab_layout.jpg')
             if os.path.isfile(self.layout_src):
-                seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
-
-        self.out_dir = f'output_{self.code}'
-        if os.path.exists(self.out_dir):
-            self.layout_out = os.path.join(self.out_dir, 'lab_layout_grp.jpg')
+                self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
+                logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
-            if os.path.isfile(self.layout_out):
-                self.lablayout = LabLayoutWindow(self.layout_out)
+            if os.path.isfile(self.lab_layout_out_file):
+                self.lablayout = LabLayoutWindow(self.lab_layout_out_file)
                 self.lablayout.show()
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("No lab_layout_grp.jpg found in output_XXXX directory.")
+                dlg.setText("No lab_layout_grp.jpg found in output_layout directory.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:

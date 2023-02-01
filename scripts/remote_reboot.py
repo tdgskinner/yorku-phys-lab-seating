@@ -19,8 +19,8 @@ class Remote_PC_Reboot:
                 os.system(r'shutdown -m \\' + targetPc+ ' -r -f -t 5')
                 logger.info(f' Reboot command sent to {targetPc} successfully!')
                 status[targetPc] = True
-            except:
-                logger.error(f' Unable to send reboot command to {targetPc}')
+            except Exception as e:
+                logger.error(f' Unable to send reboot command to {targetPc}: {e}')
                 status[targetPc] = False
         
         return status

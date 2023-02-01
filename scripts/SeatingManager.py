@@ -328,7 +328,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                 with open(blank_f_html, 'w') as blank_html_seating_file:
                     blank_stud_list = []
                     for i in range(n_benches):
-                        row = '<div class="grid-item"><a href="#"> Not assigned </a></div>'
+                        row = '<div class="grid-item"><a href="#">  </a></div>'
                         blank_stud_list.append(row)
                     newline = "\n" 
                     blank_seating_contents = f'''<!DOCTYPE html>
@@ -393,11 +393,12 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
     return html_dir
 
 def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
-    out_dir = f'output_{code}'
-    
+    #out_dir = f'output_{code}'
+    out_dir = 'output_layout'
+
     if not os.path.exists(out_dir):
-        logger.error(f'output_{code} does not exist.')
-        return None
+        os.makedirs(out_dir)
+    
     if int(code) not in [1800, 1801, 1011, 1012, 1411, 1412, 1421, 1422]:
         logger.error(f'{code} layout is not supported yet.')
         return None
@@ -435,6 +436,10 @@ def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
             editImage.text(g_cor[g][i], stud_name[:text_char_limit], (text_color), font=textFont)
 
     #save Image
-    myLayout.save(lab_layout_out_file)
+    try:
+        myLayout.save(lab_layout_out_file)
+        return lab_layout_out_file
+    except:
+        logger.error('Could not write on the layout image.')
 
     
