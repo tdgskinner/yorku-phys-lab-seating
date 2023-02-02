@@ -234,7 +234,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def sort_helper(self, item):
             day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
-            return (day_sort[item[:3]], item.split(",")[1].strip())
+            time = item.split(",")[1].strip()
+            time = int(time.split(":")[0])
+            return (day_sort[item[:3]], time)
 
     def extract_sessions(self, time_csv_path):
         self.session_list = seating.get_session_list(time_csv_path)
