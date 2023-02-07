@@ -71,14 +71,13 @@ body {
 }
 
 .wrapper {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wrapper img{
-  max-width:100%;
-  max-height:480px;
-  height: auto;
-  width:auto;
+  object-fit:contain;
+  width: 98%;
+  height: 480px;
 }
