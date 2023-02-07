@@ -69,3 +69,16 @@ body {
   font-family: Sans-serif;
   font-size: 16px;
 }
+
+.wrapper {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wrapper img{
+  max-width:100%;
+  max-height:480px;
+  height: auto;
+  width:auto;
+}

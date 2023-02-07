@@ -16,7 +16,7 @@ class Remote_PC_Reboot:
 
         for targetPc in pc_list:
             try:
-                os.system(r'shutdown -m \\' + targetPc+ ' -r -f -t 5')
+                os.system(r'shutdown -m \\' + targetPc+ ' -r -f -t 3')
                 logger.info(f' Reboot command sent to {targetPc} successfully!')
                 status[targetPc] = True
             except Exception as e:

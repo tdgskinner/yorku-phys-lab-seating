@@ -308,7 +308,9 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
                                     </div>
-                                    <center> <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } style="height:480px" ></center>
+                                    <div class="wrapper">
+                                        <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } >
+                                    </div>
                                 </div>
                             </div>
                             </body>
