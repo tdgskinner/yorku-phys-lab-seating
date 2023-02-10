@@ -101,14 +101,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.semester   = self.setting_Course.value('semester')
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
-        #self.session_list = self.setting_Course.value('session_list')
-        #self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
+        self.session_list = self.setting_Course.value('session_list')
+        self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
         self.src_dir  = self.setting_Course.value('src_dir')
-        #self.stud_csv_path_list = self.setting_Course.value('stud_csv_path_list')
-        #self.time_csv_path = self.setting_Course.value('time_csv_path')
+        self.stud_csv_path_list = self.setting_Course.value('stud_csv_path_list')
+        self.time_csv_path = self.setting_Course.value('time_csv_path')
         self.pc_txt_path = self.setting_Course.value('gpc_txt_path')
-        #self.gpc_list = self.setting_Course.value('gpc_list')
-        #self.laptop_list = self.setting_Course.value('laptop_list')
+        self.gpc_list = self.setting_Course.value('gpc_list')
+        self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
@@ -117,9 +117,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.semester: self.semester = self.default_settings['semester']
         if not self.year: self.year = self.default_settings['year']
         if not self.code: self.code = self.default_settings['code']
-        #if not self.session_list: self.session_list = self.default_settings['session_list']
-        #if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
-        #if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
+        if not self.session_list: self.session_list = self.default_settings['session_list']
+        if not self.gpc_list: self.gpc_list = self.default_settings['gpc_list']
+        if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
@@ -215,6 +215,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if filename.endswith(".csv"):
                 if 'time' in filename:
                     self.time_csv_path= os.path.join(dir_path, filename)
+                    self.extract_sessions(self.time_csv_path)
                 elif 'exp' in filename:
                     self.exp_csv_path= os.path.join(dir_path, filename)
                 #there might be multiple stud csv files
@@ -507,11 +508,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('session_list', self.session_list)
-            self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
+            #self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
+            self.setting_Course.setValue('exp_csv_path', self.exp_csv_path)
             self.setting_Course.setValue('src_dir', self.src_dir)
             self.setting_Course.setValue('stud_csv_path_list', self.stud_csv_path_list)
-            self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
+            
+            #self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
+            self.setting_Course.setValue('time_csv_path', self.time_csv_path)
             self.setting_Course.setValue('gpc_txt_path', self.lineEdit_gpc_txt.text())
+            
             self.setting_Course.setValue('gpc_list', self.gpc_list)
             self.setting_Course.setValue('laptop_list', self.laptop_list)
             self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
