@@ -90,7 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating.ui',self)
+        self.ui = uic.loadUi('YorkULabSeating_v3.ui',self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -166,10 +166,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_session.activated.connect(self.set_session_id)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
-        self.pushButton_exp_brows.clicked.connect(lambda: self.browsefile('exp'))
-        self.pushButton_stud_brows.clicked.connect(self.browsefiles)
-        self.pushButton_time_brows.clicked.connect(lambda: self.browsefile('time'))
-        self.pushButton_gpc_brows.clicked.connect(lambda: self.browsefile('pc'))
+        
+        #self.pushButton_exp_browse.clicked.connect(lambda: self.browsefile('exp'))
+        #self.pushButton_stud_browse.clicked.connect(self.browsefiles)
+        #self.pushButton_time_browse.clicked.connect(lambda: self.browsefile('time'))
+
+        self.pushButton_course_dir_browse.clicked.connect(self.browsedir)
+
+        self.pushButton_gpc_browse.clicked.connect(lambda: self.browsefile('pc'))
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
@@ -200,28 +204,24 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
+    def browsedir(self):
+        '''
+        open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
+        '''        
+        pass
+    
     def browsefile(self, category):
         logging.debug(f'self.src_dir: {self.src_dir}')
         if self.src_dir:
-            fname=QFileDialog.getOpenFileName(self, 'Open file', directory=self.src_dir, filter='Input file (*.csv *.txt)')
+            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.src_dir, filter='Input file (*.txt)')
         else:
-            fname=QFileDialog.getOpenFileName(self, 'Open file', directory='data', filter='Input file (*.csv *.txt)')
+            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory='data', filter='Input file (*.txt)')
         
-        if category == 'time':
-            self.lineEdit_time_csv.setText(fname[0])
-            self.time_csv_path = fname[0]
-            if fname[0]:
-                self.extract_sessions(self.time_csv_path)
-        elif category == 'exp':
-            self.lineEdit_exp_csv.setText(fname[0])
-            self.exp_csv_path = fname[0]
-            self.src_dir = os.path.dirname(self.exp_csv_path)
-        elif category == 'pc':
-            self.lineEdit_gpc_txt.setText(fname[0])
-            self.pc_txt_path = fname[0]
-            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            if fname[0]:
-                self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
+        self.lineEdit_gpc_txt.setText(fname[0])
+        self.pc_txt_path = fname[0]
+        logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
+        if fname[0]:
+            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
         
     def browsefiles(self):
         if self.src_dir:
