@@ -127,19 +127,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
+        '''
         if self.session_list:
             list_helper = sorted(list(self.session_list.keys()), key=self.sort_helper)
             self.comboBox_session.addItems(list_helper)
             self.comboBox_session.setCurrentIndex(-1)
-            
+        '''    
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.spinBox_exp_id.setValue(self.exp_id)
-        self.lineEdit_exp_csv.setText(self.exp_csv_path)
-        if self.stud_csv_path_list:
-            self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
+        #self.lineEdit_exp_csv.setText(self.exp_csv_path)
+        #if self.stud_csv_path_list:
+        #    self.lineEdit_stud_csv.setText(','.join(str(s) for s in self.stud_csv_path_list ))
             
-        self.lineEdit_time_csv.setText(self.time_csv_path)
+        #self.lineEdit_time_csv.setText(self.time_csv_path)
         self.lineEdit_gpc_txt.setText(self.pc_txt_path)
 
         self.session_id = None
@@ -170,9 +171,9 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.pushButton_stud_browse.clicked.connect(self.browsefiles)
         #self.pushButton_time_browse.clicked.connect(lambda: self.browsefile('time'))
 
-        self.pushButton_course_dir_browse.clicked.connect(self.browsedir)
+        self.pushButton_course_dir_browse.clicked.connect(self.browse_dir)
 
-        self.pushButton_gpc_browse.clicked.connect(lambda: self.browsefile('pc'))
+        self.pushButton_gpc_browse.clicked.connect(self.browsefile)
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
@@ -203,13 +204,25 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
-    def browsedir(self):
+    def browse_dir(self):
         '''
         open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
-        '''        
-        pass
+        '''  
+        dir_path=QFileDialog.getExistingDirectory(self, "Select the main Directory")  
+        self.lineEdit_course_dir.setText(dir_path)
+        self.stud_csv_path_list = []
+        for filename in os.listdir(dir_path):
+            if filename.endswith(".csv"):
+                if 'time' in filename:
+                    self.time_csv_path= os.path.join(dir_path, filename)
+                elif 'exp' in filename:
+                    self.exp_csv_path= os.path.join(dir_path, filename)
+                #there might be multiple stud csv files
+                elif 'stud' in filename:
+                    self.stud_csv_path_list.append(os.path.join(dir_path, filename))
+                  
     
-    def browsefile(self, category):
+    def browsefile(self):
         logging.debug(f'self.src_dir: {self.src_dir}')
         if self.src_dir:
             fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.src_dir, filter='Input file (*.txt)')
@@ -221,7 +234,9 @@ class MainWindow(QtWidgets.QMainWindow):
         logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
         if fname[0]:
             self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
+    
         
+    '''
     def browsefiles(self):
         if self.src_dir:
             fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory=self.src_dir, filter='Input files (*.csv *.txt)')
@@ -230,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.lineEdit_stud_csv.setText(','.join(str(s) for s in fnames[0] ))
         self.stud_csv_path_list = fnames[0]
-    
+    '''
     def sort_helper(self, item):
             day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
             time = item.split(",")[1].strip()

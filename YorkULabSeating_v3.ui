@@ -414,7 +414,7 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="pushButton_course_dir_brows">
+         <widget class="QPushButton" name="pushButton_course_dir_browse">
           <property name="text">
            <string>Brows</string>
           </property>
@@ -634,7 +634,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_gpc_brows">
+         <widget class="QPushButton" name="pushButton_gpc_browse">
           <property name="text">
            <string>Brows</string>
           </property>
