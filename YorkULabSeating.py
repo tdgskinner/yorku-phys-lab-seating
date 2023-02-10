@@ -103,7 +103,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.setting_Course.value('code')
         #self.session_list = self.setting_Course.value('session_list')
         #self.exp_csv_path  = self.setting_Course.value('exp_csv_path')
-        self.src_dir  = self.setting_Course.value('src_dir')
+        
         self.course_dir  = self.setting_Course.value('course_dir')
         #self.stud_csv_path_list = self.setting_Course.value('stud_csv_path_list')
         #self.time_csv_path = self.setting_Course.value('time_csv_path')
@@ -190,8 +190,8 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def show_lab_layout(self):
         # Populating layout image:
-        if self.src_dir:
-            self.layout_src = os.path.join(self.src_dir, 'lab_layout.jpg')
+        if self.course_dir:
+            self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
             if os.path.isfile(self.layout_src):
                 self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
                 logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
@@ -240,9 +240,9 @@ class MainWindow(QtWidgets.QMainWindow):
                   
     
     def browsefile(self):
-        logging.debug(f'self.src_dir: {self.src_dir}')
-        if self.src_dir:
-            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.src_dir, filter='Input file (*.txt)')
+        logging.debug(f'self.course_dir: {self.course_dir}')
+        if self.course_dir:
+            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.course_dir, filter='Input file (*.txt)')
         else:
             fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory='data', filter='Input file (*.txt)')
         
@@ -255,8 +255,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
     '''
     def browsefiles(self):
-        if self.src_dir:
-            fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory=self.src_dir, filter='Input files (*.csv *.txt)')
+        if self.course_dir:
+            fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory=self.course_dir, filter='Input files (*.csv *.txt)')
         else:
             fnames=QFileDialog.getOpenFileNames(self, 'Open file', directory='data', filter='Input files (*.csv *.txt)')
         
@@ -414,8 +414,8 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.exec()
 
     def start_copyfiles_worker(self):
-        if self.gpc_list and self.src_dir:
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.src_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
+        if self.gpc_list and self.course_dir:
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -423,14 +423,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
-        elif not self.gpc_list and self.src_dir:
+        elif not self.gpc_list and self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
-        elif not self.src_dir:
+        elif not self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText(f"Select the main course directory from setting tab.")
@@ -528,7 +528,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('course_dir', self.course_dir )
             #self.setting_Course.setValue('exp_csv_path', self.lineEdit_exp_csv.text())
             self.setting_Course.setValue('exp_csv_path', self.exp_csv_path)
-            self.setting_Course.setValue('src_dir', self.src_dir)
+            
             self.setting_Course.setValue('stud_csv_path_list', self.stud_csv_path_list)
             
             #self.setting_Course.setValue('time_csv_path', self.lineEdit_time_csv.text())
@@ -551,12 +551,12 @@ class MainWindow(QtWidgets.QMainWindow):
 #--------------------------------------------------------------------------------
 
 class CopyFileThread(QtCore.QThread):
-    def __init__(self, exp_id, gpc_list, src_dir, code, localCopy, parent=None ):
+    def __init__(self, exp_id, gpc_list, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         
         self.exp_id=exp_id
         self.gpc_list = gpc_list
-        self.src_dir = src_dir
+        self.course_dir = course_dir
         self.code = code
         self.localCopy = localCopy
         self.is_running = True
@@ -565,7 +565,7 @@ class CopyFileThread(QtCore.QThread):
         
     def run(self):
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
-        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.src_dir, self.code)
+        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.course_dir, self.code)
         
         if all(status.values()):
             logging.info(' html files are copied to target PC(s) successfully')
