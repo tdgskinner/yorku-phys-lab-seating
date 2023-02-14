@@ -5,7 +5,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import QSettings
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout
 
 import scripts.SeatingManager as seating
@@ -127,6 +127,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.spinBox_exp_id.setValue(self.exp_id)
+        self.course_label.setText(f'PHYS {self.code}')
+        self.course_label.setFont(QFont('Arial', 15, weight=700))
+        
 
         self.gpc_list = []
         if self.pc_txt_path:
@@ -308,6 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_max_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
         self.exp_id     = self.spinBox_exp_id.value()
+        self.course_label.setText(f'PHYS {self.code}')
         
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Inof.")
@@ -591,5 +595,5 @@ if __name__ == '__main__':
     mainWindow = MainWindow()
     mainWindow.show()
 
-    print('Welcome to YorkU PHYS Lab Seating Monitor')
+    print('Welcome to YorkU PHYS Lab Seat Assigner')
     sys.exit(app.exec())
