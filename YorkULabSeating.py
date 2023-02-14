@@ -196,11 +196,37 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.course_dir:
             self.lineEdit_course_dir.setText(self.course_dir)
             self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
-            if self.time_csv_path:
+            self.session_list = []
+            self.comboBox_session.clear()
+
+            if not self.exp_csv_path:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No exp_*.csv found in the course directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            if not self.stud_csv_path_list:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No stud_*.csv found in the course directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            if not self.time_csv_path:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No time_*.csv found in the course directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+                
         
         
     def extract_csv_paths(self, course_dir):
+        exp_csv_path, time_csv_path = None, None
         stud_csv_path_list = []
         for filename in os.listdir(course_dir):
             if filename.endswith(".csv"):
