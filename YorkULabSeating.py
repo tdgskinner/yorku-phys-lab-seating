@@ -186,7 +186,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("Source directory not found. Please generate groups first.")
+            dlg.setText("Course main directory not found. Please select the mian directory from the setting tab first.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
