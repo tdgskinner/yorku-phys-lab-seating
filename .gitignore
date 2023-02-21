@@ -4,6 +4,7 @@ __pycache__/
 output_*/
 *.pkl
 test.py
+test2.py
 **/LabSeatingWeb
 **/stud_*.csv
 **/time_*.csv
