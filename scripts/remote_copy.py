@@ -67,18 +67,21 @@ class MyRemoteCopyFile:
             self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, f))
         
     #------------------------------------------------------------
-    def run_copyfile(self, exp_id, gpc_list, src_dir, code):
-        status = {}
+    #def run_copyfile(self, exp_id, gpc_list, src_dir, code):
+    def run_copyfile(self, exp_id, gpc, src_dir, code):
+        status = False
 
-        if self.do_localCopy: gpc_list = ['LOCAL PC']
-        for gpc in gpc_list:
-            try:
-                self._server_dir_prep(exp_id, gpc, src_dir, code)
-                logger.info(f' html files are copied in {gpc} successfully!')               
-                status[gpc] = True        
-            except Exception as e:
-                logger.debug(f' Unable to copy html files to {gpc}: {e}')
-                status[gpc] = False
+        #if self.do_localCopy: gpc_list = ['LOCAL PC']
+        #for gpc in gpc_list:
+        try:
+            self._server_dir_prep(exp_id, gpc, src_dir, code)
+            logger.info(f' html files are copied in {gpc} successfully!')               
+            #status[gpc] = True
+            return True
+        except Exception as e:
+            logger.debug(f' Unable to copy html files to {gpc}: {e}')
+            #status[gpc] = False
+            return False
 
-        return status
+        #return status
 

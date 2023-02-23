@@ -1,20 +1,19 @@
-import sys , os
+import sys , os, time
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QSettings
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget
-from PyQt6.QtGui import QIcon, QPixmap, QFont
+from PyQt6.QtCore import QSettings, QThread, pyqtSignal, QObject, Qt
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout
+from PyQt6.QtGui import QIcon, QPixmap, QFont
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
 
-
-class OutputWrapper(QtCore.QObject):
+#--------------------------------------------------------------------------------
+class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
 
     def __init__(self, parent, stdout=True):
@@ -43,6 +42,7 @@ class OutputWrapper(QtCore.QObject):
         except AttributeError:
             pass
 
+#--------------------------------------------------------------------------------
 class LabLayoutWindow(QWidget):
     """
     This "window" is a QWidget. If it has no parent, it
@@ -68,7 +68,7 @@ class LabLayoutWindow(QWidget):
         layout.addWidget(label)
         self.setLayout(layout)
 
-
+#--------------------------------------------------------------------------------
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         # Default settings will be set if no stored settings found from previous session
@@ -150,6 +150,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
 
+        #-- progress bar ---
+        self.statusBar().showMessage(" ", 0)
+        self.copy_progress_bar = QProgressBar()
+        self.copy_progress_bar.setFixedSize(self.geometry().width() - 130, 20)
+        self.copy_progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        '''
+        self.copy_progress_bar.setStyleSheet("QProgressBar::chunk"
+                          "{"
+                            "border: 1px solid #b71414;"
+                            "background-color: #b71414;"
+                            "width: 10px;"
+                            "margin: 0.5px;"
+                          "}")
+        '''
+        self.statusBar().addPermanentWidget(self.copy_progress_bar)
+        self.copy_progress_bar.hide()
+        
+        
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
@@ -335,7 +353,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.session_id = self.session_list[self.session]
             logging.info(f' Selected session_id:{self.session_id}')
 
-
     def generate_groups(self):
         if not self.session_id:
             dlg = QtWidgets.QMessageBox(self)
@@ -409,6 +426,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.course_dir:
+            self.copy_progress_bar.show()
+            self.statusBar().showMessage("Copy in progress ...", 0)
+
             self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
@@ -417,6 +437,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
+            self.thread[1].progress.connect(self.copy_setProgress)
+                        
         elif not self.gpc_list and self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -432,7 +454,11 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.exec()
             return
     
+    def copy_setProgress(self, copy_progress):
+        self.copy_progress_bar.setValue(copy_progress)
+
     def on_copyFinished(self):
+        self.statusBar().showMessage("Copy completed", 0)
         self.pushButton_copyfiles.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
@@ -531,12 +557,14 @@ class MainWindow(QtWidgets.QMainWindow):
             
         else:
             event.ignore()
-#--------------------------------------------------------------------------------
 
-class CopyFileThread(QtCore.QThread):
+#--------------------------------------------------------------------------------
+class CopyFileThread(QThread):
+    progress = pyqtSignal(int)
+    
     def __init__(self, exp_id, gpc_list, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
-        
+        self.status = {}
         self.exp_id=exp_id
         self.gpc_list = gpc_list
         self.course_dir = course_dir
@@ -545,15 +573,20 @@ class CopyFileThread(QtCore.QThread):
         self.is_running = True
         self.copy_service = MyRemoteCopyFile(self.localCopy)
         
-        
     def run(self):
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
-        status = self.copy_service.run_copyfile(self.exp_id, self.gpc_list, self.course_dir, self.code)
         
-        if all(status.values()):
+        self.progress.emit(0)
+
+        if self.localCopy: self.gpc_list = ['LOCAL PC']
+        for i, gpc in enumerate(self.gpc_list):
+            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, self.course_dir, self.code)
+            self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
+            
+        if all(self.status.values()):
             logging.info(' html files are copied to target PC(s) successfully')
         else:
-            res = [key for key, value in status.items() if not value]
+            res = [key for key, value in self.status.items() if not value]
             logging.error(f' Failed to copy html files to: {res}')
 
     def stop(self):
@@ -561,8 +594,9 @@ class CopyFileThread(QtCore.QThread):
         self.terminate()
 
 #--------------------------------------------------------------------------------
+class Reboot_PC_Thread(QThread):
+    progress = pyqtSignal(int)
 
-class Reboot_PC_Thread(QtCore.QThread):
     def __init__(self, pc_list, parent=None ):
         super(Reboot_PC_Thread, self).__init__(parent)
         self.pc_list = pc_list
@@ -589,7 +623,7 @@ class Reboot_PC_Thread(QtCore.QThread):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
