@@ -150,13 +150,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
 
-        #-- progress bar ---
-        self.statusBar().showMessage(" ", 0)
-        self.copy_progress_bar = QProgressBar()
-        self.copy_progress_bar.setFixedSize(self.geometry().width() - 130, 20)
-        self.copy_progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #-- progress bars ---
+        self.copy_pbar = QProgressBar()
+        self.copy_pbar.setTextVisible(True)
+        
+        self.gpc_reboot_pbar = QProgressBar()
+        self.gpc_reboot_pbar.setTextVisible(True)
+        
+        self.pc_reboot_pbar = QProgressBar()
+        self.pc_reboot_pbar.setTextVisible(True)
+        
+        self.copy_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.gpc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.pc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
         '''
-        self.copy_progress_bar.setStyleSheet("QProgressBar::chunk"
+        self.copy_pbar.setStyleSheet("QProgressBar::chunk"
                           "{"
                             "border: 1px solid #b71414;"
                             "background-color: #b71414;"
@@ -164,9 +173,13 @@ class MainWindow(QtWidgets.QMainWindow):
                             "margin: 0.5px;"
                           "}")
         '''
-        self.statusBar().addPermanentWidget(self.copy_progress_bar)
-        self.copy_progress_bar.hide()
+        self.statusBar().addPermanentWidget(self.copy_pbar,1)
+        self.statusBar().addPermanentWidget(self.gpc_reboot_pbar,1)
+        self.statusBar().addPermanentWidget(self.pc_reboot_pbar,1)
         
+        self.copy_pbar.hide()
+        self.gpc_reboot_pbar.hide()
+        self.pc_reboot_pbar.hide()
         
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
@@ -244,8 +257,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
                 
-        
-        
+    
     def extract_csv_paths(self, course_dir):
         exp_csv_path, time_csv_path = None, None
         stud_csv_path_list = []
@@ -426,8 +438,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.course_dir:
-            self.copy_progress_bar.show()
-            self.statusBar().showMessage("Copy in progress ...", 0)
+            self.copy_pbar.show()
+            self.copy_pbar.setFormat("Copy files ...")
 
             self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
@@ -455,10 +467,10 @@ class MainWindow(QtWidgets.QMainWindow):
             return
     
     def copy_setProgress(self, copy_progress):
-        self.copy_progress_bar.setValue(copy_progress)
+        self.copy_pbar.setValue(copy_progress)
 
     def on_copyFinished(self):
-        self.statusBar().showMessage("Copy completed", 0)
+        self.copy_pbar.setFormat("Copy completed")
         self.pushButton_copyfiles.setEnabled(True)
         self.spinBox_exp_id.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
@@ -476,12 +488,15 @@ class MainWindow(QtWidgets.QMainWindow):
         button = dlg.exec()
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.gpc_list:
+                self.gpc_reboot_pbar.show()
+                self.gpc_reboot_pbar.setFormat("Rebooting Group PCs ...")
                 self.thread[2] = Reboot_PC_Thread(self.gpc_list, parent=None)
                 self.thread[2].finished.connect(self.on_gpc_rebootFinished)
                 self.thread[2].start()
                 
                 self.pushButton_rebootPCs.setEnabled(False)
                 self.is_gpc_reboot_running = True
+                self.thread[2].progress.connect(self.gpc_reboot_setProgress)
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
@@ -489,10 +504,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
+    def gpc_reboot_setProgress(self, gpc_progress):
+        self.gpc_reboot_pbar.setValue(gpc_progress)
 
     def on_gpc_rebootFinished(self):
         self.pushButton_rebootPCs.setEnabled(True)
         self.is_gpc_reboot_running = False
+        self.gpc_reboot_pbar.setFormat("Group PCs rebooted")
     
     def start_laptop_reboot_worker(self):
         dlg = QtWidgets.QMessageBox(self)
@@ -504,12 +522,15 @@ class MainWindow(QtWidgets.QMainWindow):
         button = dlg.exec()
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.laptop_list:
+                self.pc_reboot_pbar.show()
+                self.pc_reboot_pbar.setFormat("Rebooting Laptops ...")
                 self.thread[3] = Reboot_PC_Thread(self.laptop_list, parent=None)
                 self.thread[3].finished.connect(self.on_laptop_rebootFinished)
                 self.thread[3].start()
                 
                 self.pushButton_rebootLaptops.setEnabled(False)
                 self.is_laptop_reboot_running = True
+                self.thread[3].progress.connect(self.pc_reboot_setProgress)
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
@@ -517,10 +538,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
+    
+    def pc_reboot_setProgress(self, pc_progress):
+        self.pc_reboot_pbar.setValue(pc_progress)
 
     def on_laptop_rebootFinished(self):
         self.pushButton_rebootLaptops.setEnabled(True)
         self.is_laptop_reboot_running = False
+        self.pc_reboot_pbar.setFormat("LAptops rebooted")
 
     #----------------------------------
     def handleOutput(self, text, stdout):
@@ -599,6 +624,7 @@ class Reboot_PC_Thread(QThread):
 
     def __init__(self, pc_list, parent=None ):
         super(Reboot_PC_Thread, self).__init__(parent)
+        self.status = {}
         self.pc_list = pc_list
         self.is_running = True
         self.reboot_service = Remote_PC_Reboot()
@@ -606,12 +632,17 @@ class Reboot_PC_Thread(QThread):
         
     def run(self):
         logging.info(f' Rebooting PCs. Please wait ...')
-        status = self.reboot_service.reboot_Pcs(self.pc_list)
+        self.progress.emit(0)
+
+        #status = self.reboot_service.reboot_Pcs(self.pc_list)
+        for i, pc in enumerate(self.pc_list):
+            self.status[pc] = self.reboot_service.reboot_Pcs(pc)
+            self.progress.emit(int(100*(i+1)/len(self.pc_list)))
         
-        if all(status.values()):
+        if all(self.status.values()):
             logging.info(' All PCs rebooted successfully')
         else:
-            res = [key for key, value in status.items() if not value]
+            res = [key for key, value in self.status.items() if not value]
             logging.error(f' Failed to send reboot command to: {res}')
 
     def stop(self):
