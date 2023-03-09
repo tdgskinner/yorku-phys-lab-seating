@@ -1,16 +1,19 @@
-import sys , os, time
+import sys , os
+import pandas as pd
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QSettings, QThread, pyqtSignal, QObject, Qt
+from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
-from PyQt6.QtWidgets import  QLabel, QVBoxLayout
-from PyQt6.QtGui import QIcon, QPixmap, QFont
+from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
+
 
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
@@ -67,6 +70,135 @@ class LabLayoutWindow(QWidget):
 
         layout.addWidget(label)
         self.setLayout(layout)
+#--------------------------------------------------------------------------------
+class PandasModel(QAbstractTableModel):
+    def __init__(self, df=pd.DataFrame(), parent=None):
+        super().__init__(parent)
+        self._df = df
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+             return QVariant()
+        if orientation == Qt.Orientation.Horizontal:
+            try:
+                return self._df.columns.tolist()[section]
+            except IndexError:
+                return QVariant()
+        elif orientation == Qt.Orientation.Vertical:
+            try:
+                return self._df.index.tolist()[section]
+            except IndexError:
+                return QVariant()
+    
+    def rowCount(self, parent=QModelIndex()):
+        return self._df.shape[0]
+
+    def columnCount(self, parent=QModelIndex()):
+        return self._df.shape[1]
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+            return QVariant()
+        if not index.isValid():
+            return QVariant()
+        return QVariant(str(self._df.iloc[index.row(), index.column()]))
+#--------------------------------------------------------
+class AttWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self, stud_list, session_id, code, exp_id):
+        super().__init__()
+
+        self.ui = uic.loadUi('YorkULabSeating_att.ui',self)
+        self.stud_list = stud_list
+        self.session_id = session_id
+        self.exp_id = exp_id
+        self.code = code
+        self.tableView_att.setSortingEnabled(True)
+        self.tableView_att.horizontalHeader().setSectionsMovable(True)
+        myFont=QFont()
+        myFont.setBold(True)
+
+        self.label_exp_id.setText(str(self.exp_id))
+        self.label_code.setText(f'PHYS {self.code} - {self.session_id}')
+        self.label_exp_id.setFont(myFont)
+        self.label_code.setFont(myFont)
+        self.label_4.setFont(myFont)
+        self.label_5.setFont(myFont)
+        self.label_6.setFont(myFont)
+        
+        self.pushButton_print_att.clicked.connect(self.print_prev_dlg)
+        
+        
+        self.retrieveDataset()
+    
+    def retrieveDataset(self):
+        self.df = seating.concat_stud_lists(self.stud_list)
+        self.df = self.df.reset_index(drop=True)
+        n_col = len(list(self.df.columns))
+        if n_col == 9 or n_col ==10:
+            self.df.columns = seating.get_studList_header(n_col)
+    	
+        self.df = self.df.dropna()
+        self.df = self.df.loc[self.df['session_id'].str.strip()!='LAB 99']
+        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id]
+        
+        self.df = self.df.rename(columns={'first_name': 'First Name'})
+        self.df = self.df.rename(columns={'surname': 'Last Name'})
+        self.df = self.df[["First Name", "Last Name"]]
+        self.df["Attendance"] = "         "
+        idx = range(1,len(self.df)+1)
+        self.df.insert(0, '', idx)
+		
+        self.df.fillna('')
+        
+        self.model = PandasModel(self.df)
+        self.tableView_att.setModel(self.model)
+
+        for i in range(len(self.df)):
+            self.tableView_att.setRowHeight(i, 20)
+        self.tableView_att.setColumnWidth(0,10)
+        self.tableView_att.verticalHeader().hide()
+    
+    def print_att(self):
+        printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
+        print_dlg = QPrintDialog(printer, self)
+
+        if print_dlg.exec() == QPrintDialog.accepted:
+            self.tableView_att.print(printer)
+    
+    def print_prev_dlg(self):
+        printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
+        prev_dlg = QPrintPreviewDialog(printer, self)
+        combobox = prev_dlg.findChild(QComboBox)
+        index = combobox.findText("100%")
+        combobox.setCurrentIndex(index)
+
+        prev_dlg.paintRequested.connect(self.print_prev_att)
+        prev_dlg.exec() 
+
+    def print_prev_att(self, printer):
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+        
+        painter = QPainter(printer)
+        # calculate the scaling factor to fit the widget to the page
+        xscale = printer.pageRect(QPrinter.Unit.Point).width() / self.width()
+        yscale = printer.pageRect(QPrinter.Unit.Point).height() / self.height()
+        scale = 8*min(xscale, yscale)
+
+        # set the transformation matrix of the painter
+        painter.translate((printer.paperRect(QPrinter.Unit.Point).x()) + (printer.pageRect(QPrinter.Unit.Point).width()/2), (printer.paperRect(QPrinter.Unit.Point).y()) + (printer.pageRect(QPrinter.Unit.Point).height()/2))
+        painter.scale(scale, scale)
+
+        # draw the widget onto the printer
+        self.render(painter)
+
+        # cleanup
+        painter.end()
+        logging.debug('Printing completed')
+
 
 #--------------------------------------------------------------------------------
 class MainWindow(QtWidgets.QMainWindow):
@@ -86,7 +218,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating_v3.ui',self)
+        self.ui = uic.loadUi('YorkULabSeating_v4.ui',self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -149,6 +281,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ta_name = None
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
+        self.pushButton_att.setEnabled(False)
 
         #-- progress bars ---
         self.copy_pbar = QProgressBar()
@@ -196,7 +329,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
+        self.pushButton_att.clicked.connect(self.show_attendance)
     
+    def show_attendance(self):
+        self.att = AttWindow(self.stud_csv_path_list, self.session_id, self.code, self.exp_id)
+        self.att.setWindowTitle('Print attendance list')
+        self.att.show()
+
     def show_lab_layout(self):
         # Populating layout image:
         if self.course_dir:
@@ -360,6 +499,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()
+        self.pushButton_att.setEnabled(True)
         
         if self.session:
             self.session_id = self.session_list[self.session]
