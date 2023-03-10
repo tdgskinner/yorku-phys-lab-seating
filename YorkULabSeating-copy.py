@@ -6,7 +6,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
-from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout
 from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 import scripts.SeatingManager as seating
@@ -152,9 +152,9 @@ class AttWindow(QWidget):
         self.df["Atten."] = "         "
         idx = range(1,len(self.df)+1)
         self.df.insert(0, '', idx)
-		
+
         font = QFont()
-        font.setPointSize(6)
+        font.setPointSize(7)
         self.plainTextEdit_att.setFont(font)
 
         if self.code == '1801':
@@ -185,16 +185,16 @@ class AttWindow(QWidget):
         self.model = PandasModel(self.df)
         self.tableView_att.setFont(font)
         self.tableView_att.setModel(self.model)
+        
 
         for i in range(len(self.df)):
-            self.tableView_att.setRowHeight(i, 2)
+            self.tableView_att.setRowHeight(i, 7)
         
         self.tableView_att.setColumnWidth(0,7)
-        self.tableView_att.setColumnWidth(3,30)
         self.tableView_att.verticalHeader().hide()
 
-        for i in range(4, len(self.df.columns)):
-            self.tableView_att.setColumnWidth(i,44)
+        for i in range(3, len(self.df.columns)):
+            self.tableView_att.setColumnWidth(i,45)    
     
     '''def print_att(self):
         printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
@@ -203,10 +203,9 @@ class AttWindow(QWidget):
         if print_dlg.exec() == QPrintDialog.accepted:
             self.tableView_att.print(printer)
     '''
-    
+
     def print_prev_dlg(self):
         printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
-        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
         prev_dlg = QPrintPreviewDialog(printer, self)
         combobox = prev_dlg.findChild(QComboBox)
         index = combobox.findText("100%")
@@ -216,6 +215,9 @@ class AttWindow(QWidget):
         prev_dlg.exec() 
 
     def print_prev_att(self, printer):
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+        printer.setFullPage(True)
+        
         painter = QPainter(printer)
         # calculate the scaling factor to fit the widget to the page
         xscale = printer.pageRect(QPrinter.Unit.Point).width() / self.width()
@@ -331,15 +333,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gpc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        '''
-        self.copy_pbar.setStyleSheet("QProgressBar::chunk"
-                          "{"
-                            "border: 1px solid #b71414;"
-                            "background-color: #b71414;"
-                            "width: 10px;"
-                            "margin: 0.5px;"
-                          "}")
-        '''
         self.statusBar().addPermanentWidget(self.copy_pbar,1)
         self.statusBar().addPermanentWidget(self.gpc_reboot_pbar,1)
         self.statusBar().addPermanentWidget(self.pc_reboot_pbar,1)

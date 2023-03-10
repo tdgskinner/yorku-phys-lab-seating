@@ -6,23 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>798</height>
+    <width>517</width>
+    <height>824</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>561</width>
+     <x>3</x>
+     <y>5</y>
+     <width>511</width>
      <height>801</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,8">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,30,1">
+    <property name="spacing">
+     <number>3</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1,0">
       <item>
@@ -44,7 +47,8 @@
          <widget class="QLabel" name="label_4">
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -58,7 +62,8 @@
          <widget class="QLabel" name="label_exp_id">
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -72,7 +77,8 @@
          <widget class="QLabel" name="label_6">
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -86,7 +92,8 @@
          <widget class="QLabel" name="label_5">
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -98,6 +105,14 @@
         </item>
         <item row="1" column="1" colspan="2">
          <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>------------------</string>
           </property>
@@ -105,6 +120,14 @@
         </item>
         <item row="1" column="4" colspan="3">
          <widget class="QLabel" name="label_TA_name">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>-----------------------------------</string>
           </property>
@@ -114,7 +137,8 @@
          <widget class="QLabel" name="label_code">
           <property name="font">
            <font>
-            <pointsize>10</pointsize>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -130,6 +154,12 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QPushButton" name="pushButton_print_att">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>6</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>Print</string>
           </property>
@@ -156,11 +186,49 @@
      <widget class="QTableView" name="tableView_att">
       <property name="font">
        <font>
-        <pointsize>7</pointsize>
+        <family>Tahoma</family>
+        <pointsize>5</pointsize>
        </font>
       </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
       <property name="lineWidth">
-       <number>2</number>
+       <number>1</number>
+      </property>
+      <property name="midLineWidth">
+       <number>1</number>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>110</number>
+      </attribute>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="plainTextEdit_att">
+      <property name="font">
+       <font>
+        <family>Arial Narrow</family>
+        <pointsize>6</pointsize>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="midLineWidth">
+       <number>1</number>
       </property>
      </widget>
     </item>
