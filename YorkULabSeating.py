@@ -3,10 +3,10 @@ import pandas as pd
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt
+from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
-from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence
 from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 import scripts.SeatingManager as seating
@@ -129,9 +129,12 @@ class AttWindow(QWidget):
         self.label_4.setFont(myFont)
         self.label_5.setFont(myFont)
         self.label_6.setFont(myFont)
-        
+        icon = QIcon('printer-icon-48.png')
+        self.pushButton_print_att.setIcon(icon)
         self.pushButton_print_att.clicked.connect(self.print_prev_dlg)
-        
+        shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
+        shortcut.activated.connect(self.pushButton_print_att.click)
+        self.pushButton_print_att.setToolTip("Click me (Ctrl+M)")
         
         self.retrieveDataset()
     
@@ -149,13 +152,13 @@ class AttWindow(QWidget):
         self.df = self.df.rename(columns={'first_name': 'First Name'})
         self.df = self.df.rename(columns={'surname': 'Last Name'})
         self.df = self.df[["First Name", "Last Name"]]
-        self.df["Atten."] = "         "
+        self.df["Attn"] = "         "
         idx = range(1,len(self.df)+1)
         self.df.insert(0, '', idx)
 		
-        font = QFont()
-        font.setPointSize(6)
-        self.plainTextEdit_att.setFont(font)
+        font_plainText = QFont()
+        font_plainText.setPointSize(8)
+        self.plainTextEdit_att.setFont(font_plainText)
 
         if self.code == '1801':
             if self.exp_id ==2:
@@ -183,30 +186,42 @@ class AttWindow(QWidget):
         self.df.fillna('')
         
         self.model = PandasModel(self.df)
-        self.tableView_att.setFont(font)
+        font_table = QFont()
+        font_table.setPointSize(8)
+        self.tableView_att.setFont(font_table)
         self.tableView_att.setModel(self.model)
 
         for i in range(len(self.df)):
             self.tableView_att.setRowHeight(i, 2)
         
-        self.tableView_att.setColumnWidth(0,7)
-        self.tableView_att.setColumnWidth(3,30)
+        self.tableView_att.setColumnWidth(0,3)
+        self.tableView_att.setColumnWidth(3,40)
         self.tableView_att.verticalHeader().hide()
 
         for i in range(4, len(self.df.columns)):
-            self.tableView_att.setColumnWidth(i,44)
+            self.tableView_att.setColumnWidth(i,60)
     
     '''def print_att(self):
         printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+
+        #To fix: setPageMargins is doing nothing!
+        printer.setPageMargins(QMarginsF(1,1,1,1), units=QPageLayout.Unit.Millimeter)
+
         print_dlg = QPrintDialog(printer, self)
 
         if print_dlg.exec() == QPrintDialog.accepted:
-            self.tableView_att.print(printer)
+            print_dlg.paintRequested.connect(self.print_prev_att)
     '''
+    
     
     def print_prev_dlg(self):
         printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
         printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+
+        #To fix: setPageMargins is doing nothing!
+        printer.setPageMargins(QMarginsF(1,1,1,1), units=QPageLayout.Unit.Millimeter)
+        
         prev_dlg = QPrintPreviewDialog(printer, self)
         combobox = prev_dlg.findChild(QComboBox)
         index = combobox.findText("100%")
