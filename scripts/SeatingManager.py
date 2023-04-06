@@ -151,6 +151,25 @@ def get_session_list(time_csv_path):
     
     return sessions
 
+def get_exp_list(exp_csv_path):
+    exps = {}
+    
+    exp_df = pandas.read_csv(exp_csv_path)
+    #--- drop rows with nan
+    exp_df = exp_df.dropna()
+    exp_df = exp_df.dropna().reset_index(drop=True)
+
+    id_list = list(exp_df['exp_id'])
+    title_list = list(exp_df['exp_title'].str.strip())
+    
+    exp_list = list(zip(id_list, title_list))
+    
+    for exp in exp_list:
+        #exps[exp[0]] = f'{exp[0]}: {exp[1]}'
+        exps[f'{exp[0]}: {exp[1]}'] = exp[0]
+    
+    return exps
+
 #------------------------------------------------------------
 def get_studList_header(col):
     header_10 = ["student_id","surname","first_name","email","session_id","lect_id","tutr_id","programme_title","study_level","registration_status"]

@@ -259,6 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'code':'xxxx',
             'laptop_list': [],
             'exp_id':1,
+            'exp':'dummy_exp',
             'n_max_group':6,
             'n_benches':4,
             'pkl_name':'dummy.pkl',
@@ -267,7 +268,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating_v4.ui',self)
+        self.ui = uic.loadUi('YorkULabSeating_v5.ui',self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -282,6 +283,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pc_txt_path = self.setting_Course.value('pc_txt_path')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
+        self.exp = self.setting_Course.value('exp')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
 
@@ -291,6 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.code: self.code = self.default_settings['code']
         if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
+        if not self.exp: self.exp = self.default_settings['exp']
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         
@@ -304,10 +307,12 @@ class MainWindow(QtWidgets.QMainWindow):
         
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+            if self.exp_csv_path:
+                self.exp_list = self.extract_exp(self.exp_csv_path)
             
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
-        self.spinBox_exp_id.setValue(self.exp_id)
+        self.comboBox_exp_id.setCurrentText(self.exp)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 15, weight=700))
         
@@ -346,15 +351,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gpc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        '''
-        self.copy_pbar.setStyleSheet("QProgressBar::chunk"
-                          "{"
-                            "border: 1px solid #b71414;"
-                            "background-color: #b71414;"
-                            "width: 10px;"
-                            "margin: 0.5px;"
-                          "}")
-        '''
         self.statusBar().addPermanentWidget(self.copy_pbar,1)
         self.statusBar().addPermanentWidget(self.gpc_reboot_pbar,1)
         self.statusBar().addPermanentWidget(self.pc_reboot_pbar,1)
@@ -367,9 +363,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
-        self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
-        self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
+        self.comboBox_exp_id.activated.connect(self.set_exp_id)
         self.comboBox_session.activated.connect(self.set_session_id)
+        self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
         self.pushButton_course_dir_browse.clicked.connect(self.browse_dir)
@@ -419,7 +415,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lineEdit_course_dir.setText(self.course_dir)
             self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
             self.session_list = []
+            self.exp_list = []
             self.comboBox_session.clear()
+            self.comboBox_exp_id.clear()
 
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
@@ -444,6 +442,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+                self.exp_list = self.extract_exp(self.exp_csv_path)
                 
     
     def extract_csv_paths(self, course_dir):
@@ -495,6 +494,19 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return session_list
 
+    def extract_exp(self, exp_csv_path):
+        exp_list = seating.get_exp_list(exp_csv_path)
+        self.comboBox_exp_id.clear()
+
+        if exp_list:
+            list_helper = list(exp_list.keys())
+            
+            self.comboBox_exp_id.addItems(list_helper)
+            logging.debug(f'---exps loaded:{list_helper}')
+            self.comboBox_exp_id.setCurrentIndex(-1)
+        
+        return exp_list
+
     def set_debug_mode(self):
         debug_mode = self.checkBox_debugMode.isChecked()
         if debug_mode:
@@ -528,7 +540,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.lineEdit_code.text() 
         self.n_max_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
-        self.exp_id     = self.spinBox_exp_id.value()
         self.course_label.setText(f'PHYS {self.code}')
         
         dlg = QtWidgets.QMessageBox(self)
@@ -544,7 +555,10 @@ class MainWindow(QtWidgets.QMainWindow):
         return pklfile_name
 
     def set_exp_id(self):
-        self.exp_id = self.spinBox_exp_id.value()
+        self.exp = self.comboBox_exp_id.currentText()
+        if self.exp:
+            self.exp_id = self.exp_list[self.exp]
+            logging.info(f' Selected exp_id:{self.exp_id}')
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()
@@ -634,7 +648,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
-            self.spinBox_exp_id.setEnabled(False)
+            self.comboBox_exp_id.setEnabled(False)
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
@@ -661,7 +675,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_copyFinished(self):
         self.copy_pbar.setFormat("Copy completed")
         self.pushButton_copyfiles.setEnabled(True)
-        self.spinBox_exp_id.setEnabled(True)
+        self.comboBox_exp_id.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.pushButton_rebootPCs.setEnabled(True)
         self.isCopyFileRunning = False
@@ -760,7 +774,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('course_dir', self.course_dir )
             self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
-            self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
+            self.setting_Course.setValue('exp_id', int(self.exp_id))
+            self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
