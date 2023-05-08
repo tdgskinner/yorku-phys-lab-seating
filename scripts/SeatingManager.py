@@ -133,6 +133,22 @@ def cord_map(code):
 
     return cord_dict[code]
 
+def get_room_list(pc_dir, pc_csv_path):
+    rooms = {}
+    pc_df = pandas.read_csv(pc_csv_path)
+    #--- drop rows with nan
+    pc_df = pc_df.dropna()
+    pc_df = pc_df.dropna().reset_index(drop=True)
+
+    Room_list = list(pc_df['Room'].str.strip())
+    PC_list = list(pc_df['PC_list'].str.strip())
+    room_pc_map = list(zip(Room_list, PC_list))
+
+    for room in room_pc_map:
+        rooms[room[0]] = os.path.join(pc_dir, room[1])
+    
+    return rooms
+
 def get_session_list(time_csv_path):
     sessions = {}
     
@@ -147,7 +163,7 @@ def get_session_list(time_csv_path):
     session_list = list(zip(Type_list, Day_list, time_list))
     
     for session in session_list:
-        sessions[f'{day_map(session[1])}, {session[2]}'] = session[0]
+        sessions[f'{day_map(session[1])}, {session[2]} - {session[0]}'] = session[0]
     
     return sessions
 

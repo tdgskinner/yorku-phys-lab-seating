@@ -89,18 +89,8 @@
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="4" column="1" colspan="5">
-         <widget class="QComboBox" name="comboBox_session">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QPushButton" name="pushButton_htmlgen">
+        <item row="8" column="0" colspan="4">
+         <widget class="QPushButton" name="pushButton_copyfiles">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -110,68 +100,44 @@
           <property name="font">
            <font>
             <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
-          <property name="text">
-           <string>[3] Generate html</string>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(66, 255, 75);</string>
           </property>
-         </widget>
-        </item>
-        <item row="5" column="1" colspan="5">
-         <widget class="QLineEdit" name="lineEdit_TAname">
           <property name="text">
-           <string>TA_name</string>
+           <string>[5] Copy Files to group PCs</string>
           </property>
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QPushButton" name="pushButton_grouping">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QCheckBox" name="checkBox_TAname_overwrite">
           <property name="font">
            <font>
-            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
-          <property name="text">
-           <string>[2] Generate groups</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QCheckBox" name="checkBox_TAname_overwrite">
           <property name="text">
            <string>Overwrite TA name(s)</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+        <item row="0" column="5">
+         <widget class="QLabel" name="course_label">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
           </property>
           <property name="text">
-           <string>[1] Session</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
-         <widget class="QLabel" name="label_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>[4] Exp</string>
+           <string>XXXX</string>
           </property>
          </widget>
         </item>
@@ -195,8 +161,11 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
-         <widget class="QLabel" name="course_label">
+        <item row="4" column="5">
+         <widget class="QComboBox" name="comboBox_room"/>
+        </item>
+        <item row="4" column="4">
+         <widget class="QLabel" name="label_3">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -205,19 +174,12 @@
            </font>
           </property>
           <property name="text">
-           <string>XXXX</string>
+           <string>[2] Location</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="5">
-         <widget class="QPushButton" name="pushButton_labLayout">
-          <property name="text">
-           <string>Lab Layout</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="4">
-         <widget class="QPushButton" name="pushButton_copyfiles">
+        <item row="5" column="0">
+         <widget class="QPushButton" name="pushButton_grouping">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -227,25 +189,124 @@
           <property name="font">
            <font>
             <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
            </font>
           </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(66, 255, 75);</string>
-          </property>
           <property name="text">
-           <string>[5] Copy Files</string>
+           <string>[3] Generate groups</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="4">
+        <item row="5" column="1">
+         <widget class="QPushButton" name="pushButton_htmlgen">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>[4] Generate html</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>[5] Exp</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3" colspan="3">
+         <widget class="QComboBox" name="comboBox_exp_id"/>
+        </item>
+        <item row="6" column="1" colspan="3">
+         <widget class="QLineEdit" name="lineEdit_TAname">
+          <property name="text">
+           <string>TA_name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
          <widget class="QPushButton" name="pushButton_att">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Attendance</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="3" colspan="3">
-         <widget class="QComboBox" name="comboBox_exp_id"/>
+        <item row="6" column="5">
+         <widget class="QPushButton" name="pushButton_labLayout">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Lab Layout</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" colspan="3">
+         <widget class="QComboBox" name="comboBox_session">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>[1] Session</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -576,7 +637,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_gpc_txt">
+         <widget class="QLineEdit" name="lineEdit_pc_dir">
           <property name="text">
            <string/>
           </property>
@@ -585,7 +646,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_47">
           <property name="text">
-           <string>PC list</string>
+           <string>PC lists directory</string>
           </property>
          </widget>
         </item>
@@ -632,7 +693,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_gpc_browse">
+         <widget class="QPushButton" name="pushButton_pc_browse">
           <property name="text">
            <string>Brows</string>
           </property>
@@ -698,7 +759,7 @@ p, li { white-space: pre-wrap; }
        </font>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Assigner&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 5.0, Apr 2023&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem, PhD&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri,sans-serif'; color:#000000;&quot;&gt;Laboratory Technologist&lt;/span&gt;&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;p&gt;Department of Physics &amp;amp; Astronomy&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Faculty of Science | &lt;/span&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000; text-transform:uppercase;&quot;&gt;York University&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Petrie Science &amp;amp; Engineering 122&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;4700 Keele Street Toronto ON, Canada M3J 1P3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:15pt; font-weight:600;&quot;&gt;YorkU PHYS Lab Seating Assigner&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 6.0, May 2023&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem, PhD&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri,sans-serif'; color:#000000;&quot;&gt;Laboratory Technologist&lt;/span&gt;&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;p&gt;Department of Physics &amp;amp; Astronomy&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Faculty of Science | &lt;/span&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000; text-transform:uppercase;&quot;&gt;York University&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Petrie Science &amp;amp; Engineering 122&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;4700 Keele Street Toronto ON, Canada M3J 1P3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_9">

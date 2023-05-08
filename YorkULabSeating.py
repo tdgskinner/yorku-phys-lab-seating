@@ -280,10 +280,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
         self.course_dir  = self.setting_Course.value('course_dir')
+        self.pc_dir  = self.setting_Course.value('pc_dir')
         self.pc_txt_path = self.setting_Course.value('pc_txt_path')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.exp = self.setting_Course.value('exp')
+        self.room = self.setting_Course.value('room')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
 
@@ -301,9 +303,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
         
+        if self.pc_dir:
+            self.lineEdit_pc_dir.setText(self.pc_dir)
+            self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
+
+            if self.pc_csv_path:
+                self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
+
         if self.course_dir:
             self.lineEdit_course_dir.setText(self.course_dir)
-            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
+            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
         
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
@@ -313,13 +322,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
         self.comboBox_exp_id.setCurrentText(self.exp)
+        if self.room:
+            self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 15, weight=700))
         
 
         self.gpc_list = []
         if self.pc_txt_path:
-            self.lineEdit_gpc_txt.setText(self.pc_txt_path)
+            self.lineEdit_pc_dir.setText(self.pc_dir)
             self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
 
         self.session_id = None
@@ -365,11 +376,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
         self.comboBox_exp_id.activated.connect(self.set_exp_id)
         self.comboBox_session.activated.connect(self.set_session_id)
+        self.comboBox_room.activated.connect(self.set_pc_txt_path)
+
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
-        self.pushButton_course_dir_browse.clicked.connect(self.browse_dir)
-        self.pushButton_gpc_browse.clicked.connect(self.browsefile)
+        self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
+        #self.pushButton_pc_browse.clicked.connect(self.browsefile)
+        self.pushButton_pc_browse.clicked.connect(self.browse_pc_dir)
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
@@ -405,15 +419,15 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
-    def browse_dir(self):
+    def browse_course_dir(self):
         '''
         open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
         '''  
-        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main Directory", directory=self.course_dir)  
+        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main course directory", directory=self.course_dir)  
         
         if self.course_dir:
             self.lineEdit_course_dir.setText(self.course_dir)
-            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
+            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
             self.session_list = []
             self.exp_list = []
             self.comboBox_session.clear()
@@ -445,7 +459,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.exp_list = self.extract_exp(self.exp_csv_path)
                 
     
-    def extract_csv_paths(self, course_dir):
+    def extract_course_csv_paths(self, course_dir):
         exp_csv_path, time_csv_path = None, None
         stud_csv_path_list = []
         for filename in os.listdir(course_dir):
@@ -459,7 +473,17 @@ class MainWindow(QtWidgets.QMainWindow):
                 elif 'stud' in filename:
                     stud_csv_path_list.append(os.path.join(course_dir, filename))
         return exp_csv_path, stud_csv_path_list, time_csv_path
+    
+    def extract_pc_csv_path(self, pc_dir):
+        pc_csv_path= None
+        for filename in os.listdir(pc_dir):
+            if filename.endswith(".csv"):
+                if 'pc' in filename:
+                    pc_csv_path= os.path.join(pc_dir, filename)
+                    
+        return pc_csv_path
                   
+    '''
     
     def browsefile(self):
         logging.debug(f'self.course_dir: {self.course_dir}')
@@ -471,9 +495,31 @@ class MainWindow(QtWidgets.QMainWindow):
         if fname[0]:
             self.pc_txt_path = fname[0]
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.lineEdit_gpc_txt.setText(self.pc_txt_path)
+            self.lineEdit_pc_dir.setText(self.pc_txt_path)
             self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
-    
+    '''
+    def browse_pc_dir(self):
+        '''
+        open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
+        '''  
+        self.pc_dir = QFileDialog.getExistingDirectory(self, "Select the pc lists directory", directory=self.pc_dir)  
+        
+        if self.pc_dir:
+            self.lineEdit_pc_dir.setText(self.pc_dir)
+            self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
+            self.room_list = []
+            self.comboBox_room.clear()
+
+            if not self.pc_csv_path:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No pc_*.csv found in this directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            else:
+                logging.debug(f'--pc_csv_path:{self.pc_csv_path}')
+                self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
         
     def sort_helper(self, item):
             day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
@@ -481,6 +527,16 @@ class MainWindow(QtWidgets.QMainWindow):
             time = int(time.split(":")[0])
             return (day_sort[item[:3]], time)
 
+    def extract_rooms(self, pc_dir, pc_csv_path):
+        room_list = seating.get_room_list(pc_dir ,pc_csv_path)
+        self.comboBox_room.clear()
+        if room_list:
+            self.comboBox_room.addItems(room_list.keys())
+            logging.debug(f'---rooms loaded:{room_list.keys()}')
+            self.comboBox_room.setCurrentIndex(-1)
+        
+        return room_list
+    
     def extract_sessions(self, time_csv_path):
         session_list = seating.get_session_list(time_csv_path)
         self.comboBox_session.clear()
@@ -567,6 +623,15 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.session:
             self.session_id = self.session_list[self.session]
             logging.info(f' Selected session_id:{self.session_id}')
+    
+    def set_pc_txt_path(self):
+        self.room = self.comboBox_room.currentText()
+        
+        if self.room:
+            self.pc_txt_path = self.room_list[self.room]
+            logging.info(f' Selected room:{self.room}')
+            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
+            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
 
     def generate_groups(self):
         if not self.session_id:
@@ -773,9 +838,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('course_dir', self.course_dir )
+            self.setting_Course.setValue('pc_dir', self.pc_dir )
             self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
             self.setting_Course.setValue('exp_id', int(self.exp_id))
             self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
+            self.setting_Course.setValue('room', self.comboBox_room.currentText())
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
