@@ -5,6 +5,7 @@ output_*/
 *.pkl
 *.pdf
 test*.py
+*.ipynb
 **/LabSeatingWeb
 **/stud_*.csv
 **/time_*.csv

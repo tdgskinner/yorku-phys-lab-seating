@@ -329,9 +329,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
 
         self.gpc_list = []
+        self.gpc_group_map ={}
         if self.pc_txt_path:
             self.lineEdit_pc_dir.setText(self.pc_dir)
-            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
+            self.gpc_list, self.laptop_list, self.gpc_group_map =gpc.extract_pc_list(self.pc_txt_path)
 
         self.session_id = None
         self.pkl_path = None
@@ -631,7 +632,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pc_txt_path = self.room_list[self.room]
             logging.info(f' Selected room:{self.room}')
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
+            self.gpc_list, self.laptop_list, self.gpc_group_map =gpc.extract_pc_list(self.pc_txt_path)
 
     def generate_groups(self):
         if not self.session_id:
@@ -709,7 +710,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.copy_pbar.show()
             self.copy_pbar.setFormat("Copy files ...")
 
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.gpc_group_map, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -858,11 +859,12 @@ class MainWindow(QtWidgets.QMainWindow):
 class CopyFileThread(QThread):
     progress = pyqtSignal(int)
     
-    def __init__(self, exp_id, gpc_list, course_dir, code, localCopy, parent=None ):
+    def __init__(self, exp_id, gpc_list, gpc_group_map, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         self.status = {}
         self.exp_id=exp_id
         self.gpc_list = gpc_list
+        self.gpc_group_map = gpc_group_map
         self.course_dir = course_dir
         self.code = code
         self.localCopy = localCopy
@@ -876,7 +878,8 @@ class CopyFileThread(QThread):
 
         if self.localCopy: self.gpc_list = ['LOCAL PC']
         for i, gpc in enumerate(self.gpc_list):
-            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, self.course_dir, self.code)
+            group = int(self.gpc_group_map[gpc])
+            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group ,self.course_dir, self.code)
             self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
         if all(self.status.values()):
