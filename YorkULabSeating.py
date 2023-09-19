@@ -268,7 +268,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating_v5.ui',self)
+        self.ui = uic.loadUi('YorkULabSeating.ui',self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
