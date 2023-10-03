@@ -432,7 +432,6 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
     return html_dir
 
 def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
-    #out_dir = f'output_{code}'
     out_dir = 'output_layout'
 
     if not os.path.exists(out_dir):

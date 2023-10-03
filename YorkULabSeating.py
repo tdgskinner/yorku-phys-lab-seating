@@ -484,21 +484,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     
         return pc_csv_path
                   
-    '''
-    
-    def browsefile(self):
-        logging.debug(f'self.course_dir: {self.course_dir}')
-        if self.course_dir:
-            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.course_dir, filter='Input file (*.txt)')
-        else:
-            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory='data', filter='Input file (*.txt)')    
-        
-        if fname[0]:
-            self.pc_txt_path = fname[0]
-            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.lineEdit_pc_dir.setText(self.pc_txt_path)
-            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
-    '''
     def browse_pc_dir(self):
         '''
         open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
@@ -878,8 +863,8 @@ class CopyFileThread(QThread):
 
         if self.localCopy: self.gpc_list = ['LOCAL PC']
         for i, gpc in enumerate(self.gpc_list):
-            group = int(self.gpc_group_map[gpc])
-            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group ,self.course_dir, self.code)
+            group_id = int(self.gpc_group_map[gpc])
+            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
             self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
         if all(self.status.values()):
