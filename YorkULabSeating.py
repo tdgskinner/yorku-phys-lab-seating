@@ -303,14 +303,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
         
-        if self.pc_dir:
+        if self.pc_dir and os.path.isdir(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
             self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
 
             if self.pc_csv_path:
                 self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
 
-        if self.course_dir:
+        if self.course_dir and os.path.isdir(self.course_dir):
             self.lineEdit_course_dir.setText(self.course_dir)
             self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
         
@@ -330,7 +330,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.gpc_list = []
         self.gpc_group_map ={}
-        if self.pc_txt_path:
+        if self.pc_txt_path and os.path.isdir(self.pc_txt_path):
             self.lineEdit_pc_dir.setText(self.pc_dir)
             self.gpc_list, self.laptop_list, self.gpc_group_map =gpc.extract_pc_list(self.pc_txt_path)
 
