@@ -4,7 +4,7 @@ __pycache__/
 output_*/
 *.pkl
 *.pdf
-test*.py
+/test
 *.ipynb
 **/LabSeatingWeb
 **/stud_*.csv

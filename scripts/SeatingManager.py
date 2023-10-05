@@ -8,6 +8,7 @@ import random
 import sys, os, shutil
 import math
 from PIL import Image, ImageFont, ImageDraw
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -109,29 +110,30 @@ def day_map(day_abr):
             }
     return days_dicts[day_abr.strip()]
 
-def cord_map(code):
-    # coordinate map of the PHYS lab layouts
-    cord_base_bc102F = [(30, 240),(160, 240),(30, 300),(160, 300)]
-    cord_diff_bc102F_l = [(0,0),(290,-100),(290,150),(650,-50),(650,230),(980,250),(730,480),(1030, 520)]
-    cord_diff_bc102F_s = [(0,430),(0,215)]
-    
-    cord_base_bc102cd = [(560, 50),(710, 50),(560, 120),(710, 120)]
-    cord_diff_bc102cd = [(0,0),(-275,0),(-550,0), (-550,380),(-275,380),(0,380)]
-    
-    cord_dict = {}
-    cord_dict['1801'] = [cord_base_bc102F, cord_diff_bc102F_l]
-    cord_dict['1800'] = [cord_base_bc102F, cord_diff_bc102F_s]
+def cord_map(room, gpc_map):
 
-    cord_dict['1012'] = [cord_base_bc102cd, cord_diff_bc102cd]
-    cord_dict['1412'] = [cord_base_bc102cd, cord_diff_bc102cd]
-    cord_dict['1422'] = [cord_base_bc102cd, cord_diff_bc102cd]
+    g_cord_map = {}
+    # relative coordination of the PHYS labs layouts
+    for gpc in list(gpc_map.keys()):
+        
+        # Define a regular expression pattern to match "GR" followed by one or two digits and a dot 
+        pattern = r'GR(\d{1,2})\.'
+        match = re.search(pattern, gpc)
+        if match:
+            gpc_id = int(match.group(1))
+            x = gpc_map[gpc][0]
+            y = gpc_map[gpc][1]
+            rel_x = gpc_map[gpc][2]
+            rel_y = gpc_map[gpc][3]
+            rel_cord= [[0, 0],[rel_x, 0],[0, rel_y],[rel_x, rel_y]]
+            tmp_cord = []
+            
+            for i in range(len(rel_cord)):
+                tmp_cord.append([x+rel_cord[i][0], y+rel_cord[i][1]])
+                
+        g_cord_map[gpc_id] = tmp_cord
 
-    cord_dict['1011'] = [cord_base_bc102cd, cord_diff_bc102cd]
-    cord_dict['1411'] = [cord_base_bc102cd, cord_diff_bc102cd]
-    cord_dict['1421'] = [cord_base_bc102cd, cord_diff_bc102cd]
-
-
-    return cord_dict[code]
+    return g_cord_map
 
 def get_room_list(pc_dir, pc_csv_path):
     rooms = {}
@@ -253,7 +255,7 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
+def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = None):
     logger.debug(f'ta_name = {ta_name}')
     out_dir = f'output_{code}'
     html_dir = os.path.join(out_dir, 'html')
@@ -348,6 +350,9 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                                     </div>
                                 </div>
                             </div>
+                            <div class ="footer">
+                              YorkU PHYS Lab Seating V{version}
+                            </div>
                             </body>
                             </html>
                             '''
@@ -418,6 +423,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
                                         </div>
                                     </div>
                                 </div>
+
                                 </body>
                                 </html>
                                 '''
@@ -431,53 +437,74 @@ def html_generator(pkl_path, code, n_max_group, n_benches, ta_name = None):
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
 
-def print_on_layout(layout_src, code, exp_id, pkl_path, n_max_group, n_benches):
+def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path): 
+    
+    if room not in room_list:
+        print(f'{room} room is not supported')
+        return
+    
     out_dir = 'output_layout'
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     
-    if int(code) not in [1800, 1801, 1011, 1012, 1411, 1412, 1421, 1422]:
-        logger.error(f'{code} layout is not supported yet.')
-        return None
+    lab_layout_out_file = os.path.join(out_dir, 'lab_layout_grp.jpg')
     
-    cord = cord_map(code)
+    # g_cordination dictionary
+    g_cord_dict = cord_map(room, gpc_map)
+    
     text_char_limit = 15
     text_color = 'red'  
-
-    lab_layout_out_file = os.path.join(out_dir, 'lab_layout_grp.jpg')
+    
     
     # Open the layout image
     myLayout = Image.open(layout_src)
 
-    # Define Font
-    textFont = ImageFont.truetype('arial.ttf', 15)
-
-    g_cor =[]
-    for g in range(len(cord[1])):
-        tmp = []
-        for i in range(n_benches):
-            tmp.append((cord[0][i][0]+cord[1][g][0], cord[0][i][1]+cord[1][g][1]))
-        g_cor.append(tmp)
-
+    # Create a font
+    textFont = ImageFont.load_default()  # You can also specify your desired font and size here
+    
+    
+    # Create a drawing context
     editImage = ImageDraw.Draw(myLayout)
 
-    dict = _load_student_groups(pkl_path, print_result=False)
-    n_group = len(dict[1][2])
+    # Define background color
+    background_color = (235, 235, 235)  # Use (R, G, B) values for white background
 
-    for g in range(n_group):
-        df = dict[exp_id][2][g].reset_index(drop=True)
-        df.index += 1
+    dict = _load_student_groups(pkl_path)
+
+    for gpc in list(gpc_map.keys()):
+        g_id = gpc_map[gpc][4] -1
+        if g_id <len(dict[exp_id][2]):
+            # Define a regular expression pattern to match "GR" followed by one or two digits and a dot 
+            pattern = r'GR(\d{1,2})\.'
+            match = re.search(pattern, gpc)
+            if match:
+                gpc_id = int(match.group(1))
+
+            df = dict[exp_id][2][g_id].reset_index(drop=True)
+            df.index += 1
        
-        for i in range(len(df)):
-            stud_name = df.iloc[i,2] +' '+ df.iloc[i,1]
-            editImage.text(g_cor[g][i], stud_name[:text_char_limit], (text_color), font=textFont)
+            for i in range(len(df)):
+                stud_name = df.iloc[i,2] +' '+ df.iloc[i,1]
+            
+                # Calculate the text size
+                text_width, text_height = editImage.textsize(stud_name[:text_char_limit], font=textFont)
+            
+                # Calculate the position for text to be centered
+                x = g_cord_dict[gpc_id][i][0]
+                y = g_cord_dict[gpc_id][i][1]
+           
+                # Create a rectangle with the background color
+                editImage.rectangle([x, y, x + text_width, y + text_height], fill=background_color)
+            
+                # Write the text on the colored background 
+                editImage.text((x, y), stud_name[:text_char_limit], fill=text_color, font=textFont)
 
     #save Image
     try:
         myLayout.save(lab_layout_out_file)
         return lab_layout_out_file
     except:
-        logger.error('Could not write on the layout image.')
+        print('Could not write on the layout image.')   
 
     

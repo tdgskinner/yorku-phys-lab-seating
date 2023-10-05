@@ -14,7 +14,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
 
-
+appVersion = '6.3'
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
@@ -329,11 +329,11 @@ class MainWindow(QtWidgets.QMainWindow):
         
 
         self.gpc_list = []
-        self.gpc_group_map ={}
-        if self.pc_txt_path and os.path.isdir(self.pc_txt_path):
+        self.gpc_map ={}
+        if self.pc_txt_path and os.path.exists(self.pc_txt_path):
             self.lineEdit_pc_dir.setText(self.pc_dir)
-            self.gpc_list, self.laptop_list, self.gpc_group_map =gpc.extract_pc_list(self.pc_txt_path)
-
+            self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+        
         self.session_id = None
         self.pkl_path = None
         self.thread={}
@@ -401,7 +401,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.course_dir:
             self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
             if os.path.isfile(self.layout_src):
-                self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
+                self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
                 logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
             if os.path.isfile(self.lab_layout_out_file):
@@ -617,7 +617,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pc_txt_path = self.room_list[self.room]
             logging.info(f' Selected room:{self.room}')
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.gpc_list, self.laptop_list, self.gpc_group_map =gpc.extract_pc_list(self.pc_txt_path)
+            self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
 
     def generate_groups(self):
         if not self.session_id:
@@ -656,11 +656,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path, n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
+                self.pkl_path, self.n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
-                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
+                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
@@ -681,7 +681,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, self.ta_name)
+                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
                 self.pushButton_labLayout.setEnabled(True)
         else:
             dlg = QtWidgets.QMessageBox(self)
@@ -695,7 +695,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.copy_pbar.show()
             self.copy_pbar.setFormat("Copy files ...")
 
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.gpc_group_map, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.gpc_map, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
@@ -833,9 +833,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
                 event.accept()
-                logging.debug('The application exited properly.')
+                logging.debug('The application exited Normaly.')
             except Exception as e:
-                logging.error(f'The application exited improperly: {e}')
+                logging.error(f'The application exited with error: {e}')
             
         else:
             event.ignore()
@@ -844,12 +844,12 @@ class MainWindow(QtWidgets.QMainWindow):
 class CopyFileThread(QThread):
     progress = pyqtSignal(int)
     
-    def __init__(self, exp_id, gpc_list, gpc_group_map, course_dir, code, localCopy, parent=None ):
+    def __init__(self, exp_id, gpc_list, gpc_map, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         self.status = {}
         self.exp_id=exp_id
         self.gpc_list = gpc_list
-        self.gpc_group_map = gpc_group_map
+        self.gpc_map = gpc_map
         self.course_dir = course_dir
         self.code = code
         self.localCopy = localCopy
@@ -863,7 +863,7 @@ class CopyFileThread(QThread):
 
         if self.localCopy: self.gpc_list = ['LOCAL PC']
         for i, gpc in enumerate(self.gpc_list):
-            group_id = int(self.gpc_group_map[gpc])
+            group_id = int(self.gpc_map[gpc][4])
             self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
             self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
