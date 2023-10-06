@@ -3,11 +3,13 @@ import pandas as pd
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF
+from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence
 from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
+
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
@@ -44,6 +46,51 @@ class OutputWrapper(QObject):
                 sys.stderr = self._stream
         except AttributeError:
             pass
+
+#--------------------------------------------------------------------------------
+class LabLayoutWindow_new(QWidget):
+    def __init__(self, layout_out, main_window_size=QSize(800, 600)):
+        super().__init__()
+
+        # Set the size of the LabLayoutWindow to match the main window size
+        self.resize(main_window_size)
+
+        # Create a QGraphicsView to display the image
+        self.view = QGraphicsView(self)
+        self.view.setRenderHints(QPainter.RenderHint.Antialiasing)
+        self.view.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
+
+        # Create a QGraphicsScene and add the pixmap to it
+        self.scene = QGraphicsScene(self)
+        self.view.setScene(self.scene)
+
+        # Create a QVBoxLayout to organize the contents
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.view)
+
+        # Set the layout for the QWidget
+        self.setLayout(layout)
+
+        # Load the image and set it to the view
+        self.loadImage(layout_out)
+
+    def loadImage(self, layout_out):
+        # Load the image file
+        self.pixmap = QPixmap(layout_out)
+
+        # Add the pixmap to the scene
+        self.scene.clear()
+        self.scene.addPixmap(self.pixmap)
+
+        # Resize the image to fit the view with aspect ratio preservation
+        self.view.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+
+    def resizeEvent(self, event):
+        # Resize the image to fit the view when the window is resized
+        self.view.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+
+
+
 
 #--------------------------------------------------------------------------------
 class LabLayoutWindow(QWidget):
@@ -399,14 +446,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_lab_layout(self):
         # Populating layout image:
         if self.course_dir:
-            self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
+            #self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
+            self.layout_src = os.path.join(self.course_dir, 'lab_layout.png')
             if os.path.isfile(self.layout_src):
                 self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
                 logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
             if os.path.isfile(self.lab_layout_out_file):
-                self.lablayout = LabLayoutWindow(self.lab_layout_out_file)
-                self.lablayout.show()
+                #self.lablayout = LabLayoutWindow(self.lab_layout_out_file)
+                #self.lablayout.show()
+                self.lablayout = LabLayoutWindow_new(self.lab_layout_out_file)
+                self.lablayout.showMaximized()
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")

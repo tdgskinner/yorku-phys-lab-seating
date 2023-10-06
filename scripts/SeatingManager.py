@@ -123,9 +123,9 @@ def cord_map(room, gpc_map):
             gpc_id = int(match.group(1))
             x = gpc_map[gpc][0]
             y = gpc_map[gpc][1]
-            rel_x = gpc_map[gpc][2]
-            rel_y = gpc_map[gpc][3]
-            rel_cord= [[0, 0],[rel_x, 0],[0, rel_y],[rel_x, rel_y]]
+            line_spacing = gpc_map[gpc][2]
+            #rel_y = gpc_map[gpc][3]
+            rel_cord= [[0, 0],[0, line_spacing],[0, 2*line_spacing],[0, 3*line_spacing]]
             tmp_cord = []
             
             for i in range(len(rel_cord)):
@@ -448,7 +448,7 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     
-    lab_layout_out_file = os.path.join(out_dir, 'lab_layout_grp.jpg')
+    lab_layout_out_file = os.path.join(out_dir, 'lab_layout_grp.png')
     
     # g_cordination dictionary
     g_cord_dict = cord_map(room, gpc_map)
@@ -461,7 +461,8 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     myLayout = Image.open(layout_src)
 
     # Create a font
-    textFont = ImageFont.load_default()  # You can also specify your desired font and size here
+    textFont = ImageFont.truetype('arial.ttf', 65)
+    #textFont = ImageFont.load_default()  # You can also specify your desired font and size here
     
     
     # Create a drawing context
@@ -473,7 +474,7 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     dict = _load_student_groups(pkl_path)
 
     for gpc in list(gpc_map.keys()):
-        g_id = gpc_map[gpc][4] -1
+        g_id = gpc_map[gpc][3] -1
         if g_id <len(dict[exp_id][2]):
             # Define a regular expression pattern to match "GR" followed by one or two digits and a dot 
             pattern = r'GR(\d{1,2})\.'

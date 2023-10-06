@@ -17,7 +17,7 @@ def extract_pc_list(pc_txt_path):
             line = l.strip()
             if line and not line.startswith('#') and grp_identifier.search(line):
                 gpc_list.append(line.split(',')[0])
-                gpc_map[line.split(',')[0]] = [int(line.split(',')[1]), int(line.split(',')[2]), int(line.split(',')[3]), int(line.split(',')[4]), int(line.split(',')[5])]
+                gpc_map[line.split(',')[0]] = [int(line.split(',')[1]), int(line.split(',')[2]), int(line.split(',')[3]), int(line.split(',')[4])]
         
         
         logging.debug(f'{len(gpc_list)} Group PCs found')
