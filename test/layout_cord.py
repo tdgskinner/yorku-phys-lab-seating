@@ -16,7 +16,7 @@ def _load_student_groups(pkl_file):
             exp_dict = pickle.load(pickle_file)
             print(f'file {pkl_file} is loaded successfully!')
     except:
-        print(f'Failed to load {pkl_file}', exc_info = True)
+        print(f'Failed to load {pkl_file}')
     
     return exp_dict
 
@@ -62,7 +62,7 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     # g_cordination dictionary
     g_cord_dict = cord_map(room, gpc_map)
     
-    text_char_limit = 15
+    text_char_limit = 20
     text_color = 'red'  
     
     
@@ -70,15 +70,19 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     myLayout = Image.open(layout_src)
 
     # Create a font
-    textFont = ImageFont.truetype('arial.ttf', 65)
-    #textFont = ImageFont.load_default()  # You can also specify your desired font and size here
+    font_size = 65
+    try:
+        textFont = ImageFont.truetype('arial.ttf', font_size)
+    except IOError:
+        # If 'arial.ttf' is not found, load the default font
+        textFont = ImageFont.load_default()
     
     
     # Create a drawing context
     editImage = ImageDraw.Draw(myLayout)
 
     # Define background color
-    background_color = (235, 235, 235)  # Use (R, G, B) values for white background
+    background_color = (154, 237, 176)  # Use (R, G, B) values for white background
 
     dict = _load_student_groups(pkl_path)
 
@@ -118,23 +122,18 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
         print('Could not write on the layout image.')  
 
 
-layout_src = 'lab_layout_102F.png'
+layout_src = 'BC_102C_layout.png'
 room = 'BC_102C'
 room_list = ['BC_102C','BC_102D','BC_102F']
 exp_id = 1
-#pkl_path = 'SeatingDB_Fall_2023_1011_LAB04.pkl'
-pkl_path = 'SeatingDB_Fall_2023_1800_LAB06_1.pkl'
+pkl_path = 'SeatingDB_Fall_2023_1411_LAB01.pkl'
 gpc_map = {
-    'SC-L-PH-BC-GR01.yorku.yorku.ca':[ 120, 230 , 140,  1],
-    'SC-L-PH-BC-GR02.yorku.yorku.ca':[ 1440, 250 , 140,  2],
-    'SC-L-PH-BC-GR03.yorku.yorku.ca':[ 1440, 1200 , 140,  3],
-    'SC-L-PH-BC-GR04.yorku.yorku.ca':[ 2900, 1300 , 140,  4],
-    'SC-L-PH-BC-GR05.yorku.yorku.ca':[ 3300, 270 , 140,  5],
-    'SC-L-PH-BC-GR06.yorku.yorku.ca':[ 4200, 1300 , 140,  6],
-    'SC-L-PH-BC-GR07.yorku.yorku.ca':[ 3400, 2250 , 140,  7],
-    'SC-L-PH-BC-GR08.yorku.yorku.ca':[ 4600, 2250 , 140,  8],
-    'SC-L-PH-BC-GR09.yorku.yorku.ca':[ 120, 2150 , 140,  9],
-    'SC-L-PH-BC-GR10.yorku.yorku.ca':[ 120, 1200 , 140,  10],
+    'SC-L-PH-BC3-GR1.yorku.yorku.ca' : [3650, 400 , 140, 1],
+    'SC-L-PH-BC3-GR2.yorku.yorku.ca' : [2250, 400 , 140, 2],
+    'SC-L-PH-BC3-GR3.yorku.yorku.ca' : [850, 400 , 140, 3],
+    'SC-L-PH-BC3-GR4.yorku.yorku.ca' : [850 , 2280, 140, 4],
+    'SC-L-PH-BC3-GR5.yorku.yorku.ca' : [2250, 2280, 140, 5],
+    'SC-L-PH-BC3-GR6.yorku.yorku.ca' : [3650, 2280, 140, 6],
 }
 
 print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path)

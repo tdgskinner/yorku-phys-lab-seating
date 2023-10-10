@@ -144,10 +144,11 @@ def get_room_list(pc_dir, pc_csv_path):
 
     Room_list = list(pc_df['Room'].str.strip())
     PC_list = list(pc_df['PC_list'].str.strip())
-    room_pc_map = list(zip(Room_list, PC_list))
+    layout_list = list(pc_df['room_layout'].str.strip())
+    room_pc_map = list(zip(Room_list, PC_list, layout_list))
 
     for room in room_pc_map:
-        rooms[room[0]] = os.path.join(pc_dir, room[1])
+        rooms[room[0]] = [os.path.join(pc_dir, room[1]), os.path.join(pc_dir, 'layouts',room[2])]
     
     return rooms
 
@@ -437,12 +438,13 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
 
-def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path): 
+def print_on_layout(gpc_map, room, room_list, exp_id, pkl_path):
     
     if room not in room_list:
         print(f'{room} room is not supported')
         return
     
+    layout_src = room_list[room][1]
     out_dir = 'output_layout'
 
     if not os.path.exists(out_dir):
@@ -453,23 +455,32 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
     # g_cordination dictionary
     g_cord_dict = cord_map(room, gpc_map)
     
-    text_char_limit = 15
+    text_char_limit = 20
     text_color = 'red'  
     
     
     # Open the layout image
-    myLayout = Image.open(layout_src)
+    if os.path.isfile(layout_src):
+        myLayout = Image.open(layout_src)
+    else:
+        logger.error('Layout file does not exist!')
+        return
 
     # Create a font
-    textFont = ImageFont.truetype('arial.ttf', 65)
-    #textFont = ImageFont.load_default()  # You can also specify your desired font and size here
+    font_size = 65
+    font_path = os.path.join('scripts', 'arial.ttf')
+    try:
+        textFont = ImageFont.truetype(font_path, font_size)
+    except IOError:
+        # If 'arial.ttf' is not found, load the default font
+        textFont = ImageFont.load_default()
     
     
     # Create a drawing context
     editImage = ImageDraw.Draw(myLayout)
 
     # Define background color
-    background_color = (235, 235, 235)  # Use (R, G, B) values for white background
+    background_color = (154, 237, 176)  # Use (R, G, B) values for white background
 
     dict = _load_student_groups(pkl_path)
 
@@ -506,6 +517,6 @@ def print_on_layout(layout_src, gpc_map, room, room_list, exp_id, pkl_path):
         myLayout.save(lab_layout_out_file)
         return lab_layout_out_file
     except:
-        print('Could not write on the layout image.')   
+        logger.error('Could not write on the layout image.')
 
     

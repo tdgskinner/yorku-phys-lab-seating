@@ -328,7 +328,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.setting_Course.value('code')
         self.course_dir  = self.setting_Course.value('course_dir')
         self.pc_dir  = self.setting_Course.value('pc_dir')
-        self.pc_txt_path = self.setting_Course.value('pc_txt_path')
+        #self.pc_txt_path = self.setting_Course.value('pc_txt_path')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.exp = self.setting_Course.value('exp')
@@ -377,9 +377,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.gpc_list = []
         self.gpc_map ={}
-        if self.pc_txt_path and os.path.exists(self.pc_txt_path):
+        #if self.pc_txt_path and os.path.exists(self.pc_txt_path):
+        if self.pc_dir and os.path.exists(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
-            self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+            self.set_pc_txt_path()
+            #self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
         
         self.session_id = None
         self.pkl_path = None
@@ -446,21 +448,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_lab_layout(self):
         # Populating layout image:
         if self.course_dir:
-            #self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
-            self.layout_src = os.path.join(self.course_dir, 'lab_layout.png')
-            if os.path.isfile(self.layout_src):
-                self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
-                logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
+            self.lab_layout_out_file = seating.print_on_layout(self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
+            logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
             if os.path.isfile(self.lab_layout_out_file):
-                #self.lablayout = LabLayoutWindow(self.lab_layout_out_file)
-                #self.lablayout.show()
                 self.lablayout = LabLayoutWindow_new(self.lab_layout_out_file)
                 self.lablayout.showMaximized()
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("No lab_layout_grp.jpg found in output_layout directory.")
+                dlg.setText("Cannot generate lab_layout_grp.jpg.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:
@@ -664,7 +661,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.room = self.comboBox_room.currentText()
         
         if self.room:
-            self.pc_txt_path = self.room_list[self.room]
+            self.pc_txt_path = self.room_list[self.room][0]
             logging.info(f' Selected room:{self.room}')
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
@@ -875,7 +872,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('course_dir', self.course_dir )
             self.setting_Course.setValue('pc_dir', self.pc_dir )
-            self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
+            #self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
             self.setting_Course.setValue('exp_id', int(self.exp_id))
             self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
             self.setting_Course.setValue('room', self.comboBox_room.currentText())
@@ -961,13 +958,12 @@ class Reboot_PC_Thread(QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
+    print('Welcome to YorkU PHYS Lab Seat Assigner')
     logging.getLogger().setLevel(logging.INFO)
-    
     app = QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.show()
 
-    print('Welcome to YorkU PHYS Lab Seat Assigner')
     sys.exit(app.exec())
