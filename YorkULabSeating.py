@@ -910,7 +910,7 @@ class CopyFileThread(QThread):
 
         if self.localCopy: self.gpc_list = ['LOCAL PC']
         for i, gpc in enumerate(self.gpc_list):
-            group_id = int(self.gpc_map[gpc][4])
+            group_id = int(self.gpc_map[gpc][3])
             self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
             self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
