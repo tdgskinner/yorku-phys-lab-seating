@@ -27,7 +27,7 @@ class MyRemoteCopyFile:
                 shutil.copy(source, dest)
         
     #------------------------------------------------------------
-    def _server_dir_prep(self, exp_id, gpc, src_dir, code):
+    def _server_dir_prep(self, exp_id, gpc, group_id, src_dir, code):
         cwd = os.getcwd()
        
         if self.do_localCopy:
@@ -64,16 +64,17 @@ class MyRemoteCopyFile:
         
 
         for f in html_files:
-            self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, f))
+            if int(f.split('.')[0][1:])==group_id:
+                self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, 'index.html'))
         
     #------------------------------------------------------------
-    def run_copyfile(self, exp_id, gpc, src_dir, code):
+    def run_copyfile(self, exp_id, gpc, group_id, src_dir, code):
        
         try:
-            self._server_dir_prep(exp_id, gpc, src_dir, code)
-            logger.info(f' html files are copied in {gpc} successfully!')               
+            self._server_dir_prep(exp_id, gpc, group_id, src_dir, code)
+            logger.info(f' Group ({group_id}) html file is copied to {gpc} successfully!')               
             return True
         except Exception as e:
-            logger.debug(f' Unable to copy html files to {gpc}: {e}')
+            logger.debug(f' Unable to copy html file to {gpc}: {e}')
             return False
 

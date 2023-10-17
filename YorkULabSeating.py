@@ -1,17 +1,22 @@
-import sys , os, time
+import sys , os
+import pandas as pd
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QSettings, QThread, pyqtSignal, QObject, Qt
+from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
-from PyQt6.QtWidgets import  QLabel, QVBoxLayout
-from PyQt6.QtGui import QIcon, QPixmap, QFont
+from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
+
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
 
+appVersion = '6.3'
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
@@ -43,6 +48,51 @@ class OutputWrapper(QObject):
             pass
 
 #--------------------------------------------------------------------------------
+class LabLayoutWindow_new(QWidget):
+    def __init__(self, layout_out, main_window_size=QSize(800, 600)):
+        super().__init__()
+
+        # Set the size of the LabLayoutWindow to match the main window size
+        self.resize(main_window_size)
+
+        # Create a QGraphicsView to display the image
+        self.view = QGraphicsView(self)
+        self.view.setRenderHints(QPainter.RenderHint.Antialiasing)
+        self.view.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
+
+        # Create a QGraphicsScene and add the pixmap to it
+        self.scene = QGraphicsScene(self)
+        self.view.setScene(self.scene)
+
+        # Create a QVBoxLayout to organize the contents
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.view)
+
+        # Set the layout for the QWidget
+        self.setLayout(layout)
+
+        # Load the image and set it to the view
+        self.loadImage(layout_out)
+
+    def loadImage(self, layout_out):
+        # Load the image file
+        self.pixmap = QPixmap(layout_out)
+
+        # Add the pixmap to the scene
+        self.scene.clear()
+        self.scene.addPixmap(self.pixmap)
+
+        # Resize the image to fit the view with aspect ratio preservation
+        self.view.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+
+    def resizeEvent(self, event):
+        # Resize the image to fit the view when the window is resized
+        self.view.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+
+
+
+
+#--------------------------------------------------------------------------------
 class LabLayoutWindow(QWidget):
     """
     This "window" is a QWidget. If it has no parent, it
@@ -67,6 +117,184 @@ class LabLayoutWindow(QWidget):
 
         layout.addWidget(label)
         self.setLayout(layout)
+#--------------------------------------------------------------------------------
+class PandasModel(QAbstractTableModel):
+    def __init__(self, df=pd.DataFrame(), parent=None):
+        super().__init__(parent)
+        self._df = df
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+             return QVariant()
+        if orientation == Qt.Orientation.Horizontal:
+            try:
+                return self._df.columns.tolist()[section]
+            except IndexError:
+                return QVariant()
+        elif orientation == Qt.Orientation.Vertical:
+            try:
+                return self._df.index.tolist()[section]
+            except IndexError:
+                return QVariant()
+    
+    def rowCount(self, parent=QModelIndex()):
+        return self._df.shape[0]
+
+    def columnCount(self, parent=QModelIndex()):
+        return self._df.shape[1]
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+            return QVariant()
+        if not index.isValid():
+            return QVariant()
+        return QVariant(str(self._df.iloc[index.row(), index.column()]))
+#--------------------------------------------------------
+class AttWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self, stud_list, session, session_id, code, exp_id):
+        super().__init__()
+
+        self.ui = uic.loadUi('YorkULabSeating_att.ui',self)
+        self.stud_list = stud_list
+        self.session = session
+        self.session_id = session_id
+        self.exp_id = exp_id
+        self.code = code
+        self.tableView_att.setSortingEnabled(True)
+        self.tableView_att.horizontalHeader().setSectionsMovable(True)
+        myFont=QFont()
+        myFont.setBold(True)
+
+        self.label_exp_id.setText(str(self.exp_id))
+        self.label_code.setText(f'PHYS {self.code} - {self.session}')
+        self.label_exp_id.setFont(myFont)
+        self.label_code.setFont(myFont)
+        self.label_4.setFont(myFont)
+        self.label_5.setFont(myFont)
+        self.label_6.setFont(myFont)
+        icon = QIcon('printer-icon-48.png')
+        self.pushButton_print_att.setIcon(icon)
+        self.pushButton_print_att.clicked.connect(self.print_prev_dlg)
+        shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
+        shortcut.activated.connect(self.pushButton_print_att.click)
+        self.pushButton_print_att.setToolTip("Click me (Ctrl+M)")
+        
+        self.retrieveDataset()
+    
+    def retrieveDataset(self):
+        self.df = seating.concat_stud_lists(self.stud_list)
+        self.df = self.df.reset_index(drop=True)
+        n_col = len(list(self.df.columns))
+        if n_col == 9 or n_col ==10:
+            self.df.columns = seating.get_studList_header(n_col)
+    	
+        self.df = self.df.dropna()
+        self.df = self.df.loc[self.df['session_id'].str.strip()!='LAB 99']
+        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id]
+        
+        self.df = self.df.rename(columns={'first_name': 'First Name'})
+        self.df = self.df.rename(columns={'surname': 'Last Name'})
+        self.df = self.df[["First Name", "Last Name"]]
+        self.df["Attn"] = "         "
+        idx = range(1,len(self.df)+1)
+        self.df.insert(0, '', idx)
+		
+        font_plainText = QFont()
+        font_plainText.setPointSize(8)
+        self.plainTextEdit_att.setFont(font_plainText)
+
+        if self.code == '1801':
+            if self.exp_id ==2:
+                self.df["LA1\n(2 marks)"] = ""
+                self.df["LA2\n(4 marks)"] = ""
+                self.df["LA3\n(4 marks)"] = ""
+                self.df["Bonus\n(1 marks)"] = ""
+                self.df["Total\n(10 marks)"] = ""
+                self.plainTextEdit_att.setPlainText('LA1 - Used DMM to measure the output voltage of a potentiometer\nLA2 - Wrote LabVIEW for data acquisition of the output voltage from potentiometer\nLA3 - Wrote LabVIEW program for control of DC motor\nBonus - Able to add additional control to stop motor with the "STOP" button')
+            elif self.exp_id ==3:
+                self.df["LA1\n(5 marks)"] = ""
+                self.df["LA2\n(5 marks)"] = ""
+                self.df["Bonus\n(2 marks)"] = ""
+                self.df["Total\n(10 marks)"] = ""
+                self.plainTextEdit_att.setPlainText('LA1 - Wheatstone bridge circuit operates correctly\nLA2 - Digital Thermometer operates correctly\nBonus - Fan switches on when temperature is too high')
+            elif self.exp_id ==5:
+                self.df["LA1\n(2 marks)"] = ""
+                self.df["LA2\n(3 marks)"] = ""
+                self.df["InLab\nTotal"] = ""
+                self.plainTextEdit_att.setPlainText('LA1 - Circuit works as expected with magnet\nLA2 - Digital Speedometer works properly')
+            elif self.exp_id ==9:
+                self.df["LA2\n(3 marks)"] = ""
+                self.plainTextEdit_att.setPlainText('LA2 - Successfully able to decipher number sent using Oscilloscope')
+		
+        self.df.fillna('')
+        
+        self.model = PandasModel(self.df)
+        font_table = QFont()
+        font_table.setPointSize(8)
+        self.tableView_att.setFont(font_table)
+        self.tableView_att.setModel(self.model)
+
+        for i in range(len(self.df)):
+            self.tableView_att.setRowHeight(i, 2)
+        
+        self.tableView_att.setColumnWidth(0,3)
+        self.tableView_att.setColumnWidth(3,40)
+        self.tableView_att.verticalHeader().hide()
+
+        for i in range(4, len(self.df.columns)):
+            self.tableView_att.setColumnWidth(i,60)
+    
+    '''def print_att(self):
+        printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+
+        #To fix: setPageMargins is doing nothing!
+        printer.setPageMargins(QMarginsF(1,1,1,1), units=QPageLayout.Unit.Millimeter)
+
+        print_dlg = QPrintDialog(printer, self)
+
+        if print_dlg.exec() == QPrintDialog.accepted:
+            print_dlg.paintRequested.connect(self.print_prev_att)
+    '''
+    
+    
+    def print_prev_dlg(self):
+        printer = QPrinter(QPrinter.PrinterMode.PrinterResolution)
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.Letter))
+
+        #To fix: setPageMargins is doing nothing!
+        printer.setPageMargins(QMarginsF(1,1,1,1), units=QPageLayout.Unit.Millimeter)
+        
+        prev_dlg = QPrintPreviewDialog(printer, self)
+        combobox = prev_dlg.findChild(QComboBox)
+        index = combobox.findText("100%")
+        combobox.setCurrentIndex(index)
+
+        prev_dlg.paintRequested.connect(self.print_prev_att)
+        prev_dlg.exec() 
+
+    def print_prev_att(self, printer):
+        painter = QPainter(printer)
+        # calculate the scaling factor to fit the widget to the page
+        xscale = printer.pageRect(QPrinter.Unit.Point).width() / self.width()
+        yscale = printer.pageRect(QPrinter.Unit.Point).height() / self.height()
+        scale = 8*min(xscale, yscale)
+
+        # set the transformation matrix of the painter
+        painter.translate((printer.paperRect(QPrinter.Unit.Point).x()) + (printer.pageRect(QPrinter.Unit.Point).width()/2), (printer.paperRect(QPrinter.Unit.Point).y()) + (printer.pageRect(QPrinter.Unit.Point).height()/2))
+        painter.scale(scale, scale)
+
+        # draw the widget onto the printer
+        self.render(painter)
+
+        # cleanup
+        painter.end()
+        logging.debug('Printing completed')
+
 
 #--------------------------------------------------------------------------------
 class MainWindow(QtWidgets.QMainWindow):
@@ -78,6 +306,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'code':'xxxx',
             'laptop_list': [],
             'exp_id':1,
+            'exp':'dummy_exp',
             'n_max_group':6,
             'n_benches':4,
             'pkl_name':'dummy.pkl',
@@ -86,7 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating_v3.ui',self)
+        self.ui = uic.loadUi('YorkULabSeating.ui',self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -98,9 +327,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year       = self.setting_Course.value('year')
         self.code       = self.setting_Course.value('code')
         self.course_dir  = self.setting_Course.value('course_dir')
-        self.pc_txt_path = self.setting_Course.value('pc_txt_path')
+        self.pc_dir  = self.setting_Course.value('pc_dir')
+        #self.pc_txt_path = self.setting_Course.value('pc_txt_path')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
+        self.exp = self.setting_Course.value('exp')
+        self.room = self.setting_Course.value('room')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
 
@@ -110,6 +342,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.code: self.code = self.default_settings['code']
         if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
         if not self.exp_id: self.exp_id = self.default_settings['exp_id']
+        if not self.exp: self.exp = self.default_settings['exp']
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         
@@ -117,25 +350,39 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
         
-        if self.course_dir:
+        if self.pc_dir and os.path.isdir(self.pc_dir):
+            self.lineEdit_pc_dir.setText(self.pc_dir)
+            self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
+
+            if self.pc_csv_path:
+                self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
+
+        if self.course_dir and os.path.isdir(self.course_dir):
             self.lineEdit_course_dir.setText(self.course_dir)
-            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
+            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
         
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+            if self.exp_csv_path:
+                self.exp_list = self.extract_exp(self.exp_csv_path)
             
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
-        self.spinBox_exp_id.setValue(self.exp_id)
+        self.comboBox_exp_id.setCurrentText(self.exp)
+        if self.room:
+            self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 15, weight=700))
         
 
         self.gpc_list = []
-        if self.pc_txt_path:
-            self.lineEdit_gpc_txt.setText(self.pc_txt_path)
-            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
-
+        self.gpc_map ={}
+        #if self.pc_txt_path and os.path.exists(self.pc_txt_path):
+        if self.pc_dir and os.path.exists(self.pc_dir):
+            self.lineEdit_pc_dir.setText(self.pc_dir)
+            self.set_pc_txt_path()
+            #self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+        
         self.session_id = None
         self.pkl_path = None
         self.thread={}
@@ -149,6 +396,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ta_name = None
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
+        self.pushButton_att.setEnabled(False)
 
         #-- progress bars ---
         self.copy_pbar = QProgressBar()
@@ -164,15 +412,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gpc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pc_reboot_pbar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        '''
-        self.copy_pbar.setStyleSheet("QProgressBar::chunk"
-                          "{"
-                            "border: 1px solid #b71414;"
-                            "background-color: #b71414;"
-                            "width: 10px;"
-                            "margin: 0.5px;"
-                          "}")
-        '''
         self.statusBar().addPermanentWidget(self.copy_pbar,1)
         self.statusBar().addPermanentWidget(self.gpc_reboot_pbar,1)
         self.statusBar().addPermanentWidget(self.pc_reboot_pbar,1)
@@ -185,33 +424,40 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.check_pkl)
-        self.spinBox_exp_id.valueChanged.connect(self.set_exp_id)
-        self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
+        self.comboBox_exp_id.activated.connect(self.set_exp_id)
         self.comboBox_session.activated.connect(self.set_session_id)
+        self.comboBox_room.activated.connect(self.set_pc_txt_path)
+
+        self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
-        self.pushButton_course_dir_browse.clicked.connect(self.browse_dir)
-        self.pushButton_gpc_browse.clicked.connect(self.browsefile)
+        self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
+        #self.pushButton_pc_browse.clicked.connect(self.browsefile)
+        self.pushButton_pc_browse.clicked.connect(self.browse_pc_dir)
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
+        self.pushButton_att.clicked.connect(self.show_attendance)
     
+    def show_attendance(self):
+        self.att = AttWindow(self.stud_csv_path_list, self.session, self.session_id, self.code, self.exp_id)
+        self.att.setWindowTitle('Print attendance list')
+        self.att.show()
+
     def show_lab_layout(self):
         # Populating layout image:
         if self.course_dir:
-            self.layout_src = os.path.join(self.course_dir, 'lab_layout.jpg')
-            if os.path.isfile(self.layout_src):
-                self.lab_layout_out_file = seating.print_on_layout(self.layout_src, self.code, self.exp_id, self.pkl_path, self.n_max_group, self.n_benches)
-                logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
+            self.lab_layout_out_file = seating.print_on_layout(self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
+            logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
             if os.path.isfile(self.lab_layout_out_file):
-                self.lablayout = LabLayoutWindow(self.lab_layout_out_file)
-                self.lablayout.show()
+                self.lablayout = LabLayoutWindow_new(self.lab_layout_out_file)
+                self.lablayout.showMaximized()
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("No lab_layout_grp.jpg found in output_layout directory.")
+                dlg.setText("Cannot generate lab_layout_grp.jpg.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:
@@ -221,17 +467,19 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
-    def browse_dir(self):
+    def browse_course_dir(self):
         '''
         open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
         '''  
-        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main Directory", directory=self.course_dir)  
+        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main course directory", directory=self.course_dir)  
         
         if self.course_dir:
             self.lineEdit_course_dir.setText(self.course_dir)
-            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_csv_paths(self.course_dir)
+            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
             self.session_list = []
+            self.exp_list = []
             self.comboBox_session.clear()
+            self.comboBox_exp_id.clear()
 
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
@@ -256,9 +504,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+                self.exp_list = self.extract_exp(self.exp_csv_path)
                 
     
-    def extract_csv_paths(self, course_dir):
+    def extract_course_csv_paths(self, course_dir):
         exp_csv_path, time_csv_path = None, None
         stud_csv_path_list = []
         for filename in os.listdir(course_dir):
@@ -272,21 +521,38 @@ class MainWindow(QtWidgets.QMainWindow):
                 elif 'stud' in filename:
                     stud_csv_path_list.append(os.path.join(course_dir, filename))
         return exp_csv_path, stud_csv_path_list, time_csv_path
+    
+    def extract_pc_csv_path(self, pc_dir):
+        pc_csv_path= None
+        for filename in os.listdir(pc_dir):
+            if filename.endswith(".csv"):
+                if 'pc' in filename:
+                    pc_csv_path= os.path.join(pc_dir, filename)
+                    
+        return pc_csv_path
                   
-    
-    def browsefile(self):
-        logging.debug(f'self.course_dir: {self.course_dir}')
-        if self.course_dir:
-            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory=self.course_dir, filter='Input file (*.txt)')
-        else:
-            fname=QFileDialog.getOpenFileName(self, 'Open PC list file', directory='data', filter='Input file (*.txt)')    
+    def browse_pc_dir(self):
+        '''
+        open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
+        '''  
+        self.pc_dir = QFileDialog.getExistingDirectory(self, "Select the pc lists directory", directory=self.pc_dir)  
         
-        if fname[0]:
-            self.pc_txt_path = fname[0]
-            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.lineEdit_gpc_txt.setText(self.pc_txt_path)
-            self.gpc_list, self.laptop_list =gpc.extract_pc_list(self.pc_txt_path)
-    
+        if self.pc_dir:
+            self.lineEdit_pc_dir.setText(self.pc_dir)
+            self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
+            self.room_list = []
+            self.comboBox_room.clear()
+
+            if not self.pc_csv_path:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText("No pc_*.csv found in this directory.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                return
+            else:
+                logging.debug(f'--pc_csv_path:{self.pc_csv_path}')
+                self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
         
     def sort_helper(self, item):
             day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
@@ -294,6 +560,16 @@ class MainWindow(QtWidgets.QMainWindow):
             time = int(time.split(":")[0])
             return (day_sort[item[:3]], time)
 
+    def extract_rooms(self, pc_dir, pc_csv_path):
+        room_list = seating.get_room_list(pc_dir ,pc_csv_path)
+        self.comboBox_room.clear()
+        if room_list:
+            self.comboBox_room.addItems(room_list.keys())
+            logging.debug(f'---rooms loaded:{room_list.keys()}')
+            self.comboBox_room.setCurrentIndex(-1)
+        
+        return room_list
+    
     def extract_sessions(self, time_csv_path):
         session_list = seating.get_session_list(time_csv_path)
         self.comboBox_session.clear()
@@ -306,6 +582,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_session.setCurrentIndex(-1)
         
         return session_list
+
+    def extract_exp(self, exp_csv_path):
+        exp_list = seating.get_exp_list(exp_csv_path)
+        self.comboBox_exp_id.clear()
+
+        if exp_list:
+            list_helper = list(exp_list.keys())
+            
+            self.comboBox_exp_id.addItems(list_helper)
+            logging.debug(f'---exps loaded:{list_helper}')
+            self.comboBox_exp_id.setCurrentIndex(-1)
+        
+        return exp_list
 
     def set_debug_mode(self):
         debug_mode = self.checkBox_debugMode.isChecked()
@@ -340,7 +629,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.lineEdit_code.text() 
         self.n_max_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
-        self.exp_id     = self.spinBox_exp_id.value()
         self.course_label.setText(f'PHYS {self.code}')
         
         dlg = QtWidgets.QMessageBox(self)
@@ -356,14 +644,27 @@ class MainWindow(QtWidgets.QMainWindow):
         return pklfile_name
 
     def set_exp_id(self):
-        self.exp_id = self.spinBox_exp_id.value()
+        self.exp = self.comboBox_exp_id.currentText()
+        if self.exp:
+            self.exp_id = self.exp_list[self.exp]
+            logging.info(f' Selected exp_id:{self.exp_id}')
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()
+        self.pushButton_att.setEnabled(True)
         
         if self.session:
             self.session_id = self.session_list[self.session]
             logging.info(f' Selected session_id:{self.session_id}')
+    
+    def set_pc_txt_path(self):
+        self.room = self.comboBox_room.currentText()
+        
+        if self.room:
+            self.pc_txt_path = self.room_list[self.room][0]
+            logging.info(f' Selected room:{self.room}')
+            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
+            self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
 
     def generate_groups(self):
         if not self.session_id:
@@ -402,11 +703,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path, n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
+                self.pkl_path, self.n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
-                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
+                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
@@ -427,7 +728,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, self.ta_name)
+                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
                 self.pushButton_labLayout.setEnabled(True)
         else:
             dlg = QtWidgets.QMessageBox(self)
@@ -441,11 +742,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.copy_pbar.show()
             self.copy_pbar.setFormat("Copy files ...")
 
-            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
+            self.thread[1] = CopyFileThread(self.exp_id, self.gpc_list, self.gpc_map, self.course_dir, self.code, localCopy = self.LocalCopyMode, parent=None)
             self.thread[1].finished.connect(self.on_copyFinished)
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
-            self.spinBox_exp_id.setEnabled(False)
+            self.comboBox_exp_id.setEnabled(False)
             self.pushButton_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
@@ -472,7 +773,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_copyFinished(self):
         self.copy_pbar.setFormat("Copy completed")
         self.pushButton_copyfiles.setEnabled(True)
-        self.spinBox_exp_id.setEnabled(True)
+        self.comboBox_exp_id.setEnabled(True)
         self.pushButton_htmlgen.setEnabled(True)
         self.pushButton_rebootPCs.setEnabled(True)
         self.isCopyFileRunning = False
@@ -570,15 +871,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('course_dir', self.course_dir )
-            self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
-            self.setting_Course.setValue('exp_id', int(self.spinBox_exp_id.value())  )
+            self.setting_Course.setValue('pc_dir', self.pc_dir )
+            #self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
+            self.setting_Course.setValue('exp_id', int(self.exp_id))
+            self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
+            self.setting_Course.setValue('room', self.comboBox_room.currentText())
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             try:
                 event.accept()
-                logging.debug('The application exited properly.')
+                logging.debug('The application exited Normaly.')
             except Exception as e:
-                logging.error(f'The application exited improperly: {e}')
+                logging.error(f'The application exited with error: {e}')
             
         else:
             event.ignore()
@@ -587,11 +891,12 @@ class MainWindow(QtWidgets.QMainWindow):
 class CopyFileThread(QThread):
     progress = pyqtSignal(int)
     
-    def __init__(self, exp_id, gpc_list, course_dir, code, localCopy, parent=None ):
+    def __init__(self, exp_id, gpc_list, gpc_map, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
         self.status = {}
         self.exp_id=exp_id
         self.gpc_list = gpc_list
+        self.gpc_map = gpc_map
         self.course_dir = course_dir
         self.code = code
         self.localCopy = localCopy
@@ -605,7 +910,8 @@ class CopyFileThread(QThread):
 
         if self.localCopy: self.gpc_list = ['LOCAL PC']
         for i, gpc in enumerate(self.gpc_list):
-            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, self.course_dir, self.code)
+            group_id = int(self.gpc_map[gpc][3])
+            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
             self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
         if all(self.status.values()):
@@ -652,13 +958,12 @@ class Reboot_PC_Thread(QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
+    print('Welcome to YorkU PHYS Lab Seat Assigner')
     logging.getLogger().setLevel(logging.INFO)
-    
     app = QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.show()
 
-    print('Welcome to YorkU PHYS Lab Seat Assigner')
     sys.exit(app.exec())
