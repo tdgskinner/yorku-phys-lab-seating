@@ -4,6 +4,7 @@ __pycache__/
 output_*/
 *.pkl
 *.pdf
+*.tex
 test*.py
 *.ipynb
 **/LabSeatingWeb
