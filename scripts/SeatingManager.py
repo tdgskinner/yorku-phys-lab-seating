@@ -6,12 +6,116 @@ import pickle
 import logging
 import random
 import sys, os, shutil
+import subprocess
 import math
 from PIL import Image, ImageFont, ImageDraw
 import re
 
+from pylatex import Document, Tabular, MultiColumn, VerticalSpace
+import pylatex as pl
+from pylatex.utils import NoEscape
+from pylatex import utils, NewPage
+
 logger = logging.getLogger(__name__)
 
+#------------------------------------------------------------
+def sort_helper(item):
+            day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
+            time = item.split(",")[1].strip()
+            time = int(time.split(":")[0])
+            return (day_sort[item[:3]], time)
+#------------------------------------------------------------
+def is_file_locked(file_path):
+    file_path = file_path + '.pdf'
+    try:
+        with open(file_path, 'w') as file:
+            return False  # The file is not locked
+    except PermissionError:
+        return True  # The file is locked
+#------------------------------------------------------------
+def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
+    if sessions:
+        session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
+    
+    session_ids = [sessions[key] for key in session_keys_sorted]
+    
+    df = concat_stud_lists(stud_csv_path_list)
+
+    # Create a LaTeX document
+    geometry_options = {"tmargin": "0.3in", "lmargin": "1in", "bmargin": "0.2in", "rmargin": "1in"}
+    doc = Document(geometry_options=geometry_options)
+
+    for session_id in session_ids:
+        session_info = list(filter(lambda x: sessions[x] == session_id, sessions))[0]
+        # Filter the data for the current session_id
+        session_df = df.loc[df['session_id'].str.strip()==session_id]
+
+        # Prepare the data for the table
+        session_df = session_df[['first_name', 'surname']]
+        session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
+        session_df['Attendance'] = ''
+        session_df.insert(0, ' ', range(1, 1 + len(session_df)))
+
+        doc.append(pl.NoEscape('{'))
+        doc.append(pl.Command('pagenumbering', 'gobble'))
+        doc.append(pl.Command('noindent'))
+        text_before_table = f"PHYS {code},  {session_info}, Exp {Exp_id}.\n\n"
+        doc.append(utils.bold(text_before_table))
+        text_before_table = f"Date: ________________          TA: ________________\n\n"
+        doc.append(text_before_table)
+
+        doc.append(pl.NoEscape('}'))
+
+        # Create the Tabular environment
+        with doc.create(Tabular('|' + 'p{0.5cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|', pos='t', row_height=1.4)) as table:
+            table.add_hline()
+            table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
+            table.add_hline()
+            counter = 1
+            for i, row in session_df.iterrows():
+                row_values = [row[column] for column in session_df.columns]
+                if (counter % 2) == 0:
+                    table.add_row(row_values)
+                else:
+                    table.add_row(row_values, color="lightgray")
+                table.add_hline()
+                counter += 1
+
+        # Add a page break after each table
+        doc.append(NoEscape(r'\newpage'))
+
+    # Save the multipage PDF using pdflatex as the LaTeX compiler
+    output_dir = f'output_{code}'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    pdf_file_name = f'Weekly_att_Exp_{Exp_id}'
+    pdf_file_path = os.path.join(output_dir, pdf_file_name)
+    
+    if is_file_locked(pdf_file_path):
+        print("The PDF file is open in another application. Please close it to overwrite.")
+        return None
+    else:
+        try:
+            doc.generate_pdf(pdf_file_path, compiler='pdflatex', clean_tex=True)
+            logger.info(f' Weekly attendance sheets are generated and written to {pdf_file_path}.pdf successfully!')
+            return pdf_file_path+'.pdf'
+        except subprocess.CalledProcessError as e:
+            #logger.error("Error while generating PDF:", str(e))
+            return None
+        '''
+        
+        error_message = str(e)
+        if "I can't write on file" in error_message:
+            # Provide a message to the user
+            logger.error("The PDF file is open in another application. Please close it to overwrite.")
+        else:
+            # Handle other subprocess errors if necessary
+            logger.error("Error while generating PDF:", error_message)
+        '''
+    
+    
+    
 #------------------------------------------------------------    
 def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
     

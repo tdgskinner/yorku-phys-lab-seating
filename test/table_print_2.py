@@ -46,8 +46,6 @@ def concat_stud_lists(stud_csv_path_list):
     # merge all lists into one df with distinc session_id
     return pd.concat(stud_dfs, axis=0)
 
-def create_weekly_att(df, session_id, Course, session_day, Exp_id, output_path):
-    pass
 
 #=============================================================
 if __name__ == '__main__':
@@ -78,7 +76,7 @@ if __name__ == '__main__':
         session_df.insert(0, ' ', range(1, 1 + len(session_df)))
 
         # Define text before the table
-        text_before_table = f"{Course} - {session_day} - {session_id}, Exp {Exp_id}.\n\n"
+        #text_before_table = f"{Course} - {session_day} - {session_id}, Exp {Exp_id}.\n\n"
 
         doc.append(pl.NoEscape('{'))
         doc.append(pl.Command('pagenumbering', 'gobble'))

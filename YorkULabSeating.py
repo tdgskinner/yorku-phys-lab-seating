@@ -3,10 +3,10 @@ import pandas as pd
 import logging
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
-from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize
+from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
-from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
@@ -16,7 +16,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
 
-appVersion = '6.3'
+appVersion = '6.4'
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
@@ -377,11 +377,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.gpc_list = []
         self.gpc_map ={}
-        #if self.pc_txt_path and os.path.exists(self.pc_txt_path):
         if self.pc_dir and os.path.exists(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
             self.set_pc_txt_path()
-            #self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
         
         self.session_id = None
         self.pkl_path = None
@@ -432,14 +430,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
         self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
-        #self.pushButton_pc_browse.clicked.connect(self.browsefile)
         self.pushButton_pc_browse.clicked.connect(self.browse_pc_dir)
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
+        self.pushButton_Watt.clicked.connect(self.show_weekly_att)
     
+    def show_weekly_att(self):
+        pdf_file_path = seating.create_weekly_att(self.stud_csv_path_list, self.session_list, self.code, self.exp_id)
+        
+        # Check if the file exists
+        if pdf_file_path and os.path.isfile(pdf_file_path):
+            # Open the PDF file with the default PDF viewer
+            QDesktopServices.openUrl(QUrl.fromLocalFile(pdf_file_path))
+        else:
+            # Handle the case where the file doesn't exist
+            logging.error("PDF file not found: ", pdf_file_path)
+
     def show_attendance(self):
         self.att = AttWindow(self.stud_csv_path_list, self.session, self.session_id, self.code, self.exp_id)
         self.att.setWindowTitle('Print attendance list')
