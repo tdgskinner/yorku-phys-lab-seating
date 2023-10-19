@@ -42,7 +42,7 @@ def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
     df = concat_stud_lists(stud_csv_path_list)
 
     # Create a LaTeX document
-    geometry_options = {"tmargin": "0.3in", "lmargin": "1in", "bmargin": "0.2in", "rmargin": "1in"}
+    geometry_options = {"tmargin": "0.3in", "lmargin": "1in", "bmargin": "0.15in", "rmargin": "1in"}
     doc = Document(geometry_options=geometry_options)
 
     for session_id in session_ids:
@@ -67,7 +67,7 @@ def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
         doc.append(pl.NoEscape('}'))
 
         # Create the Tabular environment
-        with doc.create(Tabular('|' + 'p{0.5cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|', pos='t', row_height=1.4)) as table:
+        with doc.create(Tabular('|' + 'p{0.5cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|', pos='t', row_height=1.3)) as table:
             table.add_hline()
             table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
             table.add_hline()
@@ -77,7 +77,8 @@ def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
                 if (counter % 2) == 0:
                     table.add_row(row_values)
                 else:
-                    table.add_row(row_values, color="lightgray")
+                    #table.add_row(row_values, color="lightgray")
+                    table.add_row(row_values, color="gray!15")
                 table.add_hline()
                 counter += 1
 
