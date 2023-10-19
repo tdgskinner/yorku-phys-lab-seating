@@ -78,7 +78,7 @@ def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
                     table.add_row(row_values)
                 else:
                     #table.add_row(row_values, color="lightgray")
-                    table.add_row(row_values, color="gray!15")
+                    table.add_row(row_values, color="gray!10")
                 table.add_hline()
                 counter += 1
 
