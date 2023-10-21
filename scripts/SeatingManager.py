@@ -378,25 +378,30 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
     dict = _load_student_groups(pkl_path, print_result=False)
     
     n_exp = len(dict)
-    logger.debug(f'n_exp: {n_exp}')
     n_group = len(dict[1][2])
+    
+    logger.debug(f'n_exp: {n_exp}')
     logger.debug(f'n_group: {n_group}')
  
     for e in range (1, n_exp+1, 1):
         output_dir = os.path.join(html_dir, f'exp{e}')
+
+        #creating output directory if not exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
         df_exp_metadata = dict[e][0]
         df_time_metadata = dict[e][1]
 
         if ta_name == None:
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
+        #creating html files
+        comp_html_generator(e, n_group, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
             df.index += 1
-            
-            #creating output directory if not exist
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
             
             f_html = os.path.join(output_dir, f'g{g+1}.html')
             
@@ -542,7 +547,35 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                 
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
+#------------------------------------------------------------
+def comp_html_generator(exp, n_group, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
+    #return None
+    f_html = os.path.join(output_dir, 'all_groups.html')
+    df_list = []
+    stud_list = []
+    for g in range(n_group):
+        df = dict[exp][2][g].reset_index(drop=True)
+        df.index += 1
+        _list = []
+        for i in range(len(df)):
+            row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
+            _list.append(row)
+       
+        stud_list.append(_list)     
 
+    #with open(f_html, 'w') as html_seating_file:
+
+
+
+
+
+
+
+
+
+
+
+#------------------------------------------------------------
 def print_on_layout(gpc_map, room, room_list, exp_id, pkl_path):
     
     if room not in room_list:

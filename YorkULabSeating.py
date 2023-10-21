@@ -421,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
-        self.pushButton_htmlgen.clicked.connect(self.check_pkl)
+        self.pushButton_htmlgen.clicked.connect(self.generate_html)
         self.comboBox_exp_id.activated.connect(self.set_exp_id)
         self.comboBox_session.activated.connect(self.set_session_id)
         self.comboBox_room.activated.connect(self.set_pc_txt_path)
@@ -728,7 +728,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
             
-    def check_pkl(self):
+    def generate_html(self):
         if self.pkl_path:
             if os.path.exists(self.pkl_path):
                 logging.debug(f'self.pkl_path: {self.pkl_path}')
@@ -738,11 +738,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 else: self.ta_name = None
                 
                 seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
-                self.pushButton_labLayout.setEnabled(True)
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"pkl file does not exit. Run Grouping first to generate it.")
+            dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
 
