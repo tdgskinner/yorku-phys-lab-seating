@@ -16,7 +16,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile
 from scripts.remote_reboot import Remote_PC_Reboot
 
-appVersion = '6.4'
+appVersion = '6.5'
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
@@ -721,6 +721,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.exec()
                     self.pushButton_grouping.setEnabled(False)
                     self.comboBox_session.setEnabled(False)
+                    self.pushButton_labLayout.setEnabled(True)
                 else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")

@@ -397,8 +397,8 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
         #creating html files
-        comp_html_generator(e, n_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
-
+        comp_html_generator(e, n_max_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+    
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
             df.index += 1
@@ -443,7 +443,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                         <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
                                         </div>
-                                        <h4> Useful tip:</h4>
+                                        <h3> Useful tip:</h3>
                                             <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
                                                     style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
                                                     width="100%"
@@ -516,7 +516,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                             <div class="grid-container">
                                                 {newline.join(stud for stud in blank_stud_list)}
                                             </div>
-                                            <h4> Useful tip:</h4>
+                                            <h3> Useful tip:</h3>
                                                 <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
                                                         style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
                                                         width="100%"
@@ -548,11 +548,17 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
 #------------------------------------------------------------
-def comp_html_generator(exp, n_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
-    #return None
+def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
+    n_group = len(dict[1][2])
+    
     f_html = os.path.join(output_dir, 'g99.html')
-    df_list = []
     stud_list = []
+
+    blank_group = []
+    for i in range(4):
+        row = '<div class="grid-item"><a href="#">  </a></div>'
+        blank_group.append(row)
+
     for g in range(n_group):
         df = dict[exp][2][g].reset_index(drop=True)
         df.index += 1
@@ -565,19 +571,7 @@ def comp_html_generator(exp, n_group, code, output_dir, dict, df_exp_metadata, d
     
     newline = "\n"
 
-    seating_contents = f'''<!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-        <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta http-equiv="refresh" content="15">
-        <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
-        <script type="text/javascript" src="time.js"></script>
-                            
-        </head>
-        <body>
-
+    seating_header = f'''
         <div class="row", style="padding:0cm">
             <div class="column", style="width:20%">
                 <img src=yorku-logo.jpg , style="height:30px">
@@ -589,15 +583,109 @@ def comp_html_generator(exp, n_group, code, output_dir, dict, df_exp_metadata, d
                 <h3><span id="ct"> </span></h3>
             </div>
         </div>
+    '''
+    g_list = list(range(1, n_max_group+1))
+    col1_groups =''
+    col2_groups =''
 
+    # column 1
+    for g in g_list[:math.ceil(n_max_group/2)]:
+        if g <= n_group:
+            col1_groups += f'''
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
+                        {newline.join(stud for stud in stud_list[g-1])}
+                    </div>
+                </div>
+            '''
+        # handeling empty groups
+        else:
+            col1_groups += f'''
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
+                        {newline.join(stud for stud in blank_group)}
+                    </div>
+                </div>
+            '''
+
+    # column 2
+    for g in g_list[math.ceil(n_max_group/2):]:
+        if g <= n_group:
+            col2_groups += f'''
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
+                        {newline.join(stud for stud in stud_list[g-1])}
+                    </div>
+                </div>
+            '''
+        # handeling empty groups
+        else:
+            col2_groups += f'''
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
+                        {newline.join(stud for stud in blank_group)}
+                    </div>
+                </div>
+            '''
+    seating_groups =f'''
+        <div class="row", style="padding:0cm">
+        <div class="column", style="width:30%">
+        {col1_groups}
+        </div>
+        <div class="column", style="width:30%">
+        {col2_groups}
+        </div>
+    '''
+
+    seating_img_tip = f'''
+        <div class="column", style="width:40%">
+                        <div class="vertical-menu", style="width:100%">
+                            <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
+                        </div>
+                        <div class="wrapper">
+                            <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } >
+                        </div>
+                        <h3> Useful tip:</h3>
+                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
+                                style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
+                                width="100%"
+                                height="270px">
+                            </iframe>
+                    </div>
+                </div>  
+    '''
+    # constructing the html page
+    page_contents = f'''<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+            <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta http-equiv="refresh" content="15">
+            <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+            <script type="text/javascript" src="time.js"></script>                
+        </head>
+
+        <body>
+            {seating_header}
+            {seating_groups}
+            {seating_img_tip}
+            <div class ="footer">
+                YorkU PHYS Lab Seating V{version}
+            </div>
         </body>
+        
         </html>
-        '''
+    '''
 
     with open(f_html, 'w') as html_seating_file:
 
         try:
-            html_seating_file.write(seating_contents)
+            html_seating_file.write(page_contents)
             return True
         except:
             logger.error(f' Failed to write html files to disk', exc_info = True)
