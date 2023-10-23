@@ -397,7 +397,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
         #creating html files
-        comp_html_generator(e, n_group, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+        comp_html_generator(e, n_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
 
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
@@ -548,9 +548,9 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
 #------------------------------------------------------------
-def comp_html_generator(exp, n_group, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
+def comp_html_generator(exp, n_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
     #return None
-    f_html = os.path.join(output_dir, 'all_groups.html')
+    f_html = os.path.join(output_dir, 'g99.html')
     df_list = []
     stud_list = []
     for g in range(n_group):
@@ -562,8 +562,46 @@ def comp_html_generator(exp, n_group, output_dir, dict, df_exp_metadata, df_time
             _list.append(row)
        
         stud_list.append(_list)     
+    
+    newline = "\n"
 
-    #with open(f_html, 'w') as html_seating_file:
+    seating_contents = f'''<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+        <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="refresh" content="15">
+        <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+        <script type="text/javascript" src="time.js"></script>
+                            
+        </head>
+        <body>
+
+        <div class="row", style="padding:0cm">
+            <div class="column", style="width:20%">
+                <img src=yorku-logo.jpg , style="height:30px">
+            </div>
+            <div class="column", style="width:65%">
+                <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
+            </div>
+            <div class="column", style="width:15%"></div>
+                <h3><span id="ct"> </span></h3>
+            </div>
+        </div>
+
+        </body>
+        </html>
+        '''
+
+    with open(f_html, 'w') as html_seating_file:
+
+        try:
+            html_seating_file.write(seating_contents)
+            return True
+        except:
+            logger.error(f' Failed to write html files to disk', exc_info = True)
+            return None
 
 
 

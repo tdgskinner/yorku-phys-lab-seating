@@ -916,11 +916,15 @@ class CopyFileThread(QThread):
         
         self.progress.emit(0)
 
-        if self.localCopy: self.gpc_list = ['LOCAL PC']
-        for i, gpc in enumerate(self.gpc_list):
-            group_id = int(self.gpc_map[gpc][3])
+        if self.localCopy:
+            gpc = 'LOCAL PC'
+            group_id = 0
             self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
-            self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
+        else:
+            for i, gpc in enumerate(self.gpc_list):
+                group_id = int(self.gpc_map[gpc][3])
+                self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
+                self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
         if all(self.status.values()):
             logging.info(' html files are copied to target PC(s) successfully')

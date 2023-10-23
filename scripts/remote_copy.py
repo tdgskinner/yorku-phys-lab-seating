@@ -31,7 +31,8 @@ class MyRemoteCopyFile:
         cwd = os.getcwd()
        
         if self.do_localCopy:
-            self.dest_path = src_dir
+            #self.dest_path = src_dir
+            self.dest_path = f'output_{code}'
         else:
             self.dest_path =r'\\' + gpc+ r'\\phys'
         
@@ -66,7 +67,13 @@ class MyRemoteCopyFile:
         for f in html_files:
             if int(f.split('.')[0][1:])==group_id:
                 self._force_copy(os.path.join(html_path, f), os.path.join(self.web_directory, 'index.html'))
+        # copying comp. html to all PCs 
+        self._force_copy(os.path.join(html_path, 'g99.html'), os.path.join(self.web_directory, 'index_all.html'))
         
+        # copy g1.html to local PC for testing
+        if self.do_localCopy:
+            self._force_copy(os.path.join(html_path, 'g1.html'), os.path.join(self.web_directory, 'index.html'))
+
     #------------------------------------------------------------
     def run_copyfile(self, exp_id, gpc, group_id, src_dir, code):
        
