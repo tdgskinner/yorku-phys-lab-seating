@@ -1,6 +1,7 @@
 import sys , os
 import pandas as pd
 import logging
+import glob
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
@@ -286,8 +287,99 @@ class lpc_file_manager(QWidget):
 
         self.ui = uic.loadUi('YorkULabSeating_lpc.ui',self)
         self.laptop_list = laptop_list
+        self.selected_files = []
 
-        
+        self.pushButton_browse.clicked.connect(self.browse_files)
+        self.pushButton_copy.clicked.connect(self.send_files)
+        self.lineEdit_destination_input.setReadOnly(False)
+        self.pushButton_delete.clicked.connect(self.delete_files)
+
+        client_name = 'SC-L-PH-BC3-ta1'
+        self.client_path = r'\\' + client_name
+    
+    def browse_files(self):
+        dialog = QFileDialog(self)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        selected_files, _ = dialog.getOpenFileNames(self, "Select Files", "", "")
+
+        if selected_files:
+            self.selected_files.extend(selected_files)
+            self.update_selected_files_list()
+        else:
+            QMessageBox.warning(self, "No Files Selected", "No files were selected to send.")
+
+    def update_selected_files_list(self):
+        self.listWidget_selected_files_list.clear()
+        for file_path in self.selected_files:
+            file_name = os.path.basename(file_path)
+            item = QListWidgetItem(file_name)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            self.listWidget_selected_files_list.addItem(item)
+    
+    def removeSelectedFile(self, item):
+        if item:
+            file_name = item.text()
+            self.selected_files = [f for f in self.selected_files if not f.endswith(file_name)]
+            self.update_selected_files_list()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
+            selected_item = self.listWidget_selected_files_list.currentItem()
+            self.removeSelectedFile(selected_item)
+
+    def send_files(self):
+        if not self.selected_files:
+            QMessageBox.warning(self, "No Files to Send", "No files to send. Please select files first.")
+            return
+
+        destination_path = os.path.join(self.client_path, self.lineEdit_destination_input.text())
+
+        if not destination_path:
+            QMessageBox.warning(self, "No Destination Directory", "Please enter a destination directory.")
+            return
+
+        for source_path in self.selected_files:
+            source_name = os.path.basename(source_path)
+            destination = os.path.join(destination_path, source_name)
+
+            if not os.path.exists(destination_path):
+                os.makedirs(destination_path)
+
+            try:
+                shutil.copy(source_path, destination)
+                print(f"Successfully copied file: {source_path} to {destination}")
+            except Exception as e:
+                print(f"Failed to copy file: {source_path} - {e}")
+
+        QMessageBox.information(self, "Task Completed", "All selected files have been copied.")
+
+    def delete_files(self):
+        client_name = 'SC-L-PH-BC3-ta1'
+        client_path = r'\\' + client_name
+
+        textEdit_delete_input = self.textEdit_delete_input.toPlainText()
+        delete_files = textEdit_delete_input.splitlines()
+
+        for file in delete_files:
+            file = file.strip()
+            file_to_delete = os.path.join(client_path, self.lineEdit_destination_input.text().strip(), file)
+            
+            if '*' in file:
+                matching_files = glob.glob(file_to_delete)
+                for matching_file in matching_files:
+                    try:
+                        os.remove(matching_file)
+                        print(f"Successfully deleted file: {matching_file}")
+                    except Exception as e:
+                        print(f"Failed to delete file: {matching_file} - {e}")
+            else:
+                try:
+                    os.remove(file_to_delete)
+                    print(f"Successfully deleted file: {file_to_delete}")
+                except Exception as e:
+                    print(f"Failed to delete file: {file_to_delete} - {e}")
+
+        QMessageBox.information(self, "Deletion Completed", "All selected files have been deleted.")
 
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):

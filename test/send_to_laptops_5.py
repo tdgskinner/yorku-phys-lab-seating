@@ -17,9 +17,9 @@ class FileCopierApp(QMainWindow):
 
         self.layout = QVBoxLayout()
 
-        self.browse_button = QPushButton("Browse Files")
-        self.browse_button.clicked.connect(self.browse_files)
-        self.layout.addWidget(self.browse_button)
+        self.pushButton_browse = QPushButton("Browse Files")
+        self.pushButton_browse.clicked.connect(self.browse_files)
+        self.layout.addWidget(self.pushButton_browse)
 
         self.pushButton_copy = QPushButton("Send to Laptops")
         self.pushButton_copy.clicked.connect(self.send_files)
@@ -33,14 +33,14 @@ class FileCopierApp(QMainWindow):
         self.layout.addWidget(self.destination_label)
         self.layout.addWidget(self.lineEdit_destination_input)
 
-        self.selected_files_list = QListWidget(self)
-        self.layout.addWidget(self.selected_files_list)
+        self.listWidget_selected_files_list = QListWidget(self)
+        self.layout.addWidget(self.listWidget_selected_files_list)
 
         # Add QTextEdit for file names and patterns to be deleted
         self.delete_label = QLabel("File Names/Patterns (e.g. *.pdf) to Delete | one entry per line:")
-        self.listWidget_delete_input = QTextEdit()
+        self.textEdit_delete_input = QTextEdit()
         self.layout.addWidget(self.delete_label)
-        self.layout.addWidget(self.listWidget_delete_input)
+        self.layout.addWidget(self.textEdit_delete_input)
 
         # Add button for file deletion
         self.pushButton_delete = QPushButton("Delete Files")
@@ -63,13 +63,12 @@ class FileCopierApp(QMainWindow):
             QMessageBox.warning(self, "No Files Selected", "No files were selected to send.")
 
     def update_selected_files_list(self):
-        self.selected_files_list.clear()
+        self.listWidget_selected_files_list.clear()
         for file_path in self.selected_files:
             file_name = os.path.basename(file_path)
             item = QListWidgetItem(file_name)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
-            self.addRemoveButton(item)
-            self.selected_files_list.addItem(item)
+            self.listWidget_selected_files_list.addItem(item)
 
     def send_files(self):
         if not self.selected_files:
@@ -97,19 +96,6 @@ class FileCopierApp(QMainWindow):
 
         QMessageBox.information(self, "Task Completed", "All selected files have been copied.")
 
-    def addRemoveButton(self, item):
-        remove_button = QPushButton("Remove")
-        remove_button.clicked.connect(lambda: self.removeSelectedFile(item))
-
-        layout = QHBoxLayout()
-        layout.addWidget(QLabel(item.text()))
-        layout.addWidget(remove_button)
-
-        custom_widget = QWidget()
-        custom_widget.setLayout(layout)
-
-        self.selected_files_list.setItemWidget(item, custom_widget)
-
     def removeSelectedFile(self, item):
         if item:
             file_name = item.text()
@@ -118,15 +104,15 @@ class FileCopierApp(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
-            selected_item = self.selected_files_list.currentItem()
+            selected_item = self.listWidget_selected_files_list.currentItem()
             self.removeSelectedFile(selected_item)
 
     def delete_files(self):
         client_name = 'SC-L-PH-BC3-ta1'
         client_path = r'\\' + client_name
 
-        listWidget_delete_input = self.listWidget_delete_input.toPlainText()
-        delete_files = listWidget_delete_input.splitlines()
+        textEdit_delete_input = self.textEdit_delete_input.toPlainText()
+        delete_files = textEdit_delete_input.splitlines()
 
         for file in delete_files:
             file = file.strip()

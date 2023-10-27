@@ -26,8 +26,24 @@
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0" colspan="2">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Destination Directory in Client Laptops:</string>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0" colspan="2">
-     <widget class="QLineEdit" name="lineEdit_destination_input"/>
+     <widget class="QLineEdit" name="lineEdit_destination_input">
+      <property name="text">
+       <string>/phys/</string>
+      </property>
+     </widget>
     </item>
     <item row="2" column="1">
      <spacer name="verticalSpacer">
@@ -55,7 +71,7 @@
      </widget>
     </item>
     <item row="3" column="1">
-     <widget class="QPushButton" name="pushButton_">
+     <widget class="QPushButton" name="pushButton_browse">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
@@ -116,16 +132,6 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="0" colspan="2">
-     <widget class="QListWidget" name="listWidget_delete_input"/>
-    </item>
-    <item row="12" column="0" colspan="2">
-     <widget class="QProgressBar" name="progressBar_2">
-      <property name="value">
-       <number>24</number>
-      </property>
-     </widget>
-    </item>
     <item row="11" column="0" colspan="2">
      <widget class="QPushButton" name="pushButton_delete">
       <property name="font">
@@ -141,17 +147,15 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="0" colspan="2">
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Destination Directory in Client Laptops:</string>
+    <item row="12" column="0" colspan="2">
+     <widget class="QProgressBar" name="progressBar_2">
+      <property name="value">
+       <number>24</number>
       </property>
      </widget>
+    </item>
+    <item row="10" column="0" colspan="2">
+     <widget class="QTextEdit" name="textEdit_delete_input"/>
     </item>
    </layout>
   </widget>
