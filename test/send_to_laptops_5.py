@@ -21,31 +21,31 @@ class FileCopierApp(QMainWindow):
         self.browse_button.clicked.connect(self.browse_files)
         self.layout.addWidget(self.browse_button)
 
-        self.send_button = QPushButton("Send to Laptops")
-        self.send_button.clicked.connect(self.send_files)
-        self.layout.addWidget(self.send_button)
+        self.pushButton_copy = QPushButton("Send to Laptops")
+        self.pushButton_copy.clicked.connect(self.send_files)
+        self.layout.addWidget(self.pushButton_copy)
 
         client_name = 'SC-L-PH-BC3-ta1'
         self.client_path = r'\\' + client_name
         self.destination_label = QLabel("Destination Directory in Client PC:")
-        self.destination_input = QLineEdit('/phys/')
-        self.destination_input.setReadOnly(False)
+        self.lineEdit_destination_input = QLineEdit('/phys/')
+        self.lineEdit_destination_input.setReadOnly(False)
         self.layout.addWidget(self.destination_label)
-        self.layout.addWidget(self.destination_input)
+        self.layout.addWidget(self.lineEdit_destination_input)
 
         self.selected_files_list = QListWidget(self)
         self.layout.addWidget(self.selected_files_list)
 
         # Add QTextEdit for file names and patterns to be deleted
         self.delete_label = QLabel("File Names/Patterns (e.g. *.pdf) to Delete | one entry per line:")
-        self.delete_input = QTextEdit()
+        self.listWidget_delete_input = QTextEdit()
         self.layout.addWidget(self.delete_label)
-        self.layout.addWidget(self.delete_input)
+        self.layout.addWidget(self.listWidget_delete_input)
 
         # Add button for file deletion
-        self.delete_button = QPushButton("Delete Files")
-        self.delete_button.clicked.connect(self.delete_files)
-        self.layout.addWidget(self.delete_button)
+        self.pushButton_delete = QPushButton("Delete Files")
+        self.pushButton_delete.clicked.connect(self.delete_files)
+        self.layout.addWidget(self.pushButton_delete)
 
         self.central_widget.setLayout(self.layout)
 
@@ -76,7 +76,7 @@ class FileCopierApp(QMainWindow):
             QMessageBox.warning(self, "No Files to Send", "No files to send. Please select files first.")
             return
 
-        destination_path = os.path.join(self.client_path, self.destination_input.text())
+        destination_path = os.path.join(self.client_path, self.lineEdit_destination_input.text())
 
         if not destination_path:
             QMessageBox.warning(self, "No Destination Directory", "Please enter a destination directory.")
@@ -125,12 +125,12 @@ class FileCopierApp(QMainWindow):
         client_name = 'SC-L-PH-BC3-ta1'
         client_path = r'\\' + client_name
 
-        delete_input = self.delete_input.toPlainText()
-        delete_files = delete_input.splitlines()
+        listWidget_delete_input = self.listWidget_delete_input.toPlainText()
+        delete_files = listWidget_delete_input.splitlines()
 
         for file in delete_files:
             file = file.strip()
-            file_to_delete = os.path.join(client_path, self.destination_input.text().strip(), file)
+            file_to_delete = os.path.join(client_path, self.lineEdit_destination_input.text().strip(), file)
             
             if '*' in file:
                 matching_files = glob.glob(file_to_delete)

@@ -85,3 +85,7 @@ class MyRemoteCopyFile:
             logger.debug(f' Unable to copy html file to {gpc}: {e}')
             return False
 
+class RemoteLPC_manager:
+    def __init__(self, localCopy):
+        self.do_localCopy = localCopy # False = copy to remote target PC, True = copy to local PC (for test)
+        logger.debug(f'RemoteLPC_manager service initiated with localCopy= {self.do_localCopy}')
