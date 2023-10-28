@@ -16,7 +16,7 @@ import shutil
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
-from scripts.remote_copy import MyRemoteCopyFile, RemoteLPC_manager
+from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot import Remote_PC_Reboot
 
 appVersion = '6.5'
@@ -282,21 +282,44 @@ class AttWindow(QWidget):
 
 #--------------------------------------------------------------------------------
 class lpc_file_manager(QWidget):
-    def __init__(self, laptop_list):
+    def __init__(self, laptop_list, LocalCopyMode):
         super().__init__()
 
         self.ui = uic.loadUi('YorkULabSeating_lpc.ui',self)
-        self.laptop_list = laptop_list
+        self.lpc_list = laptop_list
+        self.LocalCopyMode = LocalCopyMode
         self.selected_files = []
+        self.lpc_thread={}
 
         self.pushButton_browse.clicked.connect(self.browse_files)
-        self.pushButton_copy.clicked.connect(self.send_files)
+        self.pushButton_copy.clicked.connect(self.start_lpc_copy_worker)
         self.lineEdit_destination_input.setReadOnly(False)
         self.pushButton_delete.clicked.connect(self.delete_files)
 
         client_name = 'SC-L-PH-BC3-ta1'
         self.client_path = r'\\' + client_name
+
+        self.pbar_copy.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.pbar_delete.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.pbar_copy.hide()
+        self.pbar_delete.hide()
     
+    def start_lpc_copy_worker(self):
+        if self.lpc_list:
+            self.pbar_copy.show()
+            self.pbar_copy.setFormat("Copy files ...")
+
+            self.lpc_thread[1] = lpcCopyFileThread(self.lpc_list, self.selected_files ,self.LocalCopyMode, parent=None)
+            self.lpc_thread[1].finished.connect(self.on_copyFinished)
+            self.lpc_thread[1].start()
+            self.lpc_thread[1].progress.connect(self.copy_setProgress)
+    
+    def copy_setProgress(self, copy_progress):
+        self.pbar_copy.setValue(copy_progress)
+
+    def on_copyFinished(self):
+        self.pbar_copy.setFormat("Copy completed")
+
     def browse_files(self):
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
@@ -516,6 +539,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
         self.pushButton_lpc_remote_files.clicked.connect(self.open_lpc_file_manager)
         self.pushButton_lpc_remote_files.setToolTip("Copy/Delete files to/from laptops")
+        if not self.room:
+            self.pushButton_lpc_remote_files.setEnabled(False)
 
 
         self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
@@ -763,6 +788,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.info(f' Selected room:{self.room}')
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+            self.pushButton_lpc_remote_files.setEnabled(True)
 
     def generate_groups(self):
         if not self.session_id:
@@ -939,7 +965,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
     
     def open_lpc_file_manager(self):
-        self.lpc_remote = lpc_file_manager(self.laptop_list)
+        self.lpc_remote = lpc_file_manager(self.laptop_list, self.LocalCopyMode)
         self.lpc_remote.setWindowTitle('Laptops Remote File Manager')
         self.lpc_remote.show()
     
@@ -1031,6 +1057,43 @@ class CopyFileThread(QThread):
     def stop(self):
         self.is_running = False
         self.terminate()
+
+#--------------------------------------------------------------------------------
+class lpcCopyFileThread(QThread):
+    progress = pyqtSignal(int)
+
+    def __init__(self, lpc_list, selected_files, localCopy, parent=None ):
+        super(lpcCopyFileThread, self).__init__(parent)
+        self.status = {}
+        self.lpc_list = lpc_list
+        self.selected_files = selected_files
+        self.localCopy = localCopy
+        self.is_running = True
+        self.lpc_copy_service = Remote_LPC_manager(self.localCopy)
+        
+    def run(self):
+        logging.info(f' Copying selected file(s) to the laptops. Please wait ...')
+        
+        self.progress.emit(0)
+
+        if self.localCopy:
+            lpc = 'LOCAL PC'
+            self.status[lpc] = self.lpc_copy_service.run_copyfile(lpc, self.selected_files)
+        else:
+            for i, lpc in enumerate(self.lpc_list):
+                self.status[lpc] = self.lpc_copy_service.run_copyfile(lpc, self.selected_files)
+                self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
+            
+        if all(self.status.values()):
+            logging.info(' Selected files are copied to target Laptop(s) successfully')
+        else:
+            res = [key for key, value in self.status.items() if not value]
+            logging.error(f' Failed to copy the selected files to: {res}')
+
+    def stop(self):
+        self.is_running = False
+        self.terminate()
+
 
 #--------------------------------------------------------------------------------
 class Reboot_PC_Thread(QThread):
