@@ -1,5 +1,6 @@
 import os, shutil
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -92,5 +93,10 @@ class Remote_LPC_manager:
         logger.debug(f'Remote_LPC_manager service initiated with localCopy= {self.do_localCopy}')
 
     def run_copyfile(self, lpc, selected_files):
+        time.sleep(1)
+        return True
+    
+    def run_deletefile(self, lpc, selected_files):
+        time.sleep(1)
         return True
     #------------------------------------------------------------
