@@ -1,6 +1,7 @@
 import os, shutil
 import logging
 import time
+import glob
 
 logger = logging.getLogger(__name__)
 
@@ -92,11 +93,48 @@ class Remote_LPC_manager:
         self.do_localCopy = localCopy # False = copy to remote target PC, True = copy to local PC (for test)
         logger.debug(f'Remote_LPC_manager service initiated with localCopy= {self.do_localCopy}')
 
-    def run_copyfile(self, lpc, selected_files):
-        time.sleep(1)
+    def run_copyfile(self, lpc, selected_files, dest_path):
+        #time.sleep(1)
+        client_address = r'\\' + lpc
+        destination_path = os.path.join(client_address, dest_path)
+        
+        for source_path in selected_files:
+            source_name = os.path.basename(source_path)
+            destination = os.path.join(destination_path, source_name)
+            
+            try:
+                if not os.path.exists(destination_path):
+                    os.makedirs(destination_path)
+                shutil.copy(source_path, destination)
+                logger.debug(f"Successfully copied file: {source_path} to {destination}")
+            except Exception as e:
+                logger.debug(f"Unable to copy file: {source_path} to {destination} - {e}")
+                return False
+        
+        logger.info(f"Successfully copied all files to {destination}")
         return True
-    
-    def run_deletefile(self, lpc, selected_files):
-        time.sleep(1)
+            
+    def run_deletefile(self, lpc, delete_files, dest_path):
+        client_address = r'\\' + lpc
+        
+        for file in delete_files:
+            file = file.strip()
+            file_to_delete = os.path.join(client_address, dest_path.strip(), file)
+            
+            if '*' in file:
+                matching_files = glob.glob(file_to_delete)
+                for matching_file in matching_files:
+                    try:
+                        os.remove(matching_file)
+                        logger.debug(f"Successfully deleted file: {matching_file}")
+                    except Exception as e:
+                        logger.debug(f"Failed to delete file: {matching_file} - {e}")
+            else:
+                try:
+                    os.remove(file_to_delete)
+                    logger.debug(f"Successfully deleted file: {file_to_delete}")
+                except Exception as e:
+                    logger.debug(f"Failed to delete file: {file_to_delete} - {e}")
+        
         return True
     #------------------------------------------------------------
