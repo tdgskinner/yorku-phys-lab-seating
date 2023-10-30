@@ -307,6 +307,7 @@ class lpc_file_manager(QWidget):
     def start_lpc_copy_worker(self):
         if self.lpc_list:
             if self.selected_files:
+                self.pushButton_copy.setEnabled(False)
                 self.pbar_copy.show()
                 self.pbar_copy.setFormat("Copy files ...")
                 self.lpc_thread[1] = lpcCopyFileThread(self.lpc_list, self.selected_files ,self.LocalCopyMode, parent=None)
@@ -324,6 +325,7 @@ class lpc_file_manager(QWidget):
             delete_files = textEdit_delete_input.splitlines()
 
             if delete_files:
+                self.pushButton_delete.setEnabled(False)
                 self.pbar_delete.show()
                 self.pbar_delete.setFormat("Delete files ...")
                 self.lpc_thread[2] = lpcDeleteFileThread(self.lpc_list, delete_files, self.LocalCopyMode, parent=None)
@@ -341,12 +343,14 @@ class lpc_file_manager(QWidget):
 
     def on_copyFinished(self):
         self.pbar_copy.setFormat("Copy completed")
+        self.pushButton_copy.setEnabled(True)
     
     def delete_setProgress(self, delete_progress):
         self.pbar_delete.setValue(delete_progress)
 
     def on_deleteFinished(self):
         self.pbar_delete.setFormat("Delete completed")
+        self.pushButton_delete.setEnabled(True)
 
     def browse_files(self):
         dialog = QFileDialog(self)
@@ -375,60 +379,6 @@ class lpc_file_manager(QWidget):
         if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
             selected_item = self.listWidget_selected_files_list.currentItem()
             self.removeSelectedFile(selected_item)
-
-    def send_files(self):
-        if not self.selected_files:
-            QMessageBox.warning(self, "No Files to Send", "No files to send. Please select files first.")
-            return
-
-        destination_path = os.path.join(self.client_path, self.lineEdit_destination_input.text())
-
-        if not destination_path:
-            QMessageBox.warning(self, "No Destination Directory", "Please enter a destination directory.")
-            return
-
-        for source_path in self.selected_files:
-            source_name = os.path.basename(source_path)
-            destination = os.path.join(destination_path, source_name)
-
-            if not os.path.exists(destination_path):
-                os.makedirs(destination_path)
-
-            try:
-                shutil.copy(source_path, destination)
-                print(f"Successfully copied file: {source_path} to {destination}")
-            except Exception as e:
-                print(f"Failed to copy file: {source_path} - {e}")
-
-        QMessageBox.information(self, "Task Completed", "All selected files have been copied.")
-
-    def delete_files(self):
-        client_name = 'SC-L-PH-BC3-ta1'
-        client_path = r'\\' + client_name
-
-        textEdit_delete_input = self.textEdit_delete_input.toPlainText()
-        delete_files = textEdit_delete_input.splitlines()
-
-        for file in delete_files:
-            file = file.strip()
-            file_to_delete = os.path.join(client_path, self.lineEdit_destination_input.text().strip(), file)
-            
-            if '*' in file:
-                matching_files = glob.glob(file_to_delete)
-                for matching_file in matching_files:
-                    try:
-                        os.remove(matching_file)
-                        print(f"Successfully deleted file: {matching_file}")
-                    except Exception as e:
-                        print(f"Failed to delete file: {matching_file} - {e}")
-            else:
-                try:
-                    os.remove(file_to_delete)
-                    print(f"Successfully deleted file: {file_to_delete}")
-                except Exception as e:
-                    print(f"Failed to delete file: {file_to_delete} - {e}")
-
-        QMessageBox.information(self, "Deletion Completed", "All selected files have been deleted.")
 
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
