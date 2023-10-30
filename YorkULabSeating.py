@@ -19,7 +19,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot import Remote_PC_Reboot
 
-appVersion = '6.5'
+appVersion = '6.6'
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
