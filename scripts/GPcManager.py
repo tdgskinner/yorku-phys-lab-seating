@@ -10,7 +10,7 @@ def extract_pc_list(pc_txt_path):
     gpc_map ={}
     
     grp_identifier = re.compile('-G\D+')
-    laptop_identifier = re.compile('-L\d+')
+    laptop_identifier = re.compile('-L\w+')
     with open(pc_txt_path) as f_in:
         # loop over the lines and skip empty and commented out lines and make a list of PC names
         for l in f_in:
