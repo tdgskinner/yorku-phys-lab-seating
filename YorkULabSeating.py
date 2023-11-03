@@ -296,9 +296,6 @@ class lpc_file_manager(QWidget):
         self.lineEdit_destination_input.setReadOnly(False)
         self.pushButton_delete.clicked.connect(self.start_lpc_delete_worker)
 
-        client_name = 'SC-L-PH-BC3-ta1'
-        self.client_path = r'\\' + client_name
-
         self.pbar_copy.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pbar_delete.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pbar_copy.hide()
