@@ -2,7 +2,8 @@
 - Install python 3, with pip and add it to the system's PATH
 - Install the required dependencies:
 ```
-pip3 install -r requirements.txt
+- pip3 install -r requirements.txt
+- Latex compiler is needed to generate the weekly attendance sheets. **MikTex** is recommended for windows users.
 ```
 
 # How to use the program:
