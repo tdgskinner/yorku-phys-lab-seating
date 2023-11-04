@@ -12,7 +12,6 @@ from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QFileDialog, QTextEdit
 
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
-import shutil
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
