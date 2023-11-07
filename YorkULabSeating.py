@@ -413,7 +413,6 @@ class MainWindow(QtWidgets.QMainWindow):
             'pkl_path': 'dummy_pkl_path.pkl'
         }
         self.getSettingValues()
-        
         QtWidgets.QMainWindow.__init__(self)
         self.ui = uic.loadUi('YorkULabSeating.ui',self)
 
@@ -446,6 +445,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         
+        self.tabWidget.setCurrentIndex(0)
+
         self.lineEdit_year.setText(self.year) 
         self.comboBox_semester.setCurrentText(self.semester)
         self.lineEdit_code.setText(self.code)
@@ -472,7 +473,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.room:
             self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
-        self.course_label.setFont(QFont('Arial', 15, weight=700))
+        self.course_label.setFont(QFont('Arial', 12, weight=700))
+        self.location_label.setText(f'| {self.room}')
+        self.location_label.setFont(QFont('Arial', 12, weight=700))
         
 
         self.gpc_list = []
@@ -781,6 +784,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
             self.pushButton_lpc_remote_files.setEnabled(True)
+            self.location_label.setText(f'| {self.room}')
 
     def generate_groups(self):
         if not self.session_id:
@@ -1154,12 +1158,13 @@ class Reboot_PC_Thread(QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    print('Welcome to YorkU PHYS Lab Seat Assigner')
+    print('Welcome to YU LabManager')
     logging.getLogger().setLevel(logging.INFO)
     app = QApplication(sys.argv)
     app_icon = QIcon("YorkU_icon.jpg")
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
+    mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
     mainWindow.show()
 
     sys.exit(app.exec())
