@@ -280,7 +280,7 @@ class AttWindow(QWidget):
         logging.debug('Printing completed')
 
 #--------------------------------------------------------------------------------
-class lpc_file_manager(QWidget):
+class lpc_file_manager(QDialog):
     def __init__(self, laptop_list, LocalCopyMode):
         super().__init__()
 
@@ -342,6 +342,17 @@ class lpc_file_manager(QWidget):
     def on_copyFinished(self):
         self.pbar_copy.setFormat("Copy completed")
         self.pushButton_copy.setEnabled(True)
+
+        if all(self.lpc_thread[1].status.values()):
+            QMessageBox.information(None,'Copy Successful',' All selected files are copied to target Laptop(s) successfully')   
+        else:
+            res = [key for key, value in self.lpc_thread[1].status.items() if not value]
+            if res:
+                error_message = f'Failed to copy the selected files to: {", ".join(res)}'
+            else:
+                error_message = "Failed to copy the selected files to All laptops!."
+            
+            QMessageBox.warning(None, "Copy Failed", error_message)
     
     def delete_setProgress(self, delete_progress):
         self.pbar_delete.setValue(delete_progress)
@@ -349,6 +360,13 @@ class lpc_file_manager(QWidget):
     def on_deleteFinished(self):
         self.pbar_delete.setFormat("Delete completed")
         self.pushButton_delete.setEnabled(True)
+
+        if all(self.lpc_thread[2].status.values()):
+            QMessageBox.information(None, 'Delete Successful', ' All files are deleted from target Laptop(s) successfully')   
+        else:
+            res = [key for key, value in self.lpc_thread[1].status.values() if not value]
+            error_message = f' Failed to delete the identified files from: {", ".join(res)}'
+            QMessageBox.warning(None, "Delete Failed", error_message)
 
     def browse_files(self):
         dialog = QFileDialog(self)
@@ -941,6 +959,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_lpc_file_manager(self):
         self.lpc_remote = lpc_file_manager(self.laptop_list, self.LocalCopyMode)
         self.lpc_remote.setWindowTitle('Laptops Remote File Manager')
+        self.lpc_remote.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.lpc_remote.show()
     
 
@@ -1060,7 +1079,7 @@ class lpcCopyFileThread(QThread):
                 self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
             
         if all(self.status.values()):
-            logging.info(' All selected files are copied to target Laptop(s) successfully')
+            logging.info(' All selected files are copied to target Laptop(s) successfully')   
         else:
             res = [key for key, value in self.status.items() if not value]
             logging.error(f' Failed to copy the selected files to: {res}')

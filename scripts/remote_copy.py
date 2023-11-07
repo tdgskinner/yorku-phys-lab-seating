@@ -135,6 +135,6 @@ class Remote_LPC_manager:
                     logger.debug(f"Successfully deleted file: {file_to_delete}")
                 except Exception as e:
                     logger.debug(f"Failed to delete file: {file_to_delete} - {e}")
-        
+        logger.info(f"Successfully Deleted all files from {client_address}")
         return True
     #------------------------------------------------------------
