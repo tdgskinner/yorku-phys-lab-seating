@@ -572,9 +572,9 @@ def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadat
     newline = "\n"
 
     seating_header = f'''
-        <div class="row", style="padding:0cm">
+        <div class="row">
             <div class="column", style="width:20%">
-                <img src=yorku-logo.jpg , style="height:30px">
+                <img src=yorku-logo.jpg , style="height:30px; padding:0cm">
             </div>
             <div class="column", style="width:65%">
                 <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
@@ -646,15 +646,17 @@ def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadat
                         <div class="vertical-menu", style="width:100%">
                             <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
                         </div>
-                        <div class="wrapper">
+                        <div class="wrapper_all">
                             <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } >
                         </div>
+                        <div class="wrapper_all_tip">
                         <h3> Useful tip:</h3>
                             <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
                                 style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
                                 width="100%"
-                                height="270px">
+                                height="300px">
                             </iframe>
+                        </div>
                     </div>
                 </div>  
     '''
