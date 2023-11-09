@@ -1,26 +1,25 @@
-`use strict`;
+document.addEventListener("DOMContentLoaded", function () {
+    display_cur_time(); // Display the time immediately
+
+    setInterval(display_cur_time, 1000); // Update the time every second
+});
+
 function display_cur_time() {
-    var x = new Date()
-    var ampm = x.getHours( ) >= 12 ? ' PM' : ' AM';
-    hours = x.getHours( ) % 12;
+    var x = new Date();
+    var ampm = x.getHours() >= 12 ? ' PM' : ' AM';
+    var hours = x.getHours() % 12;
     hours = hours ? hours : 12;
-    hours=hours.toString().length==1? 0+hours.toString() : hours;
-    
-    var minutes=x.getMinutes().toString()
-    minutes=minutes.length==1 ? 0+minutes : minutes;
-    
-    var seconds=x.getSeconds().toString()
-    seconds=seconds.length==1 ? 0+seconds : seconds;
-    
-    var month=(x.getMonth() +1).toString();
-    month=month.length==1 ? 0+month : month;
-    
-    var dt=x.getDate().toString();
-    dt=dt.length==1 ? 0+dt : dt;
-    
-    var x1=hours + ":" +  minutes + " " + ampm;
-    document.getElementById('ct').innerHTML = x1;
-    document.getElementById('ct').style.fontSize='30px';
-    document.getElementById('ct').style.color='#0030c0';    
+    var minutes = x.getMinutes();
+    var seconds = x.getSeconds();
+
+    var timeString =
+        hours.toString().padStart(2, '0') + ":" +
+        minutes.toString().padStart(2, '0') + " " +
+        ampm;
+
+    var ctElement = document.getElementById('ct');
+    if (ctElement) {
+        ctElement.textContent = timeString;
+        ctElement.classList.add('time-display'); // Apply the CSS class
+    }
 }
-setInterval(display_cur_time, 1000);

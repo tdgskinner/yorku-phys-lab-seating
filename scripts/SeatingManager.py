@@ -431,7 +431,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                 <div class="column", style="width:65%">
                                     <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
                                 </div>
-                                <div class="column", style="width:15%"></div>
+                                <div class="column", style="width:15%">
                                     <h3><span id="ct"> </span></h3>
                                 </div>
                             </div>
@@ -462,7 +462,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                 </div>
                             </div>
                             <div class ="footer">
-                              YorkU PHYS Lab Seating V{version}
+                              YU LabManager V{version}
                             </div>
                             </body>
                             </html>
@@ -504,7 +504,7 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                     <div class="column", style="width:65%">
                                         <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
                                     </div>
-                                    <div class="column", style="width:15%"></div>
+                                    <div class="column", style="width:15%">
                                         <h3><span id="ct"> </span></h3>
                                     </div>
                                 </div>
@@ -534,7 +534,9 @@ def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = No
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class ="footer">
+                                    YU LabManager V{version}
+                                </div>
                                 </body>
                                 </html>
                                 '''
@@ -579,7 +581,7 @@ def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadat
             <div class="column", style="width:65%">
                 <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
             </div>
-            <div class="column", style="width:15%"></div>
+            <div class="column", style="width:15%">
                 <h3><span id="ct"> </span></h3>
             </div>
         </div>
@@ -677,7 +679,7 @@ def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadat
             {seating_groups}
             {seating_img_tip}
             <div class ="footer">
-                YorkU PHYS Lab Seating V{version}
+                YU LabManager V{version}
             </div>
         </body>
         

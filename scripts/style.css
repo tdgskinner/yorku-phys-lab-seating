@@ -27,12 +27,12 @@ body {
   }
   
   .row { 
-    padding: 0px;
+    padding: 5px;
   }
 
   .column {
     float: left;  
-    padding: 0px;
+    padding: 5px;
   }
    
   /* Clearfix (clear floats) */
@@ -52,9 +52,11 @@ body {
   }
   
   .grid-item {
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
-    
     font-size: 25px;
     text-align: center;
     height:75px;
@@ -96,4 +98,9 @@ body {
 
 .wrapper_all_tip {
   padding: 5px;
+}
+
+.time-display {
+  font-size: 30px;
+  color: #0030c0;
 }
