@@ -155,7 +155,7 @@ class AttWindow(QWidget):
     def __init__(self, stud_list, session, session_id, code, exp_id):
         super().__init__()
 
-        self.ui = uic.loadUi('YorkULabSeating_att.ui',self)
+        self.ui = uic.loadUi(os.path.join('assets', 'YorkULabSeating_att.ui'),self)
         self.stud_list = stud_list
         self.session = session
         self.session_id = session_id
@@ -173,7 +173,7 @@ class AttWindow(QWidget):
         self.label_4.setFont(myFont)
         self.label_5.setFont(myFont)
         self.label_6.setFont(myFont)
-        icon = QIcon('printer-icon-48.png')
+        icon = QIcon(os.path.join('assets','printer-icon.png'))
         self.pushButton_print_att.setIcon(icon)
         self.pushButton_print_att.clicked.connect(self.print_prev_dlg)
         shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
@@ -284,7 +284,7 @@ class lpc_file_manager(QDialog):
     def __init__(self, laptop_list, LocalCopyMode):
         super().__init__()
 
-        self.ui = uic.loadUi('YorkULabSeating_lpc.ui',self)
+        self.ui = uic.loadUi(os.path.join('assets', 'YorkULabSeating_lpc.ui'),self)
         self.lpc_list = laptop_list
         self.LocalCopyMode = LocalCopyMode
         self.selected_files = []
@@ -409,12 +409,11 @@ class MainWindow(QtWidgets.QMainWindow):
             'exp':'dummy_exp',
             'n_max_group':6,
             'n_benches':4,
-            'pkl_name':'dummy.pkl',
-            'pkl_path': 'dummy_pkl_path.pkl'
+            'pkl_path': None
         }
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi('YorkULabSeating.ui',self)
+        self.ui = uic.loadUi(os.path.join('assets','YorkULabSeating.ui'),self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -427,13 +426,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.setting_Course.value('code')
         self.course_dir  = self.setting_Course.value('course_dir')
         self.pc_dir  = self.setting_Course.value('pc_dir')
-        #self.pc_txt_path = self.setting_Course.value('pc_txt_path')
         self.laptop_list = self.setting_Course.value('laptop_list')
         self.exp_id = self.setting_Course.value('exp_id')
         self.exp = self.setting_Course.value('exp')
         self.room = self.setting_Course.value('room')
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
+        self.pkl_path   = self.setting_Course.value('pkl_path')
 
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
@@ -444,6 +443,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.exp: self.exp = self.default_settings['exp']
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
+        if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
         
         self.tabWidget.setCurrentIndex(0)
 
@@ -474,7 +474,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'| {self.room}')
+        self.location_label.setText(f' --  {self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
         
 
@@ -485,7 +485,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.set_pc_txt_path()
         
         self.session_id = None
-        self.pkl_path = None
         self.thread={}
         self.LocalCopyMode = False
         self.isCopyFileRunning = False
@@ -784,7 +783,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
             self.pushButton_lpc_remote_files.setEnabled(True)
-            self.location_label.setText(f'| {self.room}')
+            self.location_label.setText(f' --  {self.room}')
 
     def generate_groups(self):
         if not self.session_id:
@@ -850,12 +849,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 else: self.ta_name = None
                 
                 seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
+            else:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
         else:
-            dlg = QtWidgets.QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Error")
+                dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.course_dir:
@@ -1005,6 +1010,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('room', self.comboBox_room.currentText())
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
+            #self.setting_Course.setValue('pkl_path', self.pkl_path)
             try:
                 event.accept()
                 logging.debug('The application exited Normaly.')
@@ -1161,7 +1167,7 @@ if __name__ == '__main__':
     print('Welcome to YU LabManager')
     logging.getLogger().setLevel(logging.INFO)
     app = QApplication(sys.argv)
-    app_icon = QIcon("YorkU_icon.jpg")
+    app_icon = QIcon("YorkU_icon.ico")
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
