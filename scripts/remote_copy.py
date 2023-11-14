@@ -29,20 +29,20 @@ class MyRemoteCopyFile:
                 shutil.copy(source, dest)
         
     #------------------------------------------------------------
-    def _server_dir_prep(self, exp_id, gpc, group_id, src_dir, code):
+    def _server_dir_prep(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
         cwd = os.getcwd()
        
         if self.do_localCopy:
             #self.dest_path = src_dir
-            self.dest_path = f'output_{code}'
+            self.dest_path = os.path.join(user_data_dir, f'output_{code}')
         else:
             self.dest_path =r'\\' + gpc+ r'\\phys'
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
-        out_dir = f'output_{code}'
-        css_path = os.path.join(cwd, 'scripts', 'style.css')
-        js_path = os.path.join(cwd, 'scripts', 'time.js')
-        YUlogo_path = os.path.join(cwd,'yorku-logo.jpg')
+        out_dir = os.path.join(user_data_dir, f'output_{code}')
+        css_path = os.path.join(cwd, 'assets', 'style.css')
+        js_path = os.path.join(cwd, 'assets', 'time.js')
+        YUlogo_path = os.path.join(cwd,'assets','yorku-logo.jpg')
         img_dir_path = os.path.join(src_dir ,'img')
         tip_dir_path = os.path.join(src_dir, 'tip')
 
@@ -77,10 +77,10 @@ class MyRemoteCopyFile:
             self._force_copy(os.path.join(html_path, 'g1.html'), os.path.join(self.web_directory, 'index.html'))
 
     #------------------------------------------------------------
-    def run_copyfile(self, exp_id, gpc, group_id, src_dir, code):
+    def run_copyfile(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
        
         try:
-            self._server_dir_prep(exp_id, gpc, group_id, src_dir, code)
+            self._server_dir_prep(user_data_dir, exp_id, gpc, group_id, src_dir, code)
             logger.info(f' Group ({group_id}) html file is copied to {gpc} successfully!')               
             return True
         except Exception as e:
@@ -94,7 +94,6 @@ class Remote_LPC_manager:
         logger.debug(f'Remote_LPC_manager service initiated with localCopy= {self.do_localCopy}')
 
     def run_copyfile(self, lpc, selected_files, dest_path):
-        #time.sleep(1)
         client_address = r'\\' + lpc
         destination_path = os.path.join(client_address, dest_path)
         

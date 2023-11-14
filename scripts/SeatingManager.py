@@ -18,6 +18,8 @@ from pylatex import utils, NewPage
 
 logger = logging.getLogger(__name__)
 
+
+
 #------------------------------------------------------------
 def sort_helper(item):
             day_sort = {'Mon':1,'Tue':2,'Wed':3,'Thu':4,'Fri':5}
@@ -33,7 +35,7 @@ def is_file_locked(file_path):
     except PermissionError:
         return True  # The file is locked
 #------------------------------------------------------------
-def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
+def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id):
     if sessions:
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
@@ -86,7 +88,7 @@ def create_weekly_att(stud_csv_path_list, sessions, code, Exp_id):
         doc.append(NoEscape(r'\newpage'))
 
     # Save the multipage PDF using pdflatex as the LaTeX compiler
-    output_dir = f'output_{code}'
+    output_dir = os.path.join(user_data_dir, f'output_{code}')
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
@@ -301,7 +303,7 @@ def get_studList_header(col):
     return header_10 if col==10 else header_9
 
 #------------------------------------------------------------        
-def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_stud, n_benches, code, pkl_file_name):
+def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_stud, n_benches, code, pkl_file_name):
     exp_df= pandas.read_csv(exp_csv_path)  
     time_df= pandas.read_csv(time_csv_path)
     stud_df = concat_stud_lists(stud_csv_path_list)
@@ -330,8 +332,8 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
     else:
         logger.error('exp_list, time_list, or stud_list is empty')
         return None
-        
-    out_dir = f'output_{code}'
+       
+    out_dir = os.path.join(user_data_dir, f'output_{code}')
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     
@@ -361,9 +363,9 @@ def make_groups(exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_s
       
     
 #------------------------------------------------------------
-def html_generator(pkl_path, code, n_max_group, n_benches, version, ta_name = None):
+def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, version, ta_name = None):
     logger.debug(f'ta_name = {ta_name}')
-    out_dir = f'output_{code}'
+    out_dir = os.path.join(user_data_dir, f'output_{code}')
     html_dir = os.path.join(out_dir, 'html')
 
     logger.debug(f'pkl_path: {pkl_path}')
@@ -706,14 +708,14 @@ def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadat
 
 
 #------------------------------------------------------------
-def print_on_layout(gpc_map, room, room_list, exp_id, pkl_path):
+def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     
     if room not in room_list:
         print(f'{room} room is not supported')
         return
     
     layout_src = room_list[room][1]
-    out_dir = 'output_layout'
+    out_dir = os.path.join(user_data_dir, 'output_layout')
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)

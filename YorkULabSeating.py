@@ -1,4 +1,5 @@
-import sys , os
+import sys , os, io
+import appdirs
 import pandas as pd
 import logging
 import glob
@@ -19,33 +20,65 @@ from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot import Remote_PC_Reboot
 
 appVersion = '6.6'
+
+# Get the user-specific directory for your application in AppData\Local
+user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
+
+# Create directories if they don't exist
+os.makedirs(user_data_dir, exist_ok=True)
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS2
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
     outputWritten = QtCore.pyqtSignal(object, object)
 
     def __init__(self, parent, stdout=True):
         super().__init__(parent)
-        if stdout:
-            self._stream = sys.stdout
-            sys.stdout = self
-        else:
-            self._stream = sys.stderr
-            sys.stderr = self
         self._stdout = stdout
 
+        if stdout:
+            self._stream = sys.stdout
+        else:
+            self._stream = sys.stderr
+        
+        if self._stream is None:
+            # If sys.stdout or sys.stderr is None, create a new StringIO instance
+            self._stream = io.StringIO()
+        
+        # Save the original stream
+        self._original_stream = self._stream
+        
+        # Redirect the stream
+        if stdout:
+            sys.stdout = self
+        else:
+            sys.stderr = self
+        
+
     def write(self, text):
-        self._stream.write(text)
+        self._original_stream.write(text)
         self.outputWritten.emit(text, self._stdout)
 
+    def flush(self):
+        self._original_stream.flush()
+
     def __getattr__(self, name):
-        return getattr(self._stream, name)
+        return getattr(self._original_stream, name)
 
     def __del__(self):
         try:
             if self._stdout:
-                sys.stdout = self._stream
+                sys.stdout = self._original_stream
             else:
-                sys.stderr = self._stream
+                sys.stderr = self._original_stream
         except AttributeError:
             pass
 #--------------------------------------------------------------------------------
@@ -155,7 +188,7 @@ class AttWindow(QWidget):
     def __init__(self, stud_list, session, session_id, code, exp_id):
         super().__init__()
 
-        self.ui = uic.loadUi(os.path.join('assets', 'YorkULabSeating_att.ui'),self)
+        self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_att.ui')),self)
         self.stud_list = stud_list
         self.session = session
         self.session_id = session_id
@@ -173,7 +206,7 @@ class AttWindow(QWidget):
         self.label_4.setFont(myFont)
         self.label_5.setFont(myFont)
         self.label_6.setFont(myFont)
-        icon = QIcon(os.path.join('assets','printer-icon.png'))
+        icon = QIcon(resource_path(os.path.join('assets','printer-icon.png')))
         self.pushButton_print_att.setIcon(icon)
         self.pushButton_print_att.clicked.connect(self.print_prev_dlg)
         shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
@@ -284,7 +317,7 @@ class lpc_file_manager(QDialog):
     def __init__(self, laptop_list, LocalCopyMode):
         super().__init__()
 
-        self.ui = uic.loadUi(os.path.join('assets', 'YorkULabSeating_lpc.ui'),self)
+        self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_lpc.ui')),self)
         self.lpc_list = laptop_list
         self.LocalCopyMode = LocalCopyMode
         self.selected_files = []
@@ -413,7 +446,7 @@ class MainWindow(QtWidgets.QMainWindow):
         }
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
-        self.ui = uic.loadUi(os.path.join('assets','YorkULabSeating.ui'),self)
+        self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating.ui')),self)
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -547,7 +580,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
     
     def show_weekly_att(self):
-        pdf_file_path = seating.create_weekly_att(self.stud_csv_path_list, self.session_list, self.code, self.exp_id)
+        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id)
         
         # Check if the file exists
         if pdf_file_path and os.path.isfile(pdf_file_path):
@@ -565,7 +598,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def show_lab_layout(self):
         # Populating layout image:
         if self.course_dir:
-            self.lab_layout_out_file = seating.print_on_layout(self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
+            self.lab_layout_out_file = seating.print_on_layout(user_data_dir, self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
             logging.debug(f'self.lab_layout_out_file: {self.lab_layout_out_file}')
             
             if os.path.isfile(self.lab_layout_out_file):
@@ -822,7 +855,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path, self.n_group = seating.make_groups(self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
+                self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
@@ -848,7 +881,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                seating.html_generator(self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
+                seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
@@ -1044,11 +1077,11 @@ class CopyFileThread(QThread):
         if self.localCopy:
             gpc = 'LOCAL PC'
             group_id = 0
-            self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
+            self.status[gpc] = self.copy_service.run_copyfile(user_data_dir,self.exp_id, gpc, group_id ,self.course_dir, self.code)
         else:
             for i, gpc in enumerate(self.gpc_list):
                 group_id = int(self.gpc_map[gpc][3])
-                self.status[gpc] = self.copy_service.run_copyfile(self.exp_id, gpc, group_id ,self.course_dir, self.code)
+                self.status[gpc] = self.copy_service.run_copyfile(user_data_dir,self.exp_id, gpc, group_id ,self.course_dir, self.code)
                 self.progress.emit(int(100*(i+1)/len(self.gpc_list)))
             
         if all(self.status.values()):
@@ -1167,7 +1200,7 @@ if __name__ == '__main__':
     print('Welcome to YU LabManager')
     logging.getLogger().setLevel(logging.INFO)
     app = QApplication(sys.argv)
-    app_icon = QIcon("YorkU_icon.ico")
+    app_icon = QIcon(resource_path("YorkU_icon.ico"))
     app.setWindowIcon(app_icon)
     mainWindow = MainWindow()
     mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
