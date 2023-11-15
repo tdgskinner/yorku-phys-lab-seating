@@ -7,10 +7,10 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
-from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox
+from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
-from PyQt6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QFileDialog, QTextEdit
+from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
+from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QListWidgetItem, QLabel, QMessageBox, QFileDialog
 
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 
@@ -432,6 +432,8 @@ class lpc_file_manager(QDialog):
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
+        super().__init__()
+
         # Default settings will be set if no stored settings found from previous session
         self.default_settings = {
             'year':'2023', 
@@ -507,7 +509,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f' --  {self.room}')
+        self.location_label.setText(f'@  {self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
         
 
@@ -816,7 +818,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
             self.pushButton_lpc_remote_files.setEnabled(True)
-            self.location_label.setText(f' --  {self.room}')
+            self.location_label.setText(f'@  {self.room}')
 
     def generate_groups(self):
         if not self.session_id:
@@ -1197,13 +1199,37 @@ class Reboot_PC_Thread(QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    print('Welcome to YU LabManager')
-    logging.getLogger().setLevel(logging.INFO)
+    #print('Welcome to YU LabManager')
     app = QApplication(sys.argv)
     app_icon = QIcon(resource_path("YorkU_icon.ico"))
     app.setWindowIcon(app_icon)
+
+    # Create and show the splash screen
+    splash_pix = QPixmap(resource_path(os.path.join('assets', 'startup.png')))
+    splash = QSplashScreen(splash_pix, Qt.WindowType.WindowStaysOnTopHint)
+    splash.setMask(splash_pix.mask())
+
+    # Add a label to the splash screen
+    splash_label = QLabel("Loading...", splash)
+    splash_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    splash_label.setStyleSheet("QLabel { color : white; }")
+
+    # Layout for the splash screen
+    layout = QVBoxLayout(splash)
+    layout.addWidget(splash_label)
+    splash.setLayout(layout)
+
+    splash.show()
+    
+    # Process events to make sure the splash screen is displayed
+    QApplication.processEvents()
+
     mainWindow = MainWindow()
     mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
     mainWindow.show()
 
+    # Close the splash screen after the main window is shown
+    splash.finish(mainWindow)
+    logging.getLogger().setLevel(logging.INFO)
+    
     sys.exit(app.exec())
