@@ -1199,7 +1199,15 @@ class Reboot_PC_Thread(QThread):
 
 #-------------------------------------------------
 if __name__ == '__main__':
-    #print('Welcome to YU LabManager')
+    
+    def show_main_window(app):
+        #print('Welcome to YU LabManager')
+        mainWindow = MainWindow()
+        mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
+        mainWindow.show()
+        splash.finish(mainWindow)
+        logging.getLogger().setLevel(logging.INFO)
+    
     app = QApplication(sys.argv)
     app_icon = QIcon(resource_path("YorkU_icon.ico"))
     app.setWindowIcon(app_icon)
@@ -1224,12 +1232,7 @@ if __name__ == '__main__':
     # Process events to make sure the splash screen is displayed
     QApplication.processEvents()
 
-    mainWindow = MainWindow()
-    mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
-    mainWindow.show()
+    # Use QTimer to delay the appearance of the main window after 3 seconds
+    QtCore.QTimer.singleShot(3000, lambda: show_main_window(app))
 
-    # Close the splash screen after the main window is shown
-    splash.finish(mainWindow)
-    logging.getLogger().setLevel(logging.INFO)
-    
     sys.exit(app.exec())
