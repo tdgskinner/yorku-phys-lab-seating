@@ -332,8 +332,8 @@
         <rect>
          <x>600</x>
          <y>10</y>
-         <width>121</width>
-         <height>161</height>
+         <width>101</width>
+         <height>151</height>
         </rect>
        </property>
        <property name="text">
@@ -763,6 +763,13 @@
           </property>
           <property name="text">
            <string>xxxx</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QCheckBox" name="checkBox_extended_att">
+          <property name="text">
+           <string>Extended Att. list</string>
           </property>
          </widget>
         </item>

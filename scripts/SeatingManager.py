@@ -35,7 +35,7 @@ def is_file_locked(file_path):
     except PermissionError:
         return True  # The file is locked
 #------------------------------------------------------------
-def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id):
+def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, extended_attlist_mode):
     if sessions:
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
@@ -44,7 +44,10 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id)
     df = concat_stud_lists(stud_csv_path_list)
 
     # Create a LaTeX document
-    geometry_options = {"tmargin": "0.3in", "lmargin": "1in", "bmargin": "0.15in", "rmargin": "1in"}
+    if extended_attlist_mode:
+        geometry_options = {"tmargin": "0.6in", "lmargin": "0.4in", "bmargin": "0.2in", "rmargin": "0.4in"}
+    else:
+        geometry_options = {"tmargin": "0.6in", "lmargin": "1in", "bmargin": "0.2in", "rmargin": "1in"}
     doc = Document(geometry_options=geometry_options)
 
     for session_id in session_ids:
@@ -56,6 +59,12 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id)
         session_df = session_df[['first_name', 'surname']]
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
         session_df['Attendance'] = ''
+        if extended_attlist_mode:
+            session_df['Grp.#'] = ''
+            session_df['On Time'] = ''
+            session_df['Tidiness'] = ''
+            session_df['Participation'] = ''
+     
         session_df.insert(0, ' ', range(1, 1 + len(session_df)))
 
         doc.append(pl.NoEscape('{'))
@@ -69,7 +78,11 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id)
         doc.append(pl.NoEscape('}'))
 
         # Create the Tabular environment
-        with doc.create(Tabular('|' + 'p{0.5cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|', pos='t', row_height=1.3)) as table:
+        if extended_attlist_mode:
+            table_spec = '|' + 'p{0.4cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{2.8cm}|'+ 'p{1.3cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
+        else:
+            table_spec = '|' + 'p{0.4cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|'
+        with doc.create(Tabular(table_spec, pos='t', row_height=1.3)) as table:
             table.add_hline()
             table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
             table.add_hline()

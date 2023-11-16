@@ -523,6 +523,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.thread={}
         self.LocalCopyMode = False
         self.isCopyFileRunning = False
+        self.extended_attlist_mode = False
         self.is_gpc_reboot_running = False
         self.is_laptop_reboot_running = False
         
@@ -576,13 +577,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_pc_browse.clicked.connect(self.browse_pc_dir)
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
+        self.checkBox_extended_att.toggled.connect(self.set_attlist_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
     
     def show_weekly_att(self):
-        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id)
+        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.extended_attlist_mode)
         
         # Check if the file exists
         if pdf_file_path and os.path.isfile(pdf_file_path):
@@ -757,6 +759,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def set_copy_mode(self):
         self.LocalCopyMode = self.checkBox_localCopy.isChecked()
+    
+    def set_attlist_mode(self):
+        self.extended_attlist_mode = self.checkBox_extended_att.isChecked()
     
     def set_ta_name_mode(self):
         self.overwite_ta_name = self.checkBox_TAname_overwrite.isChecked()
