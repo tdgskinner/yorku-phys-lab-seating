@@ -6,7 +6,7 @@ import glob
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
-from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QStyle
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
@@ -472,7 +472,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'code':'xxxx',
             'laptop_list': [],
             'exp_id':1,
-            'exp':'dummy_exp',
+            'exp':None,
             'n_max_group':6,
             'n_benches':4,
             'pkl_path': None
@@ -587,6 +587,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gpc_reboot_pbar.hide()
         self.pc_reboot_pbar.hide()
         
+        #-- setting pushbutton icons
+        icon_save = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_DialogSaveButton'))
+        icon_reboot = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_BrowserReload'))
+        icon_brows = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_DirOpenIcon'))
+        icon_file = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileIcon'))
+        
+        self.pushButton_save_settings.setIcon(icon_save)
+        self.pushButton_course_dir_browse.setIcon(icon_brows)
+        self.pushButton_pc_browse.setIcon(icon_brows)
+        self.pushButton_rebootPCs.setIcon(icon_reboot)
+        self.pushButton_rebootLaptops.setIcon(icon_reboot)
+        self.pushButton_lpc_remote_files.setIcon(icon_file)
+
         #--signal and slots
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
@@ -615,7 +628,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
     
     def show_weekly_att(self):
-        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.extended_attlist_mode)
+        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode)
         
         # Check if the file exists
         if pdf_file_path and os.path.isfile(pdf_file_path):
@@ -771,6 +784,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def extract_exp(self, exp_csv_path):
         exp_list = seating.get_exp_list(exp_csv_path)
         self.comboBox_exp_id.clear()
+        self.pushButton_Watt.setEnabled(False)
 
         if exp_list:
             list_helper = list(exp_list.keys())
@@ -836,6 +850,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.exp:
             self.exp_id = self.exp_list[self.exp]
             logging.info(f' Selected exp_id:{self.exp_id}')
+            self.pushButton_Watt.setEnabled(True)
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()

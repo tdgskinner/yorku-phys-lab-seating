@@ -120,7 +120,7 @@
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(66, 255, 75);</string>
+           <string notr="true">background-color: rgb(85, 170, 0);</string>
           </property>
           <property name="text">
            <string>[5] Copy Files to group PCs</string>
@@ -453,7 +453,7 @@
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(252, 53, 48);</string>
+           <string notr="true">background-color: rgb(255, 85, 127);</string>
           </property>
           <property name="text">
            <string>Reboot</string>
@@ -474,7 +474,7 @@
            </font>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(252, 53, 48);</string>
+           <string notr="true">background-color: rgb(255, 85, 127);</string>
           </property>
           <property name="text">
            <string>Reboot</string>
@@ -484,7 +484,7 @@
         <item row="6" column="2">
          <widget class="QPushButton" name="pushButton_lpc_remote_files">
           <property name="styleSheet">
-           <string notr="true">background-color: rgb(170, 170, 127);</string>
+           <string notr="true">background-color: rgb(85, 170, 0);</string>
           </property>
           <property name="text">
            <string>Copy/Delete Files</string>

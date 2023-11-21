@@ -35,7 +35,7 @@ def is_file_locked(file_path):
     except PermissionError:
         return True  # The file is locked
 #------------------------------------------------------------
-def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, extended_attlist_mode):
+def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, exp_title, extended_attlist_mode):
     if sessions:
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
@@ -70,8 +70,13 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         doc.append(pl.NoEscape('{'))
         doc.append(pl.Command('pagenumbering', 'gobble'))
         doc.append(pl.Command('noindent'))
-        text_before_table = f"PHYS {code},  {session_info}, Exp {Exp_id}.\n\n"
+        
+        text_before_table = f"PHYS {code},  {session_info}\n"
         doc.append(utils.bold(text_before_table))
+        
+        text_before_table = f"Exp {exp_title}\n\n"
+        doc.append(text_before_table)
+        
         text_before_table = f"Date: ________________          TA: ________________\n\n"
         doc.append(text_before_table)
 
