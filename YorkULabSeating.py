@@ -19,7 +19,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot import Remote_PC_Reboot
 
-appVersion = '6.6'
+appVersion = '6.7'
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
@@ -339,8 +339,8 @@ class lpc_file_manager(QDialog):
                 destination_path = self.lineEdit_destination_input.text()
                 self.pushButton_copy.setEnabled(False)
                 self.pbar_copy.show()
-                self.pbar_copy.setFormat("Copy files ...")
-                self.lpc_thread[1] = lpcCopyFileThread(self.lpc_list, self.selected_files, destination_path, self.LocalCopyMode, parent=None)
+                #self.pbar_copy.setFormat("Copy files ...")
+                self.lpc_thread[1] = lpcCopyFileThread(self.lpc_list, self.selected_files, destination_path, self.LocalCopyMode, self.pbar_copy, parent=None)
                 self.lpc_thread[1].finished.connect(self.on_copyFinished)
                 self.lpc_thread[1].start()
                 self.lpc_thread[1].progress.connect(self.copy_setProgress)
@@ -358,8 +358,8 @@ class lpc_file_manager(QDialog):
                 destination_path = self.lineEdit_destination_input.text()
                 self.pushButton_delete.setEnabled(False)
                 self.pbar_delete.show()
-                self.pbar_delete.setFormat("Delete files ...")
-                self.lpc_thread[2] = lpcDeleteFileThread(self.lpc_list, delete_files, destination_path, self.LocalCopyMode, parent=None)
+                #self.pbar_delete.setFormat("Delete files ...")
+                self.lpc_thread[2] = lpcDeleteFileThread(self.lpc_list, delete_files, destination_path, self.LocalCopyMode, self.pbar_delete, parent=None)
                 self.lpc_thread[2].finished.connect(self.on_deleteFinished)
                 self.lpc_thread[2].start()
                 self.lpc_thread[2].progress.connect(self.delete_setProgress)
@@ -428,6 +428,37 @@ class lpc_file_manager(QDialog):
         if event.key() == Qt.Key.Key_Delete or event.key() == Qt.Key.Key_Backspace:
             selected_item = self.listWidget_selected_files_list.currentItem()
             self.removeSelectedFile(selected_item)
+    
+    def closeEvent(self, event):
+        running_cp_process = False
+        running_del_process = False 
+        
+        if self.lpc_thread.get(1, None):
+            if self.lpc_thread[1].isRunning():
+                running_cp_process = True
+        if self.lpc_thread.get(2, None):
+            if self.lpc_thread[2].isRunning():
+                running_del_process = True
+
+        if running_cp_process or running_del_process:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Are you sure you want to close lpc manager?")
+            dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel)
+            dlg.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Cancel)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Question)
+            button = dlg.exec()
+
+            if button == QtWidgets.QMessageBox.StandardButton.Yes:
+                if running_cp_process:
+                    self.lpc_thread[1].terminate()
+                if running_del_process:
+                    self.lpc_thread[2].terminate()
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
@@ -1103,15 +1134,41 @@ class CopyFileThread(QThread):
 
 #--------------------------------------------------------------------------------
 class lpcCopyFileThread(QThread):
+    """
+    A thread class for copying files to laptops.
+
+    Args:
+        lpc_list (list): A list of laptops to copy files to.
+        selected_files (list): A list of files to be copied.
+        destination_path (str): The destination path on the laptops.
+        localCopy (bool): Flag indicating whether to copy files to the local PC.
+        parent (QObject): The parent object of the thread.
+
+    Attributes:
+        progress (pyqtSignal): A signal emitted to indicate the progress of the file copying.
+        status (dict): A dictionary to store the status of each file copy operation.
+        lpc_list (list): A list of laptops to copy files to.
+        selected_files (list): A list of files to be copied.
+        destination_path (str): The destination path on the laptops.
+        localCopy (bool): Flag indicating whether to copy files to the local PC.
+        is_running (bool): Flag indicating whether the thread is running.
+        lpc_copy_service (Remote_LPC_manager): An instance of the Remote_LPC_manager class for file copying.
+
+    Methods:
+        run(): The main method of the thread that performs the file copying.
+        stop(): Stops the execution of the thread.
+    """
+
     progress = pyqtSignal(int)
 
-    def __init__(self, lpc_list, selected_files, destination_path, localCopy, parent=None ):
+    def __init__(self, lpc_list, selected_files, destination_path, localCopy, progress_bar, parent=None ):
         super(lpcCopyFileThread, self).__init__(parent)
         self.status = {}
         self.lpc_list = lpc_list
         self.selected_files = selected_files
         self.destination_path = destination_path
         self.localCopy = localCopy
+        self.pbar = progress_bar
         self.is_running = True
         self.lpc_copy_service = Remote_LPC_manager(self.localCopy)
         
@@ -1125,8 +1182,10 @@ class lpcCopyFileThread(QThread):
             self.status[lpc] = self.lpc_copy_service.run_copyfile(lpc, self.selected_files, self.destination_path)
         else:
             for i, lpc in enumerate(self.lpc_list):
+                self.pbar.setFormat(f"Copy files to {lpc.split('.')[0]} ")
                 self.status[lpc] = self.lpc_copy_service.run_copyfile(lpc, self.selected_files, self.destination_path)
                 self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
+                
             
         if all(self.status.values()):
             logging.info(' All selected files are copied to target Laptop(s) successfully')   
@@ -1142,13 +1201,14 @@ class lpcCopyFileThread(QThread):
 class lpcDeleteFileThread(QThread):
     progress = pyqtSignal(int)
 
-    def __init__(self, lpc_list, delete_files, destination_path, localCopy, parent=None ):
+    def __init__(self, lpc_list, delete_files, destination_path, localCopy, progress_bar, parent=None ):
         super(lpcDeleteFileThread, self).__init__(parent)
         self.status = {}
         self.lpc_list = lpc_list
         self.delete_files = delete_files
         self.destination_path = destination_path
         self.localCopy = localCopy
+        self.pbar = progress_bar
         self.is_running = True
         self.lpc_delete_service = Remote_LPC_manager(self.localCopy)
         
@@ -1158,6 +1218,7 @@ class lpcDeleteFileThread(QThread):
         self.progress.emit(0)
 
         for i, lpc in enumerate(self.lpc_list):
+            self.pbar.setFormat(f"Delete files from {lpc.split('.')[0]} ")
             self.status[lpc] = self.lpc_delete_service.run_deletefile(lpc, self.delete_files, self.destination_path)
             self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
             
