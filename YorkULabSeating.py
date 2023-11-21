@@ -6,12 +6,10 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QStyle
-from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen
+from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
+from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
-from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget, QListWidgetItem, QLabel, QMessageBox, QFileDialog
-
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
@@ -563,6 +561,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
         self.pushButton_att.setEnabled(False)
+
+        if self.comboBox_exp_id.currentText() != '':
+            self.pushButton_Watt.setEnabled(True)
 
         #-- progress bars ---
         self.copy_pbar = QProgressBar()
