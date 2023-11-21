@@ -2,7 +2,6 @@ import sys , os, io
 import appdirs
 import pandas as pd
 import logging
-import glob
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
