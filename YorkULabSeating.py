@@ -221,7 +221,7 @@ class AttWindow(QWidget):
     	
         self.df = self.df.dropna()
         self.df = self.df.loc[self.df['session_id'].str.strip()!='LAB 99']
-        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id[0]]
+        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id]
         
         self.df = self.df.rename(columns={'first_name': 'First Name'})
         self.df = self.df.rename(columns={'surname': 'Last Name'})
