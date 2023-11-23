@@ -40,6 +40,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
     session_ids = [sessions[key] for key in session_keys_sorted]
+    logger.debug(f'session_ids: {session_ids}')
     
     df = concat_stud_lists(stud_csv_path_list)
 
@@ -53,7 +54,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
     for session_id in session_ids:
         session_info = list(filter(lambda x: sessions[x] == session_id, sessions))[0]
         # Filter the data for the current session_id
-        session_df = df.loc[df['session_id'].str.strip()==session_id]
+        session_df = df.loc[df['session_id'].str.strip()==session_id[0]]
 
         # Prepare the data for the table
         session_df = session_df[['first_name', 'surname']]
@@ -291,8 +292,8 @@ def get_session_list(time_csv_path):
     session_list = list(zip(Type_list, Day_list, time_list))
     
     for session in session_list:
-        sessions[f'{day_map(session[1])}, {session[2]} - {session[0]}'] = session[0]
-    
+        sessions[f'{day_map(session[1])}, {session[2]} - {session[0]}'] = (session[0],session[1])
+    logger.debug(f'sessions: {sessions}')
     return sessions
 
 def get_exp_list(exp_csv_path):

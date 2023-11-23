@@ -221,7 +221,7 @@ class AttWindow(QWidget):
     	
         self.df = self.df.dropna()
         self.df = self.df.loc[self.df['session_id'].str.strip()!='LAB 99']
-        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id]
+        self.df = self.df.loc[self.df['session_id'].str.strip()==self.session_id[0]]
         
         self.df = self.df.rename(columns={'first_name': 'First Name'})
         self.df = self.df.rename(columns={'surname': 'Last Name'})
@@ -639,7 +639,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.error("PDF file not found: ", pdf_file_path)
 
     def show_attendance(self):
-        self.att = AttWindow(self.stud_csv_path_list, self.session, self.session_id, self.code, self.exp_id)
+        self.att = AttWindow(self.stud_csv_path_list, self.session, self.session_id[0], self.code, self.exp_id)
         self.att.setWindowTitle('Print attendance list')
         self.att.show()
 
@@ -840,7 +840,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg.exec()
     
     def set_pklfile_name(self):
-        pklfile_name_list = ['SeatingDB', self.semester, self.year, self.code, self.session_id.replace(" ", "")]
+        pklfile_name_list = ['SeatingDB', self.semester, self.year, self.code, self.session_id[0].replace(" ", "")]
         pklfile_name = '_'.join(pklfile_name_list)+'.pkl'
         logging.debug(f'pklfile_name:{pklfile_name}')
         return pklfile_name
@@ -859,6 +859,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.session:
             self.session_id = self.session_list[self.session]
             logging.info(f' Selected session_id:{self.session_id}')
+            logging.debug(f' self.session:{self.session}')
     
     def set_pc_txt_path(self):
         self.room = self.comboBox_room.currentText()
@@ -889,7 +890,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.exec()
                 return
             else: 
-                n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id)
+                n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id[0])
                 logging.debug(f' There are {n_stud} students enrolled in this session.')
         
         if n_stud > self.n_benches * self.n_max_group:
@@ -908,7 +909,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
+                self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id[0], n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
