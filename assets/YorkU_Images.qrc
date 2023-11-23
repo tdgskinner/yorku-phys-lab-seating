@@ -1,7 +1,4 @@
 <RCC>
-  <qresource prefix="short">
-    <file>YorkU_logo_S.png</file>
-  </qresource>
   <qresource prefix="long">
     <file>YorkU_logo_L.png</file>
   </qresource>

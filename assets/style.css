@@ -4,13 +4,13 @@ body {
 
 .vertical-menu {
     width: 40%;
-    padding: 6px;
+    padding: 5px;
   }
   
   .vertical-menu a {
     color: black;
     display: block;
-    padding: 6px;
+    padding: 5px;
     text-decoration: none;
   }
   
@@ -26,6 +26,10 @@ body {
     box-sizing: border-box;
   }
   
+  .row { 
+    padding: 5px;
+  }
+
   .column {
     float: left;  
     padding: 5px;
@@ -48,22 +52,20 @@ body {
   }
   
   .grid-item {
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
     background-color: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.8);
-    
     font-size: 25px;
     text-align: center;
     height:75px;
   }
 
   .footer {
-    color: white;
-    position:relative;
-    bottom: 1px;
-    width:99%;
-    height:40px;
-    background-color: #b71414;
-}
+    font-size: 10px;
+    font-style: italic;
+  }
 
 .myiframe {
   font-family: Sans-serif;
@@ -80,4 +82,25 @@ body {
   object-fit:contain;
   width: 98%;
   height: 480px;
+}
+
+.wrapper_all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper_all img{
+  object-fit:contain;
+  width: 98%;
+  height: 372px;
+}
+
+.wrapper_all_tip {
+  padding: 5px;
+}
+
+.time-display {
+  font-size: 30px;
+  color: #0030c0;
 }

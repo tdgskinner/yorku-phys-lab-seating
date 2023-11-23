@@ -1,9 +1,10 @@
 # Installation:
 - Install python 3, with pip and add it to the system's PATH
 - Install the required dependencies:
-```
-pip3 install -r requirements.txt
-```
+
+- pip3 install -r requirements.txt
+- Latex compiler is needed to generate the weekly attendance sheets. [MikTex](https://miktex.org/download) is recommended for windows users.
+
 
 # How to use the program:
 1. Run the program from command-line/ terminal:
@@ -11,35 +12,30 @@ pip3 install -r requirements.txt
 python3 YorkULabSeating.py
 ```
 
-2. Go to the setting page and insert the corresponding parameters. Please note the following:
+2. Go to the settings tab and brows for the course directory. This directory should contain exp_*.csv (experiments table), stud_*.csv (enrolled students list), and time_*.csv (labs weekly schedule).
 
-- The **Session** value is case sensitive and must match with the **session_id** in the input csv lists
-- Click on **Grouping** on the main page to generate a .pkl file. This file contains the seating details for all listed experiments and students ***in the given session***. Repeat this process to generate separate .pkl files with unique names for each existing session_id.
-- Grouping process tries to create a uniform number of students per group according to the **'Max # of groups'** value. To have more students per group, reduce this value accordingly.
+3. Brows for the PC list directory. This directory must contain pc_room_map.csv (mapping room with pclist file and layput). The .txt files contain the group PC and laptop names, layout coordination and group number assigned with each group PC.
 
-3. Once the .pkl file is generated, click on 'Generate Html' on the main page to generate the seating Html files per group. The seating Html files for each experiment will be stored in a separate directory labelled with the experiment id for the selected .pkl file.
+4. Fill the Course Details accordingly.
 
-4. Finally, on the main page, select the required **experiment_id** and click on ***START webserver*** to start hosting the selected experiment seating.
+5. From the Settings tab, one can reboot the group PCs and laptops if needed.
+6. Copy/ Delete files allows to copy/ Delete selected list of files from the host PC to/ from the listed laptops of the selected room, by the given destination path.
 
-5. From the group PCs, open a web browser and visit http://hostname:port/g[X].html, where [X] is the desired group number.
-
-6. The GUI must be running during the lab session. Once the session is done, click on ***STOP webserver*** and close the application.
+7. From the Main tab:
+- Select the session and the room 
+- Click on **Generate groups** to generate a .pkl file. This file contains the seating details for all listed experiments and students ***in the given session***.
+- Click on **Generate html** to create the corresponding html files for the lab's disply, containing the student's name/ group.
+- Select the Experiment name
+- Click on **Copy Files to group PCs** to copy the generated html files to the group PCs. 
  
 ## Additional notes:
-1. The experiment images should be placed in ```scripts/src/img``` directory 
 
-2. The input CSV files should be placed in ```scripts/<data>``` directory. You can specify this directory in the **setting -> Input directory**
+- Each Group PC must be set to automatically display **index.html** page in Windows Kiosk mode.
+- Grouping process tries to create a uniform number (as much as possible) of students per group according to the 'Max # of groups' value.
+- Single and weekly attendence sheets can be generated and printed from the main tab.
 
-3. The Experiment csv file must contain the following columns:
- - ```exp_id, exp_title, day, date, time, exp_img, session_id```
 
-4. The Student csv file must contain the following columns:
- - ```student_id, last_name, first_name, session_id```
-
----
----
-
-**version 2.1, September 2022**
+**version 6.6, Nov. 2023**
 
 Developed by Mohammad Kareem
 Laboratory Technologist
@@ -48,6 +44,3 @@ Department of Physics & Astronomy
 Faculty of Science | York University
 Petrie Science & Engineering 122
 4700 Keele Street Toronto ON, Canada M3J 1P3
-
-**to do**
-- Automation of csv headers, or read columns by index

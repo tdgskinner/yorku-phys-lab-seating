@@ -3,8 +3,12 @@ __pycache__/
 .DS_Store
 output_*/
 *.pkl
+*.pdf
+*.tex
 test*.py
+*.ipynb
 **/LabSeatingWeb
 **/stud_*.csv
 **/time_*.csv
+example.csv
 **/*_GroupPC_list.txt

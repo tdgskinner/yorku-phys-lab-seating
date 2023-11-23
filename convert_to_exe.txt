@@ -1,0 +1,7 @@
+## How to convert GUI to stand alone exe installable file:
+1- pip install pyinstaller
+2- pyinstaller --name YU_LabManager --onefile --windowed --icon=YorkU_icon.ico YorkULabSeating.py
+3- install inno setup
+    a- use the wizard to create new sw package and follow the instructions.
+    b- add all asset directories to the project
+    c- edit the source in [Files] block: from DestDir: "{app} to DestDir: "{app}/assets
