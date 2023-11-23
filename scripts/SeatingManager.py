@@ -60,7 +60,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
         session_df['Attendance'] = ''
         if extended_attlist_mode:
-            session_df['Grp.#'] = ''
+            session_df['G#'] = ''
             session_df['On Time'] = ''
             session_df['Tidiness'] = ''
             session_df['Participation'] = ''
@@ -84,9 +84,9 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
 
         # Create the Tabular environment
         if extended_attlist_mode:
-            table_spec = '|' + 'p{0.4cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{2.8cm}|'+ 'p{1.3cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
+            table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.8cm}|'+ 'p{0.5cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
         else:
-            table_spec = '|' + 'p{0.4cm}|' + 'p{3cm}|' + 'p{3cm}|' + 'p{4cm}|'
+            table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{4cm}|'
         with doc.create(Tabular(table_spec, pos='t', row_height=1.3)) as table:
             table.add_hline()
             table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
