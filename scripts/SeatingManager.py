@@ -334,7 +334,7 @@ def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, 
     time_df = time_df.dropna().reset_index(drop=True)
     
     # filter the lists based on the given session_id
-    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session_id]
+    stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session_id[0]]
 
     exp_list = list(exp_df['exp_id'])
     stud_list = list(stud_df['student_id'])
@@ -347,7 +347,7 @@ def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, 
     if exp_list and stud_list and time_list:
         for exp in exp_list:
             students_splits = _rand_group_maker(stud_df, n_group, n_benches, optimize=True)
-            exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp], time_df.loc[time_df['Type'].str.strip()==session_id] , students_splits)
+            exp_dict[exp] = ( exp_df.loc[exp_df['exp_id']==exp], time_df[(time_df['Type'].str.strip() == session_id[0]) & (time_df['Day'] == session_id[1])] , students_splits)
     else:
         logger.error('exp_list, time_list, or stud_list is empty')
         return None

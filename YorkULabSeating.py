@@ -909,7 +909,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
-                self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id[0], n_stud, self.n_benches, self.code, self.pkl_file_name )
+                self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Info.")
