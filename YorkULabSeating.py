@@ -14,9 +14,9 @@ from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
-from scripts.remote_reboot import Remote_PC_Reboot
+from scripts.remote_reboot2 import Remote_PC_Reboot
 
-appVersion = '6.7'
+appVersion = '6.7.1'
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
@@ -1002,8 +1002,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.gpc_list:
                 self.gpc_reboot_pbar.show()
-                self.gpc_reboot_pbar.setFormat("Rebooting Group PCs ...")
-                self.thread[2] = Reboot_PC_Thread(self.gpc_list, parent=None)
+                #self.gpc_reboot_pbar.setFormat("Rebooting Group PCs ...")
+                self.thread[2] = Reboot_PC_Thread(self.gpc_list, self.gpc_reboot_pbar ,parent=None)
                 self.thread[2].finished.connect(self.on_gpc_rebootFinished)
                 self.thread[2].start()
                 
@@ -1036,8 +1036,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             if self.laptop_list:
                 self.pc_reboot_pbar.show()
-                self.pc_reboot_pbar.setFormat("Rebooting Laptops ...")
-                self.thread[3] = Reboot_PC_Thread(self.laptop_list, parent=None)
+                #self.pc_reboot_pbar.setFormat(f"Rebooting Laptop {}")
+                self.thread[3] = Reboot_PC_Thread(self.laptop_list, self.pc_reboot_pbar, parent=None)
                 self.thread[3].finished.connect(self.on_laptop_rebootFinished)
                 self.thread[3].start()
                 
@@ -1065,7 +1065,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_laptop_rebootFinished(self):
         self.pushButton_rebootLaptops.setEnabled(True)
         self.is_laptop_reboot_running = False
-        self.pc_reboot_pbar.setFormat("LAptops rebooted")
+        self.pc_reboot_pbar.setFormat("Laptops rebooted")
+        res = [key for key, value in self.thread[3].status.items() if not value]
+        if res:
+            error_message = f'Failed to send reboot command to: {", ".join(res)}'
+        else:
+            error_message = "Failed to send reboot command to All laptops!."
+            
+        QMessageBox.warning(None, "Laptops Reboot Failed", error_message)
 
     #----------------------------------
     def handleOutput(self, text, stdout):
@@ -1251,11 +1258,12 @@ class lpcDeleteFileThread(QThread):
 class Reboot_PC_Thread(QThread):
     progress = pyqtSignal(int)
 
-    def __init__(self, pc_list, parent=None ):
+    def __init__(self, pc_list, progress_bar, parent=None ):
         super(Reboot_PC_Thread, self).__init__(parent)
         self.status = {}
         self.pc_list = pc_list
         self.is_running = True
+        self.pbar = progress_bar
         self.reboot_service = Remote_PC_Reboot()
         
         
@@ -1263,8 +1271,8 @@ class Reboot_PC_Thread(QThread):
         logging.info(f' Rebooting PCs. Please wait ...')
         self.progress.emit(0)
 
-        #status = self.reboot_service.reboot_Pcs(self.pc_list)
         for i, pc in enumerate(self.pc_list):
+            self.pbar.setFormat(f"Rebooting -- {pc.split('.')[0]}")
             self.status[pc] = self.reboot_service.reboot_Pcs(pc)
             self.progress.emit(int(100*(i+1)/len(self.pc_list)))
         
