@@ -16,7 +16,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
 
-appVersion = '6.7.1'
+appVersion = '6.7.2'
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
@@ -472,7 +472,8 @@ class MainWindow(QtWidgets.QMainWindow):
             'exp':None,
             'n_max_group':6,
             'n_benches':4,
-            'pkl_path': None
+            'pkl_path': None,
+            'extended_attlist_mode': False
         }
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
@@ -496,7 +497,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_max_group    = self.setting_Course.value('n_max_group')
         self.n_benches  = self.setting_Course.value('n_benches')
         self.pkl_path   = self.setting_Course.value('pkl_path')
-
+        
+        self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode').lower() == "true"
+        
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
         if not self.year: self.year = self.default_settings['year']
@@ -507,6 +510,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
+        if not self.extended_attlist_mode: self.extended_attlist_mode = self.default_settings['extended_attlist_mode']
         
         self.tabWidget.setCurrentIndex(0)
 
@@ -537,7 +541,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'@  {self.room}')
+        self.location_label.setText(f'@ {self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
         
 
@@ -551,9 +555,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.thread={}
         self.LocalCopyMode = False
         self.isCopyFileRunning = False
-        self.extended_attlist_mode = False
         self.is_gpc_reboot_running = False
         self.is_laptop_reboot_running = False
+        self.can_copy_htmlfiles = False
         
         self.lineEdit_TAname.setEnabled(False)
         self.overwite_ta_name = False
@@ -561,9 +565,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
         self.pushButton_att.setEnabled(False)
+        self.pushButton_copyfiles.setEnabled(False)
 
         if self.comboBox_exp_id.currentText() != '':
             self.pushButton_Watt.setEnabled(True)
+        
+        if self.comboBox_session.currentText() != '' and self.comboBox_exp_id.currentText() != '':
+            self.pushButton_att.setEnabled(True)
+        
+        self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
 
         #-- progress bars ---
         self.copy_pbar = QProgressBar()
@@ -605,7 +615,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.generate_html)
         self.comboBox_exp_id.activated.connect(self.set_exp_id)
+        self.comboBox_exp_id.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_session.activated.connect(self.set_session_id)
+        self.comboBox_session.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_room.activated.connect(self.set_pc_txt_path)
 
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
@@ -626,6 +638,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
+    
+    def check_comboboxes(self):
+        if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
+            self.pushButton_att.setEnabled(True)
     
     def show_weekly_att(self):
         pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode)
@@ -851,10 +867,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.exp_id = self.exp_list[self.exp]
             logging.info(f' Selected exp_id:{self.exp_id}')
             self.pushButton_Watt.setEnabled(True)
+            if self.can_copy_htmlfiles:
+                self.pushButton_copyfiles.setEnabled(True)
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()
-        self.pushButton_att.setEnabled(True)
         
         if self.session:
             self.session_id = self.session_list[self.session]
@@ -893,6 +910,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id[0])
                 logging.debug(f' There are {n_stud} students enrolled in this session.')
         
+        if n_stud == 0:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText(f"No student found in the selected session.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
+
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -903,7 +928,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"Please make sure exp_* (experiments list) exists in the main course directory.")
+                dlg.setText(f"Make sure exp_* (experiments list) exists in the main course directory.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
@@ -935,7 +960,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
+                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
+                if html_dir:
+                    self.can_copy_htmlfiles = True
+                    if self.comboBox_exp_id.currentText() != '':
+                        self.pushButton_copyfiles.setEnabled(True)
+
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
@@ -1105,6 +1135,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             #self.setting_Course.setValue('pkl_path', self.pkl_path)
+            self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
             try:
                 event.accept()
                 logging.debug('The application exited Normaly.')

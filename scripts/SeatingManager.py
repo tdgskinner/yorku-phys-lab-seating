@@ -11,14 +11,12 @@ import math
 from PIL import Image, ImageFont, ImageDraw
 import re
 
-from pylatex import Document, Tabular, MultiColumn, VerticalSpace
+from pylatex import Document, Tabular
 import pylatex as pl
 from pylatex.utils import NoEscape
 from pylatex import utils, NewPage
 
 logger = logging.getLogger(__name__)
-
-
 
 #------------------------------------------------------------
 def sort_helper(item):
@@ -46,9 +44,10 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
 
     # Create a LaTeX document
     if extended_attlist_mode:
-        geometry_options = {"tmargin": "0.6in", "lmargin": "0.4in", "bmargin": "0.2in", "rmargin": "0.4in"}
+        geometry_options = {"tmargin": "0.6in", "lmargin": "0.2in", "bmargin": "0.2in", "rmargin": "0.3in"}
     else:
         geometry_options = {"tmargin": "0.6in", "lmargin": "1in", "bmargin": "0.2in", "rmargin": "1in"}
+    
     doc = Document(geometry_options=geometry_options)
 
     for session_id in session_ids:
@@ -57,14 +56,52 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         session_df = df.loc[df['session_id'].str.strip()==session_id[0]]
 
         # Prepare the data for the table
+        table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{4cm}|'
         session_df = session_df[['first_name', 'surname']]
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
         session_df['Attendance'] = ''
+        
         if extended_attlist_mode:
-            session_df['G#'] = ''
-            session_df['On Time'] = ''
-            session_df['Tidiness'] = ''
-            session_df['Participation'] = ''
+            if code =='1801':
+                if Exp_id == 2:
+                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.2cm}|' + 'p{3.2cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.8cm}|'+ 'p{2cm}|'
+                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
+                    session_df["LA1\n(2 marks)"] = ""
+                    session_df["LA2\n(4 marks)"] = ""
+                    session_df["LA3\n(4 marks)"] = ""
+                    session_df["Bonus\n(1 marks)"] = ""
+                    session_df["Total\n(10 marks)"] = ""
+                    footer = 'LA1 - Used DMM to measure the output voltage of a potentiometer\nLA2 - Wrote LabVIEW for data acquisition of the output voltage from potentiometer\nLA3 - Wrote LabVIEW program for control of DC motor\nBonus - Able to add additional control to stop motor with the "STOP" button'
+
+                elif Exp_id == 3:
+                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
+                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
+                    session_df["LA1\n(5 marks)"] = ""
+                    session_df["LA2\n(5 marks)"] = ""
+                    session_df["Bonus\n(2 marks)"] = ""
+                    session_df["Total\n(10 marks)"] = ""
+                    footer = 'LA1 - Wheatstone bridge circuit operates correctly\nLA2 - Digital Thermometer operates correctly\nBonus - Fan switches on when temperature is too high'
+                elif Exp_id == 5:
+                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'
+                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
+                    session_df["LA1\n(2 marks)"] = ""
+                    session_df["LA2\n(3 marks)"] = ""
+                    session_df["InLab\nTotal"] = ""
+                    footer = 'LA1 - Circuit works as expected with magnet\nLA2 - Digital Speedometer works properly'
+                elif Exp_id == 9:
+                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{2cm}|'
+                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
+                    session_df["LA2\n(3 marks)"] = ""
+                    footer = 'LA2 - Successfully able to decipher number sent using Oscilloscope'
+        
+            else:
+                table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.8cm}|'+ 'p{0.5cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
+                session_df['G#'] = ''
+                session_df['On Time'] = ''
+                session_df['Tidiness'] = ''
+                session_df['Participation'] = ''
+        
+            
      
         session_df.insert(0, ' ', range(1, 1 + len(session_df)))
 
@@ -83,11 +120,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
 
         doc.append(pl.NoEscape('}'))
 
-        # Create the Tabular environment
-        if extended_attlist_mode:
-            table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.8cm}|'+ 'p{0.5cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
-        else:
-            table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{4cm}|'
+        # Create the Table
         with doc.create(Tabular(table_spec, pos='t', row_height=1.3)) as table:
             table.add_hline()
             table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
@@ -103,9 +136,12 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
                 table.add_hline()
                 counter += 1
 
+        doc.append('\n\n\n')  # Add some space between table and caption
+        doc.append(footer)
+        
         # Add a page break after each table
         doc.append(NoEscape(r'\newpage'))
-
+        
     # Save the multipage PDF using pdflatex as the LaTeX compiler
     output_dir = os.path.join(user_data_dir, f'output_{code}')
     if not os.path.exists(output_dir):
