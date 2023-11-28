@@ -49,6 +49,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         geometry_options = {"tmargin": "0.6in", "lmargin": "1in", "bmargin": "0.2in", "rmargin": "1in"}
     
     doc = Document(geometry_options=geometry_options)
+    footer = ''
 
     for session_id in session_ids:
         session_info = list(filter(lambda x: sessions[x] == session_id, sessions))[0]
