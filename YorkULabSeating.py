@@ -17,7 +17,7 @@ import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
 
-appVersion = '6.7.1'
+appVersion = '6.7.2'
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
