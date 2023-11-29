@@ -27,7 +27,18 @@ os.makedirs(user_data_dir, exist_ok=True)
 
 #--------------------------------------------------------------------------------
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+    """
+    Get the absolute path to a resource file.
+
+    This function takes a relative path to a resource file and returns the absolute path to that file.
+    It works for both development and PyInstaller builds.
+
+    Parameters:
+    relative_path (str): The relative path to the resource file.
+
+    Returns:
+    str: The absolute path to the resource file.
+    """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS2
@@ -37,6 +48,10 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 #--------------------------------------------------------------------------------
 class OutputWrapper(QObject):
+    """
+    A class that wraps the standard output or error stream and emits a signal whenever text is written to it.
+    """
+
     outputWritten = QtCore.pyqtSignal(object, object)
 
     def __init__(self, parent, stdout=True):
@@ -63,10 +78,19 @@ class OutputWrapper(QObject):
         
 
     def write(self, text):
+        """
+        Writes the specified text to the stream and emits the outputWritten signal.
+
+        Args:
+            text (str): The text to be written to the stream.
+        """
         self._original_stream.write(text)
         self.outputWritten.emit(text, self._stdout)
 
     def flush(self):
+        """
+        Flushes the stream.
+        """
         self._original_stream.flush()
 
     def __getattr__(self, name):
@@ -1116,6 +1140,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusbox.setTextColor(color)
 
     def closeEvent(self, event):
+        """
+        Event handler for the close event of the application window.
+        Asks the user for confirmation before closing the program.
+        Stores the current settings in the system before closing.
+
+        Args:
+            event (QCloseEvent): The close event object.
+
+        Returns:
+            None
+        """
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Warning")
         dlg.setText("Are you sure you want to close the program?")
@@ -1141,7 +1176,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
             try:
                 event.accept()
-                logging.debug('The application exited Normaly.')
+                logging.debug('The application exited normally.')
             except Exception as e:
                 logging.error(f'The application exited with error: {e}')
             
@@ -1150,6 +1185,18 @@ class MainWindow(QtWidgets.QMainWindow):
     #--------------------------------------------------------------------------------
     
     def check_for_update(self):
+        """
+        Check for updates and download the latest version if available.
+
+        This method fetches update information from a GitHub Pages URL and compares the latest version with the installed version.
+        If a newer version is available, it prompts the user to download it to a selected location.
+
+        Raises:
+            Exception: If there is an error fetching update information or checking for updates.
+
+        Returns:
+            None
+        """
         # GitHub Pages URL where your update_info.json is hosted
         update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/update_info.json"
 
