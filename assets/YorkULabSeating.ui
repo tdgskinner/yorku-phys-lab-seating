@@ -875,6 +875,22 @@ p, li { white-space: pre-wrap; }
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_update_check">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>40</y>
+        <width>131</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 170, 255)</string>
+      </property>
+      <property name="text">
+       <string>Check for update</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>

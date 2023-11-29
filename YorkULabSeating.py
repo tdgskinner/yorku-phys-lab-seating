@@ -24,42 +24,6 @@ user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManage
 
 # Create directories if they don't exist
 os.makedirs(user_data_dir, exist_ok=True)
-#--------------------------------------------------------------------------------
-def check_for_update():
-    # GitHub Pages URL where your update_info.json is hosted
-    update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/update_info.json"
-
-    try:
-        # Fetch update information from the GitHub Pages URL
-        response = requests.get(update_info_url)
-        update_info = response.json()
-
-        # Extract version information from the JSON response
-        latest_version = update_info.get('version')
-        print(latest_version)
-        # Compare latest version with your installed version
-        #installed_version = "1.0.0"  # Replace this with your actual installed version
-        if latest_version != appVersion:
-            # Alert the user about the update
-            reply = QMessageBox.question(
-                None,
-                "Update Available",
-                f"A new version ({latest_version}) is available. Do you want to update?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            )
-
-            if reply == QMessageBox.StandardButton.Yes:
-                # Open the download URL in a browser to prompt the user for download
-                download_url = update_info.get('download_url')
-                if download_url:
-                    import webbrowser
-                    webbrowser.open(download_url)
-        else:
-            QMessageBox.information(None, "No Updates", "You have the latest version.")
-
-    except Exception as e:
-        print(f"Error fetching update information: {e}")
-        QMessageBox.critical(None, "Error", "Failed to check for updates.")
 
 #--------------------------------------------------------------------------------
 def resource_path(relative_path):
@@ -649,6 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_lpc_remote_files.setIcon(icon_file)
 
         #--signal and slots
+        self.pushButton_update_check.clicked.connect(self.check_for_update)
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.generate_html)
@@ -1182,7 +1147,58 @@ class MainWindow(QtWidgets.QMainWindow):
             
         else:
             event.ignore()
+    #--------------------------------------------------------------------------------
+    
+    def check_for_update(self):
+        # GitHub Pages URL where your update_info.json is hosted
+        update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/update_info.json"
 
+        try:
+            # Fetch update information from the GitHub Pages URL
+            response = requests.get(update_info_url)
+            update_info = response.json()
+
+            # Extract version information from the JSON response
+            latest_version = update_info.get('version')
+            logging.debug(f'latest_version: {latest_version}')
+
+            # Compare latest version with your installed version
+            if latest_version != appVersion:
+                # Alert the user about the update
+                reply = QMessageBox.question(
+                    None,
+                    "Update Available",
+                    f"A new version ({latest_version}) is available. Do you want to download it?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                )
+
+                if reply == QMessageBox.StandardButton.Yes:
+                    # Get the default Windows download folder
+                    default_download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+
+                    # Prompt user to select download location starting from the default download folder
+                    file_dialog = QFileDialog()
+                    file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+                    save_path = file_dialog.getExistingDirectory(None, "Select Download Location", default_download_folder)
+
+                    if save_path:
+                        # Download the file to the selected location
+                        download_url = update_info.get('download_url')
+                        if download_url:
+                            response = requests.get(download_url)
+                            file_name = download_url.split('/')[-1]
+                            file_path = f"{save_path}/{file_name}"
+                            with open(file_path, 'wb') as file:
+                                file.write(response.content)
+                            QMessageBox.information(
+                                None, "Download Complete", f"File downloaded to: {file_path}"
+                            )
+            else:
+                QMessageBox.information(None, "No Updates", "You have the latest version.")
+
+        except Exception as e:
+            print(f"Error fetching update information: {e}")
+            QMessageBox.critical(None, "Error", "Failed to check for updates.")
 #--------------------------------------------------------------------------------
 class CopyFileThread(QThread):
     progress = pyqtSignal(int)
@@ -1393,7 +1409,5 @@ if __name__ == '__main__':
 
     # Use QTimer to delay the appearance of the main window after 3 seconds
     QtCore.QTimer.singleShot(3000, lambda: show_main_window(app))
-    
-    check_for_update()
     
     sys.exit(app.exec())
