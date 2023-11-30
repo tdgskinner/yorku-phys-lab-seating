@@ -16,8 +16,7 @@ import scripts.SeatingManager as seating
 import scripts.GPcManager as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
-
-appVersion = '6.7.2'
+import json
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
@@ -485,9 +484,12 @@ class lpc_file_manager(QDialog):
 
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, appVersion, appDate):
         super().__init__()
-
+        
+        self.appVersion = appVersion
+        self.appDate = appDate
+        
         # Default settings will be set if no stored settings found from previous session
         self.default_settings = {
             'year':'2023', 
@@ -504,6 +506,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
         self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating.ui')),self)
+
+        self.label_appVersion.setText(f'v{self.appVersion} , {self.appDate}')
+
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -987,7 +992,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, appVersion, self.ta_name)
+                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.ta_name)
                 if html_dir:
                     self.can_copy_htmlfiles = True
                     if self.comboBox_exp_id.currentText() != '':
@@ -1210,7 +1215,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'latest_version: {latest_version}')
 
             # Compare latest version with your installed version
-            if latest_version != appVersion:
+            if latest_version != self.appVersion:
                 # Alert the user about the update
                 reply = QMessageBox.question(
                     None,
@@ -1423,8 +1428,12 @@ class Reboot_PC_Thread(QThread):
 if __name__ == '__main__':
     
     def show_main_window(app):
+        with open("update_info.json", "r") as json_file:
+            data = json.load(json_file)
+            appVersion = data["version"]
+            appDate = data["date"]
         #print('Welcome to YU LabManager')
-        mainWindow = MainWindow()
+        mainWindow = MainWindow(appVersion,appDate)
         mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
         mainWindow.show()
         splash.finish(mainWindow)

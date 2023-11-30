@@ -838,24 +838,6 @@ p, li { white-space: pre-wrap; }
      <attribute name="title">
       <string>About</string>
      </attribute>
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>350</x>
-        <y>30</y>
-        <width>321</width>
-        <height>301</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-       </font>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;YU LabManager&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;V 6.7.2, Nov 2023&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Developed by Mohammad Kareem, PhD&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Calibri,sans-serif'; color:#000000;&quot;&gt;Laboratory Technologist&lt;/span&gt;&lt;/p&gt;&lt;p&gt;mkareem@yorku.ca&lt;/p&gt;&lt;p&gt;Department of Physics &amp;amp; Astronomy&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Faculty of Science | &lt;/span&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000; text-transform:uppercase;&quot;&gt;York University&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;Petrie Science &amp;amp; Engineering 122&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:8.5pt; color:#000000;&quot;&gt;4700 Keele Street Toronto ON, Canada M3J 1P3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_9">
       <property name="geometry">
        <rect>
@@ -878,8 +860,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="pushButton_update_check">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>40</y>
+        <x>90</x>
+        <y>50</y>
         <width>131</width>
         <height>28</height>
        </rect>
@@ -890,6 +872,78 @@ p, li { white-space: pre-wrap; }
       <property name="text">
        <string>Check for update</string>
       </property>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>30</y>
+        <width>361</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_appName">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>YU LabManager</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_appVersion">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>&lt;version&gt;, &lt;date&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Maximum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>50</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_author">
+         <property name="text">
+          <string>Developed by Mohammad Kareem, PhD
+
+Laboratory Technologist
+
+mkareem@yorku.ca
+
+Department of Physics &amp; Astronomy
+Faculty of Science | York University
+Petrie Science &amp; Engineering 122
+4700 Keele Street Toronto ON, Canada M3J 1P3</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>
