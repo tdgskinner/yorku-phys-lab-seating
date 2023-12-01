@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Page</title>
+        <link rel="stylesheet" type="text/css" href="test_css.css">
+      </head>
+<body>
+  <header>
+    <div class="logo"></div>
+    <div class="session-info">PHYS 1421, Session: Monday, 14:30, TA: Mohammad</div>
+    <div id="time" class="session-info"></div>
+  </header>
+
+  <div class="main-body">
+    <div class="table-container">
+      <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Group 1</div>
+      <table class="table" style="width: calc(100% - 10px); margin-left: 5px;">
+        <tbody>
+          <tr>
+            <td>Name 1</td>
+            <td>Name 2</td>
+          </tr>
+          <tr>
+            <td>Name 3</td>
+            <td>Name 4</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tips-title">Useful Tips</div>
+      <div class="iframe-text" contenteditable="False">
+        <iframe src="inputs/Angular_Motion.html" frameborder="0"></iframe>
+      </div>
+    </div>
+    <div class="photo-container">
+      <div class="image-header">Exp 5: Angular Motion</div>
+      <div class="photo" style="background-image: url('Osc_Motion.png');">
+    </div>
+  </div>
+
+  <footer>
+    Small font footer text
+  </footer>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      const options = { hour: 'numeric', minute: 'numeric' };
+      const timeElement = document.getElementById('time');
+      timeElement.textContent = now.toLocaleTimeString([], options);
+    }
+  
+    updateTime();
+    setInterval(updateTime, 60000); // Update time every minute
+  </script>
+</body>
+</html>

@@ -426,8 +426,6 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
 
     logger.debug(f'pkl_path: {pkl_path}')
     logger.debug(f'html_dir: {html_dir}')
-
-    html_grid_type= 4 if n_benches == 4 else 2
     
 
     #creating a fresh html directory
@@ -457,7 +455,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
         #creating html files
-        comp_html_generator(e, n_max_group, html_grid_type, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+        comp_html_generator(e, n_max_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
     
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
@@ -500,7 +498,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                                 <div class="column", style="width:50%">
                                     <div class="vertical-menu", style="width:100%">
                                         <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
-                                        <div class="grid-container{html_grid_type}">
+                                        <div class="grid-container">
                                             {newline.join(stud for stud in stud_list)}
                                         </div>
                                         <h3> Useful tip:</h3>
@@ -573,7 +571,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                                     <div class="column", style="width:50%">
                                         <div class="vertical-menu", style="width:100%">
                                             <h2><a href="#" class="active"><b>Group {g+1}</b></a></h2>
-                                            <div class="grid-container{html_grid_type}">
+                                            <div class="grid-container">
                                                 {newline.join(stud for stud in blank_stud_list)}
                                             </div>
                                             <h3> Useful tip:</h3>
@@ -610,7 +608,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
     return html_dir
 #------------------------------------------------------------
-def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
+def comp_html_generator(exp, n_max_group, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
     n_group = len(dict[1][2])
     
     f_html = os.path.join(output_dir, 'g99.html')
@@ -618,7 +616,7 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
 
     blank_group = []
     for i in range(4):
-        row = '<div class="grid-item_compact"><a href="#">  </a></div>'
+        row = '<div class="grid-item"><a href="#">  </a></div>'
         blank_group.append(row)
 
     for g in range(n_group):
@@ -626,7 +624,7 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
         df.index += 1
         _list = []
         for i in range(len(df)):
-            row = '<div class="grid-item_compact"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
+            row = '<div class="grid-item"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
             _list.append(row)
        
         stud_list.append(_list)     
@@ -635,14 +633,14 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
 
     seating_header = f'''
         <div class="row">
-            <div class="column", style="width:20%;padding:0px">
+            <div class="column", style="width:20%">
                 <img src=yorku-logo.jpg , style="height:30px; padding:0cm">
             </div>
             <div class="column", style="width:65%">
-                <h1 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h1>
+                <h3 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h3>
             </div>
             <div class="column", style="width:15%">
-                <h2><span id="ct"> </span></h2>
+                <h3><span id="ct"> </span></h3>
             </div>
         </div>
     '''
@@ -654,9 +652,9 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
     for g in g_list[:math.ceil(n_max_group/2)]:
         if g <= n_group:
             col1_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px">
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
                         {newline.join(stud for stud in stud_list[g-1])}
                     </div>
                 </div>
@@ -664,9 +662,9 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
         # handeling empty groups
         else:
             col1_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px>
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
                         {newline.join(stud for stud in blank_group)}
                     </div>
                 </div>
@@ -676,15 +674,23 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
     for g in g_list[math.ceil(n_max_group/2):]:
         if g <= n_group:
             col2_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px">
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
                         {newline.join(stud for stud in stud_list[g-1])}
                     </div>
                 </div>
             '''
         # handeling empty groups
-        
+        else:
+            col2_groups += f'''
+                <div class="vertical-menu", style="width:100%">
+                    <h2><a href="#" class="active"><b>Group {g}</b></a></h2>
+                    <div class="grid-container">
+                        {newline.join(stud for stud in blank_group)}
+                    </div>
+                </div>
+            '''
     seating_groups =f'''
         <div class="row", style="padding:0cm">
         <div class="column", style="width:30%">
@@ -696,17 +702,17 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
     '''
 
     seating_img_tip = f'''
-        <div class="column", style="width:40%;padding:0px">
+        <div class="column", style="width:40%">
                         <div class="vertical-menu", style="width:100%">
-                            <h2><a href="#" class="active", style="font-size:20"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
+                            <h2><a href="#" class="active"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
                         </div>
                         <div class="wrapper_all">
                             <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } >
                         </div>
                         <div class="wrapper_all_tip">
-                        <h2> Useful tip:</h2>
+                        <h3> Useful tip:</h3>
                             <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
-                                style="background-color:rgb(255, 230, 230);border:2px solid #b71414;font-size:18px"
+                                style="background-color:rgb(255, 230, 230);border:2px solid #b71414;"
                                 width="100%"
                                 height="300px">
                             </iframe>
