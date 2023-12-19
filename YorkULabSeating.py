@@ -13,7 +13,8 @@ from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout,
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 
 import scripts.SeatingManager as seating
-import scripts.GPcManager as gpc
+#import scripts.GPcManager as gpc
+import scripts.GPcManager2 as gpc
 from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
 import json
