@@ -416,7 +416,197 @@ def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, 
     except:
         logger.error(f' Failed to write {pkl_path} to disk', exc_info = True)
         return None
-      
+#------------------------------------------------------------
+def generate_html_table(stud_list, n_benches):
+    num_stud = len(stud_list)
+    num_rows = -(-n_benches // 2) if n_benches > 0 else 1  # Calculate number of rows based on n_benches
+    
+    html_table = "<tbody>\n"
+    
+    for i in range(num_rows):
+        html_table += "  <tr>\n"
+        for j in range(2):
+            index = i * 2 + j
+            if index < num_stud:
+                html_table += f"    <td>{stud_list[index]}</td>\n"
+            else:
+                html_table += f"    <td> --- </td>\n"
+        html_table += "  </tr>\n"
+    
+    html_table += "</tbody>"
+    return html_table
+#------------------------------------------------------------
+def html_generator2(user_data_dir, pkl_path, code, n_max_group, n_benches, version, ta_name = None):
+    logger.debug(f'ta_name = {ta_name}')
+    out_dir = os.path.join(user_data_dir, f'output_{code}')
+    html_dir = os.path.join(out_dir, 'html')
+
+    logger.debug(f'pkl_path: {pkl_path}')
+    logger.debug(f'html_dir: {html_dir}')
+
+    html_grid_type= 4 if n_benches == 4 else 2
+    
+
+    #creating a fresh html directory
+    if os.path.exists(html_dir):
+        shutil.rmtree(html_dir)
+    os.makedirs(html_dir)
+    
+    dict = _load_student_groups(pkl_path, print_result=False)
+    
+    n_exp = len(dict)
+    n_group = len(dict[1][2])
+    
+    logger.debug(f'n_exp: {n_exp}')
+    logger.debug(f'n_group: {n_group}')
+
+    time_js = '''
+        <script>
+            function updateTime() {
+              const now = new Date();
+              const options = { hour: 'numeric', minute: 'numeric' };
+              const timeElement = document.getElementById('time');
+              timeElement.textContent = now.toLocaleTimeString([], options);
+            }
+
+            updateTime();
+            setInterval(updateTime, 60000); // Update time every minute
+        </script>
+        '''
+ 
+    for e in range (1, n_exp+1, 1):
+        output_dir = os.path.join(html_dir, f'exp{e}')
+
+        #creating output directory if not exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        df_exp_metadata = dict[e][0]
+        df_time_metadata = dict[e][1]
+
+        if ta_name == None:
+            ta_name = df_time_metadata['Instructor'].iloc[0]
+        
+        #creating html files
+        comp_html_generator(e, n_max_group, html_grid_type, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+    
+        for g in range(n_group):
+            df = dict[e][2][g].reset_index(drop=True)
+            df.index += 1
+            
+            f_html = os.path.join(output_dir, f'g{g+1}.html')
+            
+            with open(f_html, 'w') as html_seating_file:
+                stud_list = []
+                for i in range(len(df)):
+                    row = df.iloc[i,2] +' '+ df.iloc[i,1]
+                    stud_list.append(row)
+                
+                html_table = generate_html_table(stud_list, n_benches)
+                
+                seating_contents = f'''<!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <title>YU LabManager</title>
+                        <meta http-equiv="refresh" content="15">
+                        <link rel="stylesheet" type="text/css" href="style2.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                    </head>
+                    <body>
+                    <header>
+                        <div class="logo"></div>
+                        <div class="session-info">PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</div>
+                        <div id="time" class="session-info"></div>
+                    </header>
+                    <div class="main-body">
+                        <div class="table-container">
+                          <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Group {g+1}</div>
+                          <table class="table" style="width: calc(100% - 10px); margin-left: 5px;">
+                            {html_table}
+                          </table>
+                          <div class="tips-title">Useful Tips</div>
+                          <div class="iframe-content" contenteditable="False">
+                            <iframe src="tip/{df_exp_metadata['exp_tip'].iloc[0]}" frameborder="0"></iframe>
+                          </div>
+                        </div>
+                        <div class="photo-container">
+                          <div class="image-header">Exp {df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</div>
+                          <div class="photo" style="background-image: url('img/{df_exp_metadata['exp_img'].iloc[0]}');">
+                        </div>
+                        </div>
+
+                        <footer>
+                            YU LabManager V{version}
+                        </footer>
+
+                        {time_js} 
+
+                    </body>
+                    </html>
+                    '''
+                try:
+                    html_seating_file.write(seating_contents)
+                except:
+                    logger.error(f' Failed to write html files to disk', exc_info = True)
+                    return None
+        
+        #Creating blank html page
+        if n_max_group > n_group:
+            for g in range(n_group, n_max_group):
+                blank_f_html = os.path.join(output_dir, f'g{g+1}.html')
+                
+                with open(blank_f_html, 'w') as blank_html_seating_file:
+                    blank_stud_list = []
+                    for i in range(n_benches):
+                        row = ' --- '
+                        blank_stud_list.append(row)
+                    
+                    blank_html_table = generate_html_table(blank_stud_list, n_benches)
+                    blank_seating_contents = f'''<!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <title>YU LabManager</title>
+                        <meta http-equiv="refresh" content="15">
+                        <link rel="stylesheet" type="text/css" href="style2.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                    </head>
+                    <body>
+                    <header>
+                        <div class="logo"></div>
+                        <div class="session-info">PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</div>
+                        <div id="time" class="session-info"></div>
+                    </header>
+                    <div class="main-body">
+                        <div class="table-container">
+                          <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Group {g+1}</div>
+                          <table class="table" style="width: calc(100% - 10px); margin-left: 5px;">
+                            {blank_html_table}
+                          </table>
+                          <div class="tips-title">Useful Tips</div>
+                          <div class="iframe-content" contenteditable="False">
+                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0])}" frameborder="0"></iframe>
+                          </div>
+                        </div>
+                        <div class="photo-container">
+                          <div class="image-header">Exp {df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</div>
+                          <div class="photo" style="background-image: url('img/{df_exp_metadata['exp_img'].iloc[0]}');">
+                        </div>
+                        </div>
+
+                        <footer>
+                            YU LabManager V{version}
+                        </footer>
+                        {time_js} 
+                    </body>
+                    </html>
+                    '''
+                    try:
+                        blank_html_seating_file.write(blank_seating_contents)
+                    except:
+                        logger.error(f' Failed to write blank html files to disk', exc_info = True)
+                        return None
+
+                
+    logger.info(f' Seating html files are generated and written to {html_dir} successfully!')
+    return html_dir      
     
 #------------------------------------------------------------
 def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, version, ta_name = None):
@@ -478,7 +668,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                             <meta name="viewport" content="width=device-width, initial-scale=1">
                             <meta http-equiv="refresh" content="15">
-                            <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                            <link rel="stylesheet" href="style1.css?v={round(random.randint(0, 1000)/100, 2 )}">
                             <script type="text/javascript" src="time.js"></script>
                             
                             </head>
@@ -551,7 +741,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                                 <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
                                 <meta name="viewport" content="width=device-width, initial-scale=1">
                                 <meta http-equiv="refresh" content="15">
-                                <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+                                <link rel="stylesheet" href="style1.css?v={round(random.randint(0, 1000)/100, 2 )}">
                                 <script type="text/javascript" src="time.js"></script>
                                 
                                 </head>
@@ -722,7 +912,7 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
             <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta http-equiv="refresh" content="15">
-            <link rel="stylesheet" href="style.css?v={round(random.randint(0, 1000)/100, 2 )}">
+            <link rel="stylesheet" href="style1.css?v={round(random.randint(0, 1000)/100, 2 )}">
             <script type="text/javascript" src="time.js"></script>                
         </head>
 

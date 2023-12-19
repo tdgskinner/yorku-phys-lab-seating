@@ -20,7 +20,7 @@
     .logo {
       width: 10%;
       height: 30px;
-      background-image: url('test-img/yorku-logo.jpg');
+      background-image: url('yorku-logo.jpg');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -86,7 +86,7 @@
 .iframe-content {
         width: calc(100% - 30px); /* Adjust width to accommodate border */
         /* Modify the height to fit the content without causing a scrollbar */
-        height:520px; /* Set the height: 520px:125%. 370px: 150%*/
+        height:370px; /* Set the height: 520px:125%. 370px: 150%*/
        
         border: 1px solid #ddd;
         margin-top: 20px;
@@ -110,7 +110,7 @@
     }
     .photo {
       width: 100%;
-      height:690px; /* Set the height: 690px: 125%, 540px: 150% */
+      height:540px; /* Set the height: 680px: 125%, 540px: 150% */
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;

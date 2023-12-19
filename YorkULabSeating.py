@@ -992,7 +992,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.ta_name)
+                html_dir = seating.html_generator2(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.ta_name)
                 if html_dir:
                     self.can_copy_htmlfiles = True
                     if self.comboBox_exp_id.currentText() != '':

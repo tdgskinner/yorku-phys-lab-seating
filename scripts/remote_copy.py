@@ -40,7 +40,8 @@ class MyRemoteCopyFile:
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
         out_dir = os.path.join(user_data_dir, f'output_{code}')
-        css_path = os.path.join(cwd, 'assets', 'style.css')
+        css_path_1 = os.path.join(cwd, 'assets', 'style1.css')
+        css_path_2 = os.path.join(cwd, 'assets', 'style2.css')
         js_path = os.path.join(cwd, 'assets', 'time.js')
         YUlogo_path = os.path.join(cwd,'assets','yorku-logo.jpg')
         img_dir_path = os.path.join(src_dir ,'img')
@@ -59,7 +60,8 @@ class MyRemoteCopyFile:
         if not os.path.exists(self.web_directory):
             os.makedirs(self.web_directory)
         
-        self._force_copy(css_path, os.path.join(self.web_directory,'style.css'))
+        self._force_copy(css_path_1, os.path.join(self.web_directory,'style1.css'))
+        self._force_copy(css_path_2, os.path.join(self.web_directory,'style2.css'))
         self._force_copy(js_path, os.path.join(self.web_directory,'time.js'))
         self._force_copy(YUlogo_path, os.path.join(self.web_directory,'yorku-logo.jpg'))
         self._force_copy(img_dir_path, os.path.join(self.web_directory,'img'), type='dir')
