@@ -12,3 +12,6 @@ test*.py
 **/time_*.csv
 example.csv
 **/*_GroupPC_list.txt
+*.spec
+dist/
+build/

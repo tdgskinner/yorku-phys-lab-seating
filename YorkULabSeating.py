@@ -1204,7 +1204,7 @@ class MainWindow(QtWidgets.QMainWindow):
             None
         """
         # GitHub Pages URL where your update_info.json is hosted
-        update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/update_info.json"
+        update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/assets/update_info.json"
 
         try:
             # Fetch update information from the GitHub Pages URL
@@ -1429,11 +1429,12 @@ class Reboot_PC_Thread(QThread):
 if __name__ == '__main__':
     
     def show_main_window(app):
-        with open("update_info.json", "r") as json_file:
+        #with open("update_info.json", "r") as json_file:
+        with open(resource_path(os.path.join('assets', 'update_info.json'))) as json_file:
             data = json.load(json_file)
             appVersion = data["version"]
             appDate = data["date"]
-        #print('Welcome to YU LabManager')
+        
         mainWindow = MainWindow(appVersion,appDate)
         mainWindow.setWindowTitle(f'YU LabManager - v{appVersion}')
         mainWindow.show()
@@ -1450,7 +1451,7 @@ if __name__ == '__main__':
     splash.setMask(splash_pix.mask())
 
     # Add a label to the splash screen
-    splash_label = QLabel("Loading...", splash)
+    splash_label = QLabel("", splash)
     splash_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     splash_label.setStyleSheet("QLabel { color : white; }")
 
