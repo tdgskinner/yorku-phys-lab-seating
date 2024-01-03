@@ -14,11 +14,10 @@ def extract_pc_list(pc_txt_path):
             if line and not line.startswith('#'):
                 tmp = line.split(',')
                 tmp = [x.strip() for x in tmp]
-                logger.debug(f'tmp: {tmp[-1]}')
-                if tmp[-1] == 'G':
+                if tmp[-1].lower() == 'g':
                     gpc_list.append(tmp[0])
                     gpc_map[tmp[0]] = [int(tmp[1]), int(tmp[2]), int(tmp[3]), int(tmp[4])]
-                elif tmp[-1] == 'L':
+                elif tmp[-1].lower() == 'l':
                     laptop_list.append(tmp[0])
 
     logger.debug(f'gpc_list: {gpc_list}')
