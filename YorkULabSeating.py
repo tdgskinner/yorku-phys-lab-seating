@@ -530,7 +530,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_benches  = self.setting_Course.value('n_benches')
         self.pkl_path   = self.setting_Course.value('pkl_path')
         
-        self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode').lower() == "true"
+        self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode')
         
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
@@ -542,7 +542,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
         if not self.n_benches: self.n_benches = self.default_settings['n_benches']
         if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
-        if not self.extended_attlist_mode: self.extended_attlist_mode = self.default_settings['extended_attlist_mode']
+        
+        if not self.extended_attlist_mode:
+            self.extended_attlist_mode = self.default_settings['extended_attlist_mode']
+        else:
+            self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode').lower() == 'true'
         
         self.tabWidget.setCurrentIndex(0)
 
