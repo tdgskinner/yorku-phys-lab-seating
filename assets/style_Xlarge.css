@@ -1,0 +1,138 @@
+    /* ==========================================================================
+       CSS for X-large screens with Display scale 150%
+       ========================================================================== *
+    */  
+    body {
+      padding: 5px;  
+      font-family: Sans-serif;
+      margin: 0;
+      position: relative;
+    }
+    
+  
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      font-size: 22px;
+    }
+    .logo {
+      width: 10%;
+      height: 30px;
+      background-image: url('yorku-logo.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .session-info {
+      font-weight: bold;
+    }
+    footer {
+      text-align: left;
+      font-size: 10px;
+      font-style: italic;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 10px;
+    }
+    .main-body {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px;
+      margin-bottom: 40px;
+    }
+    .table-container {
+      flex: 1;
+      margin-right: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+.table {
+      font-size: 24px;
+      border-collapse: collapse;
+      width: calc(100% - 4px); /* Adjust width to accommodate border */
+      border: 3px solid #b71414;
+      background-color:rgb(255, 230, 230);
+      margin: 0;
+      padding: 0;
+      border-spacing: 0;
+      box-sizing: border-box; /* Include border in width calculation */
+}
+
+.table td,
+.table th {
+  border: 3px solid #b71414; /* Set the same border for table cells */
+  padding: 10px;
+  text-align: center;
+}
+/* Add a thicker border to the middle column cells */
+.table tbody td:nth-child(odd) {
+  border-right-width: 10px; /* Adjust the thickness of the right border */
+}
+.group-header {
+      font-size: 20px;
+      text-align: left;
+      font-weight: bold;
+      background-color: #b71414;
+      color: white;
+      width: calc(100% - 10px); /* Adjust width to accommodate border */
+      margin-left: 5px; /* Align with the table */
+      box-sizing: border-box; /* Include border in width calculation */
+    }
+.iframe-content {
+        width: calc(100% - 30px); /* Adjust width to accommodate border */
+        /* Modify the height to fit the content without causing a scrollbar */
+        height:350px; /* Set the height: 520px:125%. 350px: 150%*/
+       
+        border: 1px solid #ddd;
+        margin-top: 20px;
+        border: 2px solid #b71414;
+        background-color: rgb(255, 230, 230);
+        overflow: hidden; /* Hide overflow to prevent scrollbars */
+        padding: 10px
+    }
+    
+    .iframe-content iframe {
+        width: 100%;
+        height: 100%;
+        overflow: auto; /* Enable scroll bar only when content exceeds the iframe height */
+        overflow-wrap: break-word;
+        
+    }
+    .photo-container {
+      width: 50%;
+      border: 0px solid #000;
+      text-align: center;
+    }
+    .photo {
+      width: 100%;
+      height:540px; /* Set the height: 680px: 125%, 540px: 150% */
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .image-header,
+    .group-header {
+      text-align: left;
+      font-weight: bold;
+      font-size: 20px;
+      margin: 10px;
+      padding: 5px;
+      background-color: #b71414;
+      color: white;
+    }
+    .tips-title {
+      text-align: left;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #time {
+      font-size: 28px;
+      color: #b71414;
+    }
+
+    

@@ -29,7 +29,7 @@
       <x>10</x>
       <y>10</y>
       <width>751</width>
-      <height>431</height>
+      <height>451</height>
      </rect>
     </property>
     <property name="font">
@@ -103,6 +103,44 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <widget class="QPushButton" name="pushButton_grouping">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>[2] Generate groups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="4">
+         <widget class="QPushButton" name="pushButton_att">
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(161, 149, 255)</string>
+          </property>
+          <property name="text">
+           <string>Session Att.</string>
+          </property>
+         </widget>
+        </item>
         <item row="8" column="0" colspan="4">
          <widget class="QPushButton" name="pushButton_copyfiles">
           <property name="sizePolicy">
@@ -127,27 +165,6 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QPushButton" name="pushButton_grouping">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>[2] Generate groups</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="2">
          <widget class="QLabel" name="label_6">
           <property name="sizePolicy">
@@ -165,33 +182,6 @@
           </property>
           <property name="text">
            <string>[4] Exp</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="3" colspan="3">
-         <widget class="QComboBox" name="comboBox_exp_id"/>
-        </item>
-        <item row="6" column="4">
-         <widget class="QPushButton" name="pushButton_att">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(161, 149, 255)</string>
-          </property>
-          <property name="text">
-           <string>Session Att.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1" colspan="3">
-         <widget class="QLineEdit" name="lineEdit_TAname">
-          <property name="text">
-           <string>TA_name</string>
           </property>
          </widget>
         </item>
@@ -216,30 +206,6 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1" colspan="3">
-         <widget class="QComboBox" name="comboBox_session">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="4" colspan="2">
-         <widget class="QPushButton" name="pushButton_labLayout">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Lab Layout</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_15">
           <property name="sizePolicy">
@@ -260,20 +226,20 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="5">
-         <widget class="QPushButton" name="pushButton_Watt">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
+        <item row="4" column="1" colspan="3">
+         <widget class="QComboBox" name="comboBox_session">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(85, 85, 255)</string>
-          </property>
+         </widget>
+        </item>
+        <item row="6" column="1" colspan="3">
+         <widget class="QLineEdit" name="lineEdit_TAname">
           <property name="text">
-           <string>Weekly Att.</string>
+           <string>TA_name</string>
           </property>
          </widget>
         </item>
@@ -297,7 +263,24 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="4">
+        <item row="6" column="5">
+         <widget class="QPushButton" name="pushButton_Watt">
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(85, 85, 255)</string>
+          </property>
+          <property name="text">
+           <string>Weekly Att.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4" alignment="Qt::AlignRight">
          <widget class="QLabel" name="course_label">
           <property name="font">
            <font>
@@ -311,7 +294,31 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
+        <item row="6" column="6">
+         <widget class="QCheckBox" name="checkBox_extended_att">
+          <property name="text">
+           <string>Extended Att.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="4" colspan="3">
+         <widget class="QPushButton" name="pushButton_labLayout">
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Lab Layout</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3" colspan="4">
+         <widget class="QComboBox" name="comboBox_exp_id"/>
+        </item>
+        <item row="0" column="6" alignment="Qt::AlignLeft">
          <widget class="QLabel" name="location_label">
           <property name="font">
            <font>
@@ -322,6 +329,20 @@
           </property>
           <property name="text">
            <string>YYYY</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5" alignment="Qt::AlignHCenter">
+         <widget class="QLabel" name="course_label_2">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>@</string>
           </property>
          </widget>
         </item>
@@ -415,10 +436,72 @@
          <x>9</x>
          <y>9</y>
          <width>718</width>
-         <height>381</height>
+         <height>391</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
+        <item row="3" column="5">
+         <widget class="QLineEdit" name="lineEdit_code">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>xxxx</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QLabel" name="label_3">
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Location</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="4">
+         <widget class="QLabel" name="label_46">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Course Code</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QComboBox" name="comboBox_semester">
+          <item>
+           <property name="text">
+            <string>Fall</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Winter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Summer</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QComboBox" name="comboBox_room"/>
+        </item>
         <item row="0" column="0" colspan="3">
          <widget class="QLabel" name="label_38">
           <property name="sizePolicy">
@@ -460,6 +543,13 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_pc_dir">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item row="6" column="1">
          <widget class="QPushButton" name="pushButton_rebootLaptops">
           <property name="sizePolicy">
@@ -498,13 +588,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_pc_dir">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="0">
          <widget class="QLabel" name="label_40">
           <property name="sizePolicy">
@@ -532,20 +615,6 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
-         <widget class="QCheckBox" name="checkBox_debugMode">
-          <property name="text">
-           <string>Debug mode</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="2">
-         <widget class="QCheckBox" name="checkBox_localCopy">
-          <property name="text">
-           <string>Local copy</string>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="4" colspan="2">
          <widget class="QPushButton" name="pushButton_save_settings">
           <property name="styleSheet">
@@ -553,46 +622,6 @@
           </property>
           <property name="text">
            <string>Save</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_39">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Advanced</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_42">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Laptops</string>
           </property>
          </widget>
         </item>
@@ -629,17 +658,43 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="4">
-         <widget class="QLabel" name="label_14">
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_42">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Max # of seats</string>
+           <string>Laptops</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="4">
-         <widget class="QLabel" name="label_45">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_39">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Max # of groups</string>
+           <string>Advanced</string>
           </property>
          </widget>
         </item>
@@ -657,10 +712,24 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="4">
+         <widget class="QLabel" name="label_45">
+          <property name="text">
+           <string>Max # of groups</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="0" colspan="3">
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="4">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Max # of seats</string>
           </property>
          </widget>
         </item>
@@ -704,72 +773,24 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="5">
-         <widget class="QComboBox" name="comboBox_semester">
-          <item>
-           <property name="text">
-            <string>Fall</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Winter</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Summer</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QLabel" name="label_3">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+        <item row="5" column="2">
+         <widget class="QCheckBox" name="checkBox_small_scr">
           <property name="text">
-           <string>Location</string>
+           <string>Small Screen</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="4">
-         <widget class="QLabel" name="label_46">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+        <item row="9" column="4">
+         <widget class="QCheckBox" name="checkBox_debugMode">
           <property name="text">
-           <string>Course Code</string>
+           <string>Debug mode</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="5">
-         <widget class="QComboBox" name="comboBox_room"/>
-        </item>
-        <item row="3" column="5">
-         <widget class="QLineEdit" name="lineEdit_code">
-          <property name="font">
-           <font>
-            <weight>50</weight>
-            <bold>false</bold>
-           </font>
-          </property>
+        <item row="9" column="5">
+         <widget class="QCheckBox" name="checkBox_localCopy">
           <property name="text">
-           <string>xxxx</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QCheckBox" name="checkBox_extended_att">
-          <property name="text">
-           <string>Extended Att. list</string>
+           <string>Local copy</string>
           </property>
          </widget>
         </item>
@@ -797,9 +818,9 @@
           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:9.75pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;How to Use the Program:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; color:#0000ff;&quot;&gt;1. &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#0000ff;&quot;&gt;In the Settings Tab&lt;/span&gt;&lt;span style=&quot; font-size:12pt; color:#0000ff;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;   &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Course Main Directory:&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; Use the &amp;quot;Browse&amp;quot; button to locate the course directory, which should contain the following files: exp_*.csv (experiments table), stud_*.csv (enrolled students list), and time_*.csv (labs weekly schedule).&lt;/span&gt;&lt;/p&gt;
@@ -810,23 +831,23 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Copy/Delete Files:&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; Select files to copy or delete from the host PC to/from the listed laptops in the selected room, specifying the destination path.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#0000ff;&quot;&gt;2. In the Main Tab:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- Select Session and Room from the drop down manue&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Generate Groups:&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; Click &amp;quot;Generate groups&amp;quot; to create a .pkl file containing seating details for all experiments and students in the selected session.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Generate HTML&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;: Click &amp;quot;Generate HTML&amp;quot; to create HTML files for displaying the lab's information, including student names and groups, experiment image and tips.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- Select Experiment Name from the drop down manue.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Copy Files to Group PCs:&lt;/span&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt; Click &amp;quot;Copy Files to Group PCs&amp;quot; to copy the generated HTML files to the group PCs.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; color:#00aa00;&quot;&gt;Additional Notes:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- Ensure that each Group PC is set to automatically display the &amp;quot;index.html&amp;quot; page in Windows Kiosk mode.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- The grouping process aims to create a uniform distribution of students into groups based on the &amp;quot;Max # of groups&amp;quot; value.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;- You can generate and print single and weekly attendance sheets from the Main tab.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
@@ -954,7 +975,7 @@ Petrie Science &amp; Engineering 122
      <x>0</x>
      <y>0</y>
      <width>765</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -978,8 +999,6 @@ Petrie Science &amp; Engineering 122
   <tabstop>pushButton_rebootPCs</tabstop>
   <tabstop>pushButton_rebootLaptops</tabstop>
   <tabstop>pushButton_lpc_remote_files</tabstop>
-  <tabstop>checkBox_debugMode</tabstop>
-  <tabstop>checkBox_localCopy</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>lineEdit_TAname</tabstop>
   <tabstop>statusbox</tabstop>

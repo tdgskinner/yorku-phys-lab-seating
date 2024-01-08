@@ -502,7 +502,8 @@ class MainWindow(QtWidgets.QMainWindow):
             'n_max_group':6,
             'n_benches':4,
             'pkl_path': None,
-            'extended_attlist_mode': False
+            'extended_attlist_mode': False,
+            'small_screen_mode': False
         }
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
@@ -531,6 +532,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pkl_path   = self.setting_Course.value('pkl_path')
         
         self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode')
+        self.small_screen_mode = self.setting_Course.value('small_screen_mode')
         
         # Default settings is set if no stored settings found from previous session
         if not self.semester: self.semester = self.default_settings['semester']
@@ -548,6 +550,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode').lower() == 'true'
         
+        if not self.small_screen_mode:
+            self.small_screen_mode = self.default_settings['small_screen_mode']
+        else:
+            self.small_screen_mode = self.setting_Course.value('small_screen_mode').lower() == 'true'
+        
+        self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
+
         self.tabWidget.setCurrentIndex(0)
 
         self.lineEdit_year.setText(self.year) 
@@ -577,7 +586,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.comboBox_room.setCurrentText(self.room)
         self.course_label.setText(f'PHYS {self.code}')
         self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'@ {self.room}')
+        self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
         
 
@@ -610,6 +619,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_att.setEnabled(True)
         
         self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
+        self.checkBox_small_scr.setChecked(self.small_screen_mode)
 
         #-- progress bars ---
         self.copy_pbar = QProgressBar()
@@ -671,6 +681,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_extended_att.toggled.connect(self.set_attlist_mode)
+        self.checkBox_small_scr.toggled.connect(self.set_screen_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
@@ -861,6 +872,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_attlist_mode(self):
         self.extended_attlist_mode = self.checkBox_extended_att.isChecked()
     
+    def set_screen_mode(self):
+        self.small_screen_mode = self.checkBox_small_scr.isChecked()
+        self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
+        logging.debug(f'--self.css_file:{self.css_file}')
+    
     def set_ta_name_mode(self):
         self.overwite_ta_name = self.checkBox_TAname_overwrite.isChecked()
         if self.overwite_ta_name:
@@ -924,7 +940,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
             self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
             self.pushButton_lpc_remote_files.setEnabled(True)
-            self.location_label.setText(f'@  {self.room}')
+            self.location_label.setText(f'{self.room}')
 
     def generate_groups(self):
         if not self.session_id:
@@ -997,7 +1013,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                html_dir = seating.html_generator2(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.ta_name)
+                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.css_file, self.ta_name)
                 if html_dir:
                     self.can_copy_htmlfiles = True
                     if self.comboBox_exp_id.currentText() != '':
@@ -1176,14 +1192,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('code', self.lineEdit_code.text() )
             self.setting_Course.setValue('course_dir', self.course_dir )
             self.setting_Course.setValue('pc_dir', self.pc_dir )
-            #self.setting_Course.setValue('pc_txt_path', self.pc_txt_path)
             self.setting_Course.setValue('exp_id', int(self.exp_id))
             self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
             self.setting_Course.setValue('room', self.comboBox_room.currentText())
             self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
-            #self.setting_Course.setValue('pkl_path', self.pkl_path)
             self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
+            self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
             try:
                 event.accept()
                 logging.debug('The application exited normally.')
