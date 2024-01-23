@@ -3,6 +3,8 @@ import requests
 import appdirs
 import pandas as pd
 import logging
+from packaging import version
+
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
@@ -1235,7 +1237,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'latest_version: {latest_version}')
 
             # Compare latest version with your installed version
-            if latest_version != self.appVersion:
+            if version.parse(latest_version) > version.parse(self.appVersion):
                 # Alert the user about the update
                 reply = QMessageBox.question(
                     None,
@@ -1266,7 +1268,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 None, "Download Complete", f"File downloaded to: {file_path}"
                             )
             else:
-                QMessageBox.information(None, "No Updates", "You have the latest version.")
+                QMessageBox.information(None, "No Update", "YU LabManager is up to date.")
 
         except Exception as e:
             print(f"Error fetching update information: {e}")

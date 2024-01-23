@@ -96,11 +96,12 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
                     footer = 'LA2 - Successfully able to decipher number sent using Oscilloscope'
         
             else:
-                table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.8cm}|'+ 'p{0.5cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
+                table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.2cm}|'+ 'p{0.5cm}|'+ 'p{1.6cm}|'+ 'p{1.6cm}|'+ 'p{2.2cm}|'+ 'p{1.0cm}|'
                 session_df['G#'] = ''
                 session_df['On Time'] = ''
                 session_df['Tidiness'] = ''
                 session_df['Participation'] = ''
+                session_df['Total'] = ''
         
             
      
