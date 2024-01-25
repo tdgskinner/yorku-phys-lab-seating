@@ -493,20 +493,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.appVersion = appVersion
         self.appDate = appDate
         
-        # Default settings will be set if no stored settings found from previous session
-        self.default_settings = {
-            'year':'2023', 
-            'semester':'Winter',
-            'code':'xxxx',
-            'laptop_list': [],
-            'exp_id':1,
-            'exp':None,
-            'n_max_group':6,
-            'n_benches':4,
-            'pkl_path': None,
-            'extended_attlist_mode': False,
-            'small_screen_mode': False
-        }
+        self.room_setting_dict ={}
+        self.pkl_path = None
+        self.laptop_list = []
+        self.extended_attlist_mode = False
+        self.small_screen_mode = False
+
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
         self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating.ui')),self)
@@ -519,84 +511,31 @@ class MainWindow(QtWidgets.QMainWindow):
         stderr = OutputWrapper(self, False)
         stderr.outputWritten.connect(self.handleOutput)
         
-        # Retrieving settings from previous session 
-        self.semester   = self.setting_Course.value('semester')
-        self.year       = self.setting_Course.value('year')
-        self.code       = self.setting_Course.value('code')
-        self.course_dir  = self.setting_Course.value('course_dir')
-        self.pc_dir  = self.setting_Course.value('pc_dir')
-        self.laptop_list = self.setting_Course.value('laptop_list')
-        self.exp_id = self.setting_Course.value('exp_id')
-        self.exp = self.setting_Course.value('exp')
+        # -- Retrieving settings from previous session
+        
+        # reading bundled room settings
         self.room = self.setting_Course.value('room')
-        self.n_max_group    = self.setting_Course.value('n_max_group')
-        self.n_benches  = self.setting_Course.value('n_benches')
-        self.pkl_path   = self.setting_Course.value('pkl_path')
-        
-        self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode')
-        self.small_screen_mode = self.setting_Course.value('small_screen_mode')
-        
-        # Default settings is set if no stored settings found from previous session
-        if not self.semester: self.semester = self.default_settings['semester']
-        if not self.year: self.year = self.default_settings['year']
-        if not self.code: self.code = self.default_settings['code']
-        if not self.laptop_list: self.laptop_list = self.default_settings['laptop_list']
-        if not self.exp_id: self.exp_id = self.default_settings['exp_id']
-        if not self.exp: self.exp = self.default_settings['exp']
-        if not self.n_max_group: self.n_max_group = self.default_settings['n_max_group']
-        if not self.n_benches: self.n_benches = self.default_settings['n_benches']
-        if not self.pkl_path: self.pkl_path = self.default_settings['pkl_path']
-        
-        if not self.extended_attlist_mode:
-            self.extended_attlist_mode = self.default_settings['extended_attlist_mode']
-        else:
-            self.extended_attlist_mode = self.setting_Course.value('extended_attlist_mode').lower() == 'true'
-        
-        if not self.small_screen_mode:
-            self.small_screen_mode = self.default_settings['small_screen_mode']
-        else:
-            self.small_screen_mode = self.setting_Course.value('small_screen_mode').lower() == 'true'
-        
-        self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
+        self.pc_dir  = self.setting_Course.value('pc_dir')
 
-        self.tabWidget.setCurrentIndex(0)
-
-        self.lineEdit_year.setText(self.year) 
-        self.comboBox_semester.setCurrentText(self.semester)
-        self.lineEdit_code.setText(self.code)
-        
         if self.pc_dir and os.path.isdir(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
             self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
 
             if self.pc_csv_path:
                 self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
+                
+                if self.room:
+                    self.load_room_settings(self.room)
+        
 
-        if self.course_dir and os.path.isdir(self.course_dir):
-            self.lineEdit_course_dir.setText(self.course_dir)
-            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
-        
-            if self.time_csv_path:
-                self.session_list = self.extract_sessions(self.time_csv_path)
-            if self.exp_csv_path:
-                self.exp_list = self.extract_exp(self.exp_csv_path)
-            
-        self.lineEdit_ngroups.setText(str(self.n_max_group))
-        self.lineEdit_nbenches.setText(str(self.n_benches))
-        self.comboBox_exp_id.setCurrentText(self.exp)
-        if self.room:
-            self.comboBox_room.setCurrentText(self.room)
-        self.course_label.setText(f'PHYS {self.code}')
-        self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'{self.room}')
-        self.location_label.setFont(QFont('Arial', 12, weight=700))
-        
+        self.tabWidget.setCurrentIndex(0)
 
         self.gpc_list = []
         self.gpc_map ={}
         if self.pc_dir and os.path.exists(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
-            self.set_pc_txt_path()
+            if self.room:
+                self.set_pc_txt_path()
         
         self.session_id = None
         self.thread={}
@@ -614,8 +553,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_att.setEnabled(False)
         self.pushButton_copyfiles.setEnabled(False)
 
-        if self.comboBox_exp_id.currentText() != '':
-            self.pushButton_Watt.setEnabled(True)
+        if self.comboBox_exp_id.currentText() == '':
+            self.pushButton_Watt.setEnabled(False)
         
         if self.comboBox_session.currentText() != '' and self.comboBox_exp_id.currentText() != '':
             self.pushButton_att.setEnabled(True)
@@ -667,7 +606,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.comboBox_exp_id.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_session.activated.connect(self.set_session_id)
         self.comboBox_session.currentIndexChanged.connect(self.check_comboboxes)
-        self.comboBox_room.activated.connect(self.set_pc_txt_path)
+        self.comboBox_room.activated.connect(self.room_selector)
 
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
@@ -689,6 +628,88 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
     
+    def set_default_room_settings(self):
+        room_setting = {}
+        room_setting['year'] = '2024'    
+        room_setting['semester'] = 'Winter'
+        room_setting['code'] = 'xxxx'
+        room_setting['course_dir'] = None
+        room_setting['exp_id'] = 1
+        room_setting['exp'] = None
+        room_setting['n_max_group'] = 6
+        room_setting['n_benches'] = 4
+        room_setting['extended_attlist_mode'] = False
+        room_setting['small_screen_mode'] = False
+        
+        return room_setting
+    
+    
+    def load_room_settings(self, room):
+        self.room_setting_dict = self.setting_Course.value('room_setting_dict')
+        logging.debug(f'room_setting_dict: {self.room_setting_dict}')
+
+        if self.room_setting_dict is None:
+            logging.debug('No room setting dictionary found. Creating new dictionary with default settings.')
+            self.room_setting_dict = {}
+            room_setting = self.set_default_room_settings()
+            self.room_setting_dict[room] = room_setting
+
+        else:
+            room_setting = self.room_setting_dict.get(room)
+            if room_setting is None:
+                logging.info('No setting found for the selected room. Using default settings.')
+                room_setting = self.set_default_room_settings()
+            
+        self.year = room_setting.get('year')
+        self.semester = room_setting.get('semester')
+        self.code = room_setting.get('code')
+        self.course_dir = room_setting.get('course_dir')
+        logging.info(f'course_dir: {self.course_dir}')
+        self.exp_id = room_setting.get('exp_id')
+        self.exp = room_setting.get('exp')
+        self.n_max_group = room_setting.get('n_max_group')
+        self.n_benches = room_setting.get('n_benches')
+        
+        self.extended_attlist_mode = room_setting.get('extended_attlist_mode')
+        self.small_screen_mode = room_setting.get('small_screen_mode')
+
+        # laod the setting into the GUI
+        self.lineEdit_year.setText(self.year)
+        self.comboBox_semester.setCurrentText(self.semester)
+        self.lineEdit_code.setText(self.code)
+
+        self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
+        self.checkBox_small_scr.setChecked(self.small_screen_mode)
+
+        if self.exp =='':
+            self.comboBox_exp_id.clear()
+            self.pushButton_Watt.setEnabled(False)
+
+        self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
+        
+        if self.course_dir and os.path.isdir(self.course_dir):
+            self.lineEdit_course_dir.setText(self.course_dir)
+            self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
+        
+            if self.time_csv_path:
+                self.session_list = self.extract_sessions(self.time_csv_path)
+            if self.exp_csv_path:
+                self.exp_list = self.extract_exp(self.exp_csv_path)
+        else:
+            self.lineEdit_course_dir.clear()
+            
+        self.lineEdit_ngroups.setText(str(self.n_max_group))
+        self.lineEdit_nbenches.setText(str(self.n_benches))
+        self.comboBox_exp_id.setCurrentText(self.exp)
+
+        if self.room:
+            self.comboBox_room.setCurrentText(self.room)
+        self.course_label.setText(f'PHYS {self.code}')
+        self.course_label.setFont(QFont('Arial', 12, weight=700))
+        self.location_label.setText(f'{self.room}')
+        self.location_label.setFont(QFont('Arial', 12, weight=700))
+
+    #--------------------------------------------------------------------------------        
     def check_comboboxes(self):
         if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
             self.pushButton_att.setEnabled(True)
@@ -850,7 +871,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def extract_exp(self, exp_csv_path):
         exp_list = seating.get_exp_list(exp_csv_path)
         self.comboBox_exp_id.clear()
-        self.pushButton_Watt.setEnabled(False)
+        #self.pushButton_Watt.setEnabled(False)
 
         if exp_list:
             list_helper = list(exp_list.keys())
@@ -934,15 +955,21 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f' self.session:{self.session}')
     
     def set_pc_txt_path(self):
+        logging.debug(f'---self.room:{self.room}')
+        self.pc_txt_path = self.room_list[self.room][0]
+        logging.info(f' Selected room:{self.room}')
+        logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
+        self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+        self.pushButton_lpc_remote_files.setEnabled(True)
+        self.location_label.setText(f'{self.room}')
+    
+    def room_selector(self):
         self.room = self.comboBox_room.currentText()
         
         if self.room:
-            self.pc_txt_path = self.room_list[self.room][0]
-            logging.info(f' Selected room:{self.room}')
-            logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-            self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
-            self.pushButton_lpc_remote_files.setEnabled(True)
-            self.location_label.setText(f'{self.room}')
+            self.set_pc_txt_path()
+            self.load_room_settings(self.room)
+            
 
     def generate_groups(self):
         if not self.session_id:
@@ -996,8 +1023,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
-                    self.pushButton_grouping.setEnabled(False)
-                    self.comboBox_session.setEnabled(False)
+                    #self.pushButton_grouping.setEnabled(False)
+                    #self.comboBox_session.setEnabled(False)
                     self.pushButton_labLayout.setEnabled(True)
                 else:
                     dlg = QtWidgets.QMessageBox(self)
@@ -1201,6 +1228,25 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
             self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
             self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
+
+            # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
+            #self.room_setting_dict = {}
+            room_setting = {}
+            room_setting['year'] = self.lineEdit_year.text()
+            room_setting['semester'] = self.comboBox_semester.currentText()
+            room_setting['code'] = self.lineEdit_code.text()
+            room_setting['course_dir'] = self.course_dir
+            room_setting['exp_id'] = int(self.exp_id)
+            room_setting['exp'] = self.comboBox_exp_id.currentText()
+            room_setting['n_max_group'] = int(self.lineEdit_ngroups.text())
+            room_setting['n_benches'] = int(self.lineEdit_nbenches.text())
+            room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
+            room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
+            
+            self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
+            self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
+
+
             try:
                 event.accept()
                 logging.debug('The application exited normally.')
