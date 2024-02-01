@@ -686,6 +686,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_Watt.setEnabled(False)
 
         self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
+        self.css_file_all = 'style_all.css'
         
         if self.course_dir and os.path.isdir(self.course_dir):
             self.lineEdit_course_dir.setText(self.course_dir)
@@ -1042,7 +1043,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
-                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.css_file, self.ta_name)
+                html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.css_file, self.css_file_all, self.ta_name)
                 if html_dir:
                     self.can_copy_htmlfiles = True
                     if self.comboBox_exp_id.currentText() != '':

@@ -437,7 +437,7 @@ def generate_html_table(stud_list, n_benches):
     html_table += "</tbody>"
     return html_table
 #------------------------------------------------------------
-def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, version, css_file, ta_name = None):
+def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, version, css_file, css_file_all, ta_name = None):
     logger.debug(f'ta_name = {ta_name}')
     out_dir = os.path.join(user_data_dir, f'output_{code}')
     html_dir = os.path.join(out_dir, 'html')
@@ -445,7 +445,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     logger.debug(f'pkl_path: {pkl_path}')
     logger.debug(f'html_dir: {html_dir}')
 
-    html_grid_type= 4 if n_benches == 4 else 2
+    #html_grid_type= 4 if n_benches == 4 else 2
     
 
     #creating a fresh html directory
@@ -489,7 +489,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
         #creating html files
-        comp_html_generator(e, n_max_group, html_grid_type, code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version)
+        html_all_generator(e, n_max_group, n_benches, code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version)
     
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
@@ -610,41 +610,31 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     return html_dir
 
 #------------------------------------------------------------
-def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict, df_exp_metadata, df_time_metadata, ta_name, version):
+def html_all_generator(exp, n_max_group, n_benches ,code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version):
     n_group = len(dict[1][2])
     
     f_html = os.path.join(output_dir, 'g99.html')
     stud_list = []
-
-    blank_group = []
-    for i in range(4):
-        row = '<div class="grid-item_compact"><a href="#">  </a></div>'
-        blank_group.append(row)
 
     for g in range(n_group):
         df = dict[exp][2][g].reset_index(drop=True)
         df.index += 1
         _list = []
         for i in range(len(df)):
-            row = '<div class="grid-item_compact"><a href="#">'+df.iloc[i,2] +' '+ df.iloc[i,1]+'</a></div>'
+            row = df.iloc[i,2] +' '+ df.iloc[i,1]
             _list.append(row)
-       
-        stud_list.append(_list)     
+        
+        stud_list.append(_list)
+        
     
     newline = "\n"
 
     seating_header = f'''
-        <div class="row">
-            <div class="column", style="width:20%;padding:0px">
-                <img src=yorku-logo.jpg , style="height:30px; padding:0cm">
-            </div>
-            <div class="column", style="width:65%">
-                <h1 style="font-size:23px"><center>PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</center></h1>
-            </div>
-            <div class="column", style="width:15%">
-                <h2><span id="ct"> </span></h2>
-            </div>
-        </div>
+        <header>
+            <div class="logo"></div>
+            <div class="session-info">PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</div>
+            <div id="time" class="session-info"></div>
+        </header>
     '''
     g_list = list(range(1, n_max_group+1))
     col1_groups =''
@@ -653,86 +643,78 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
     # column 1
     for g in g_list[:math.ceil(n_max_group/2)]:
         if g <= n_group:
+            html_table = generate_html_table(stud_list[g-1], n_benches)
             col1_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px">
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
-                        {newline.join(stud for stud in stud_list[g-1])}
-                    </div>
-                </div>
+                <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Group {g}</div>
+                <table class="table" style="width: calc(100% - 10px); margin-left: 5px;">
+                    {html_table}
+                </table>
             '''
         # handeling empty groups
-        else:
-            col1_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px>
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
-                        {newline.join(stud for stud in blank_group)}
-                    </div>
-                </div>
-            '''
 
     # column 2
     for g in g_list[math.ceil(n_max_group/2):]:
         if g <= n_group:
+            html_table = generate_html_table(stud_list[g-1], n_benches)
             col2_groups += f'''
-                <div class="vertical-menu", style="width:100%;padding:0px">
-                    <h2><a href="#" class="active", style="font-size:20"><b>Group {g}</b></a></h2>
-                    <div class="grid-container_compact{html_grid_type}">
-                        {newline.join(stud for stud in stud_list[g-1])}
-                    </div>
-                </div>
+                <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Group {g}</div>
+                <table class="table" style="width: calc(100% - 10px); margin-left: 5px;">
+                    {html_table}
+                </table>
             '''
-        # handeling empty groups
-        
+    # handeling empty groups
+            
     seating_groups =f'''
-        <div class="row", style="padding:0cm">
-        <div class="column", style="width:30%">
+        <div class="table-container", style="width:30%">
         {col1_groups}
         </div>
-        <div class="column", style="width:30%">
+        <div class="table-container", style="width:30%">
         {col2_groups}
         </div>
     '''
 
     seating_img_tip = f'''
-        <div class="column", style="width:40%;padding:0px">
-                        <div class="vertical-menu", style="width:100%">
-                            <h2><a href="#" class="active", style="font-size:20"><b>{df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</b></a></h2>
-                        </div>
-                        <div class="wrapper_all">
-                            <img src={os.path.join('img', df_exp_metadata['exp_img'].iloc[0]) } >
-                        </div>
-                        <div class="wrapper_all_tip">
-                        <h2> Useful tip:</h2>
-                            <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0]) }" 
-                                style="background-color:rgb(255, 230, 230);border:2px solid #b71414;font-size:18px"
-                                width="100%"
-                                height="300px">
-                            </iframe>
-                        </div>
-                    </div>
-                </div>  
+            <div class="photo-container_all">
+                <div class="image-header">Exp {df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</div>
+                <div class="photo_all" style="background-image: url('img/{df_exp_metadata['exp_img'].iloc[0]}');">
+            </div>
+            <div class="tips-title">Useful Tips</div>
+            <div class="iframe-content_all" contenteditable="False">
+                <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0])}" frameborder="0"></iframe>
+            </div>  
     '''
     # constructing the html page
+    time_js = '''
+        <script>
+            function updateTime() {
+              const now = new Date();
+              const options = { hour: 'numeric', minute: 'numeric' };
+              const timeElement = document.getElementById('time');
+              timeElement.textContent = now.toLocaleTimeString([], options);
+            }
+
+            updateTime();
+            setInterval(updateTime, 60000); // Update time every minute
+        </script>
+        '''
     page_contents = f'''<!DOCTYPE html>
         <html lang="en">
         <head>
-            <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-            <META HTTP-EQUIV="EXPIRES" CONTENT="Mon, 22 Jul 2002 11:12:01 GMT">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>YU LabManager</title>
             <meta http-equiv="refresh" content="15">
-            <link rel="stylesheet" href="style_Xlarge.css?v={round(random.randint(0, 1000)/100, 2 )}">
-            <script type="text/javascript" src="time.js"></script>                
+            <link rel="stylesheet" type="text/css" href="{css_file_all}?v={round(random.randint(0, 1000)/100, 2 )}">
         </head>
-
         <body>
             {seating_header}
-            {seating_groups}
-            {seating_img_tip}
-            <div class ="footer">
-                YU LabManager V{version}
+            <div class="main-body">
+                {seating_groups}
+                {seating_img_tip}
             </div>
+            
+            <footer>
+                YU LabManager V{version}
+            </footer>
+            {time_js} 
         </body>
         
         </html>
@@ -746,16 +728,6 @@ def comp_html_generator(exp, n_max_group, html_grid_type ,code, output_dir, dict
         except:
             logger.error(f' Failed to write html files to disk', exc_info = True)
             return None
-
-
-
-
-
-
-
-
-
-
 
 #------------------------------------------------------------
 def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):

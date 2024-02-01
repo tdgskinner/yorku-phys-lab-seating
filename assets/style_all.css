@@ -1,5 +1,5 @@
     /* ==========================================================================
-       CSS for X-large screens with Display scale 150%
+       CSS for X-large screens with Display scale 150%, displaying all groups at once
        ========================================================================== *
     */  
     body {
@@ -9,7 +9,6 @@
       position: relative;
     }
     
-  
     header {
       display: flex;
       justify-content: space-between;
@@ -27,6 +26,10 @@
     }
     .session-info {
       font-weight: bold;
+    }
+    .column {
+      float: left;  
+      padding: 5px;
     }
     footer {
       text-align: left;
@@ -51,7 +54,7 @@
       display: flex;
       flex-direction: column;
     }
-.table {
+    .table {
       font-size: 24px;
       border-collapse: collapse;
       width: calc(100% - 4px); /* Adjust width to accommodate border */
@@ -61,7 +64,7 @@
       padding: 0;
       border-spacing: 0;
       box-sizing: border-box; /* Include border in width calculation */
-}
+    }
 
 .table td,
 .table th {
@@ -95,22 +98,57 @@
         overflow: hidden; /* Hide overflow to prevent scrollbars */
         padding: 10px
     }
+    .iframe-content iframe {
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Enable scroll bar only when content exceeds the iframe height */
+      overflow-wrap: break-word;  
+  }
+    .iframe-content_all {
+      width: calc(100% - 30px); /* Adjust width to accommodate border */
+      /* Modify the height to fit the content without causing a scrollbar */
+      height:300px; /* Set the height: 520px:125%. 350px: 150%*/
+     
+      border: 1px solid #ddd;
+      margin-top: 20px;
+      border: 2px solid #b71414;
+      background-color: rgb(255, 230, 230);
+      overflow: hidden; /* Hide overflow to prevent scrollbars */
+      padding: 10px
+  }
+  .iframe-content_all iframe {
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll bar only when content exceeds the iframe height */
+    overflow-wrap: break-word;  
+}
     
     .iframe-content iframe {
         width: 100%;
         height: 100%;
         overflow: auto; /* Enable scroll bar only when content exceeds the iframe height */
-        overflow-wrap: break-word;
-        
+        overflow-wrap: break-word;  
     }
     .photo-container {
       width: 50%;
       border: 0px solid #000;
       text-align: center;
     }
+    .photo-container_all {
+      width: 40%;
+      border: 0px solid #000;
+      text-align: left;
+    }
     .photo {
       width: 100%;
       height:540px; /* Set the height: 680px: 125%, 540px: 150% */
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .photo_all {
+      width: 100%;
+      height:300px; /* Set the height: 680px: 125%, 540px: 150% */
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -120,7 +158,7 @@
       text-align: left;
       font-weight: bold;
       font-size: 20px;
-      margin: 10px;
+      margin: 5px;
       padding: 5px;
       background-color: #b71414;
       color: white;
@@ -134,5 +172,3 @@
       font-size: 28px;
       color: #b71414;
     }
-
-    
