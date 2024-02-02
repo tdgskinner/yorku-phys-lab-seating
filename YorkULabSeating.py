@@ -500,6 +500,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
+        #self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
         self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating.ui')),self)
 
         self.label_appVersion.setText(f'v{self.appVersion} , {self.appDate}')

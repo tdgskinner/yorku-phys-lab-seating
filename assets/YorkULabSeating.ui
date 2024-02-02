@@ -89,15 +89,8 @@
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_top">
-        <item row="6" column="6" colspan="2">
-         <widget class="QCheckBox" name="checkBox_extended_att">
-          <property name="text">
-           <string>Extended Att.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="5" colspan="3">
-         <widget class="QLabel" name="location_label">
+        <item row="0" column="3">
+         <widget class="QLabel" name="course_label">
           <property name="font">
            <font>
             <pointsize>10</pointsize>
@@ -106,7 +99,17 @@
            </font>
           </property>
           <property name="text">
-           <string>YYYY</string>
+           <string>XXXX</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="6" colspan="2">
+         <widget class="QCheckBox" name="checkBox_extended_att">
+          <property name="text">
+           <string>Extended Att.</string>
           </property>
          </widget>
         </item>
@@ -130,40 +133,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="course_label">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>XXXX</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4">
-         <widget class="QLabel" name="course_label_2">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string> @ </string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="4">
          <widget class="QPushButton" name="pushButton_att">
           <property name="font">
@@ -178,20 +147,6 @@
           </property>
           <property name="text">
            <string>Session Att.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="4" colspan="4">
-         <widget class="QPushButton" name="pushButton_labLayout">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Lab Layout</string>
           </property>
          </widget>
         </item>
@@ -212,41 +167,34 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QCheckBox" name="checkBox_TAname_overwrite">
+        <item row="0" column="4">
+         <widget class="QLabel" name="course_label_2">
           <property name="font">
            <font>
-            <pointsize>8</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Overwrite TA name(s)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="4">
-         <widget class="QPushButton" name="pushButton_copyfiles">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
             <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(85, 170, 0);</string>
+          <property name="text">
+           <string> @ </string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="4" colspan="4">
+         <widget class="QPushButton" name="pushButton_labLayout">
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
           </property>
           <property name="text">
-           <string>Copy Files to group PCs</string>
+           <string>Lab Layout</string>
           </property>
          </widget>
         </item>
@@ -277,15 +225,67 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" colspan="4">
-         <widget class="QComboBox" name="comboBox_session">
+        <item row="8" column="0" colspan="4">
+         <widget class="QPushButton" name="pushButton_copyfiles">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(85, 170, 0);</string>
+          </property>
+          <property name="text">
+           <string>Copy Files to group PCs</string>
+          </property>
          </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QCheckBox" name="checkBox_TAname_overwrite">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Overwrite TA name(s)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" colspan="2">
+         <widget class="QPushButton" name="pushButton_htmlgen">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>8</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Generate html</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4" colspan="3">
+         <widget class="QComboBox" name="comboBox_exp_id"/>
         </item>
         <item row="4" column="0">
          <widget class="QPushButton" name="pushButton_grouping">
@@ -308,9 +308,6 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="4" colspan="3">
-         <widget class="QComboBox" name="comboBox_exp_id"/>
-        </item>
         <item row="4" column="3">
          <widget class="QLabel" name="label_6">
           <property name="sizePolicy">
@@ -331,24 +328,27 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1" colspan="2">
-         <widget class="QPushButton" name="pushButton_htmlgen">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+        <item row="0" column="5" colspan="3">
+         <widget class="QLabel" name="location_label">
           <property name="font">
            <font>
-            <family>Arial</family>
-            <pointsize>8</pointsize>
+            <pointsize>10</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Generate html</string>
+           <string>YYYY</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="5">
+         <widget class="QComboBox" name="comboBox_session">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
@@ -981,7 +981,7 @@ Petrie Science &amp; Engineering 122
      <x>0</x>
      <y>0</y>
      <width>779</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
