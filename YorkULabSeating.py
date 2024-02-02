@@ -17,7 +17,7 @@ from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 import scripts.SeatingManager as seating
 #import scripts.GPcManager as gpc
 import scripts.GPcManager2 as gpc
-from scripts.remote_copy import MyRemoteCopyFile, Remote_LPC_manager
+from scripts.remote_copy import Remote_GPC_manager, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
 import json
 
@@ -377,14 +377,13 @@ class lpc_file_manager(QDialog):
     def start_lpc_delete_worker(self):
         if self.lpc_list:
             textEdit_delete_input = self.textEdit_delete_input.toPlainText()
-            delete_files = textEdit_delete_input.splitlines()
+            to_delete = textEdit_delete_input.splitlines()
 
-            if delete_files:
+            if to_delete:
                 destination_path = self.lineEdit_destination_input.text()
                 self.pushButton_delete.setEnabled(False)
                 self.pbar_delete.show()
-                #self.pbar_delete.setFormat("Delete files ...")
-                self.lpc_thread[2] = lpcDeleteFileThread(self.lpc_list, delete_files, destination_path, self.LocalCopyMode, self.pbar_delete, parent=None)
+                self.lpc_thread[2] = lpcDeleteThread(self.lpc_list, to_delete, destination_path, self.LocalCopyMode, self.pbar_delete, parent=None)
                 self.lpc_thread[2].finished.connect(self.on_deleteFinished)
                 self.lpc_thread[2].start()
                 self.lpc_thread[2].progress.connect(self.delete_setProgress)
@@ -420,10 +419,10 @@ class lpc_file_manager(QDialog):
         self.pushButton_delete.setEnabled(True)
 
         if all(self.lpc_thread[2].status.values()):
-            QMessageBox.information(None, 'Delete Successful', ' All files are deleted from target Laptop(s) successfully')   
+            QMessageBox.information(None, 'Delete Successful', ' All files/dir are deleted from target Laptop(s) successfully')   
         else:
             res = [key for key, value in self.lpc_thread[1].status.values() if not value]
-            error_message = f' Failed to delete the identified files from: {", ".join(res)}'
+            error_message = f' Failed to delete the identified files/ dir from: {", ".join(res)}'
             QMessageBox.warning(None, "Delete Failed", error_message)
 
     def browse_files(self):
@@ -1167,7 +1166,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def open_lpc_file_manager(self):
         self.lpc_remote = lpc_file_manager(self.laptop_list, self.LocalCopyMode)
-        self.lpc_remote.setWindowTitle('Laptops Remote File Manager')
+        self.lpc_remote.setWindowTitle('Laptops Remote File/Dir Manager')
         self.lpc_remote.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.lpc_remote.show()
     
@@ -1334,7 +1333,7 @@ class CopyFileThread(QThread):
         self.code = code
         self.localCopy = localCopy
         self.is_running = True
-        self.copy_service = MyRemoteCopyFile(self.localCopy)
+        self.copy_service = Remote_GPC_manager(self.localCopy)
         
     def run(self):
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
@@ -1427,14 +1426,14 @@ class lpcCopyFileThread(QThread):
         self.terminate()
 
 #--------------------------------------------------------------------------------
-class lpcDeleteFileThread(QThread):
+class lpcDeleteThread(QThread):
     progress = pyqtSignal(int)
 
-    def __init__(self, lpc_list, delete_files, destination_path, localCopy, progress_bar, parent=None ):
-        super(lpcDeleteFileThread, self).__init__(parent)
+    def __init__(self, lpc_list, to_delete, destination_path, localCopy, progress_bar, parent=None ):
+        super(lpcDeleteThread, self).__init__(parent)
         self.status = {}
         self.lpc_list = lpc_list
-        self.delete_files = delete_files
+        self.to_delete = to_delete
         self.destination_path = destination_path
         self.localCopy = localCopy
         self.pbar = progress_bar
@@ -1445,14 +1444,48 @@ class lpcDeleteFileThread(QThread):
         logging.info(f' Deleting identified file(s) from the laptops. Please wait ...')
         
         self.progress.emit(0)
+        
+        for i, lpc in enumerate(self.lpc_list):
+            self.pbar.setFormat(f"Delete files/dir from {lpc.split('.')[0]} ")
+            self.status[lpc] = self.lpc_delete_service.run_delete(lpc, self.to_delete, self.destination_path)
+            self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
+        if all(self.status.values()):
+            logging.info(' Files/Dir are deleted from target Laptop(s) successfully')
+        else:
+            res = [key for key, value in self.status.items() if not value]
+            logging.error(f' Failed to delete the identified files/dir from: {res}')
+
+    def stop(self):
+        self.is_running = False
+        self.terminate()
+#--------------------------------------------------------------------------------
+'''
+class lpcRmTreeThread(QThread):
+    progress = pyqtSignal(int)
+
+    def __init__(self, lpc_list, delete_dir_list, destination_path, localCopy, progress_bar, parent=None ):
+        super(lpcDeleteThread, self).__init__(parent)
+        self.status = {}
+        self.lpc_list = lpc_list
+        self.delete_dir_list = delete_dir_list
+        self.destination_path = destination_path
+        self.localCopy = localCopy
+        self.pbar = progress_bar
+        self.is_running = True
+        self.lpc_rmTree_service = Remote_LPC_manager(self.localCopy)
+        
+    def run(self):
+        logging.info(f' Deleting identified directories from the laptops. Please wait ...')
+        
+        self.progress.emit(0)
 
         for i, lpc in enumerate(self.lpc_list):
-            self.pbar.setFormat(f"Delete files from {lpc.split('.')[0]} ")
-            self.status[lpc] = self.lpc_delete_service.run_deletefile(lpc, self.delete_files, self.destination_path)
+            self.pbar.setFormat(f"Delete directories  from {lpc.split('.')[0]} ")
+            self.status[lpc] = self.lpc_rmTree_service.run_rmTree(lpc, self.delete_dir_list, self.destination_path)
             self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
             
         if all(self.status.values()):
-            logging.info(' Files are deleted from target Laptop(s) successfully')
+            logging.info(' Directories are deleted from target Laptop(s) successfully')
         else:
             res = [key for key, value in self.status.items() if not value]
             logging.error(f' Failed to delete the identified files from: {res}')
@@ -1460,6 +1493,7 @@ class lpcDeleteFileThread(QThread):
     def stop(self):
         self.is_running = False
         self.terminate()
+'''
 #--------------------------------------------------------------------------------
 class Reboot_PC_Thread(QThread):
     progress = pyqtSignal(int)

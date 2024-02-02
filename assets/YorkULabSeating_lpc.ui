@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>518</width>
-    <height>567</height>
+    <width>555</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>502</width>
+     <width>542</width>
      <height>551</height>
     </rect>
    </property>
@@ -121,7 +121,7 @@
        </font>
       </property>
       <property name="text">
-       <string>File Names/Patterns (e.g. *.pdf) to Delete from laptops (one entry per line):</string>
+       <string>Dir or FileNames/Patterns (e.g. *.pdf) to Delete from laptops (one entry per line):</string>
       </property>
      </widget>
     </item>

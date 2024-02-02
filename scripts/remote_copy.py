@@ -5,7 +5,7 @@ import glob
 
 logger = logging.getLogger(__name__)
 
-class MyRemoteCopyFile:
+class Remote_GPC_manager:
     def __init__(self, localCopy):
         self.do_localCopy = localCopy # False = copy to remote target PC, True = copy to local PC (for test)
         logger.debug(f'remoteCopy service initiated with localCopy= {self.do_localCopy}')
@@ -96,7 +96,8 @@ class Remote_LPC_manager:
     def __init__(self, localCopy):
         self.do_localCopy = localCopy # False = copy to remote target PC, True = copy to local PC (for test)
         logger.debug(f'Remote_LPC_manager service initiated with localCopy= {self.do_localCopy}')
-
+    
+    #------------------------------------------------------------
     def run_copyfile(self, lpc, selected_files, dest_path):
         client_address = r'\\' + lpc
         destination_path = os.path.join(client_address, dest_path)
@@ -116,29 +117,45 @@ class Remote_LPC_manager:
         
         logger.info(f"Successfully copied all files to {destination}")
         return True
-            
-    def run_deletefile(self, lpc, delete_files, dest_path):
+    
+    #------------------------------------------------------------        
+    def run_delete(self, lpc, to_delete_list, dest_path):
         client_address = r'\\' + lpc
-        
-        for file in delete_files:
-            file = file.strip()
-            file_to_delete = os.path.join(client_address, dest_path.strip(), file)
-            
-            if '*' in file:
-                matching_files = glob.glob(file_to_delete)
-                for matching_file in matching_files:
-                    try:
-                        os.remove(matching_file)
-                        logger.debug(f"Successfully deleted file: {matching_file}")
-                    except Exception as e:
-                        logger.debug(f"Failed to delete file: {matching_file} - {e}")
-            else:
-                try:
-                    os.remove(file_to_delete)
-                    logger.debug(f"Successfully deleted file: {file_to_delete}")
-                except Exception as e:
-                    logger.debug(f"Failed to delete file: {file_to_delete} - {e}")
-        logger.info(f"Successfully Deleted all files from {client_address}")
-        return True
-    #------------------------------------------------------------
+        for to_delete in to_delete_list:
+            path_to_delete = os.path.join(client_address, dest_path.strip(), to_delete)
 
+            if os.path.isfile(path_to_delete):
+                self.run_deletefile(client_address, path_to_delete)
+            
+            elif os.path.isdir(path_to_delete):
+                self.run_rmTree(client_address, path_to_delete)
+        return True
+
+    #------------------------------------------------------------        
+    def run_deletefile(self, client_address, file_to_delete):
+        if '*' in file_to_delete:
+            matching_files = glob.glob(file_to_delete)
+            for matching_file in matching_files:
+                try:
+                    os.remove(matching_file)
+                    logger.debug(f"Successfully deleted file: {matching_file}")
+                except Exception as e:
+                    logger.debug(f"Failed to delete file: {matching_file} - {e}")
+        else:
+            try:
+                os.remove(file_to_delete)
+                logger.debug(f"Successfully deleted file: {file_to_delete}")
+            except Exception as e:
+                logger.debug(f"Failed to delete file: {file_to_delete} - {e}")
+        
+        logger.info(f"Successfully Deleted all files from {client_address}")
+    
+    #------------------------------------------------------------
+    def run_rmTree(self, client_address, dir_to_delete):
+        try:
+            shutil.rmtree(dir_to_delete)
+            logger.debug(f"Successfully deleted directory: {dir_to_delete}")
+        except Exception as e:
+            logger.debug(f"Failed to delete file: {dir_to_delete} - {e}")
+        
+        logger.info(f"Successfully Deleted all directories from {client_address}")
