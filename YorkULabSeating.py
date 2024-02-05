@@ -497,11 +497,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.laptop_list = []
         self.extended_attlist_mode = False
         self.small_screen_mode = False
-
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
         #self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
-        self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating.ui')),self)
+        self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
+        YUlogo_s = QPixmap(resource_path(os.path.join('assets','yorklogo.png')))
+        YUlogo_l = QPixmap(resource_path(os.path.join('assets','YorkU_logo_L.png')))
+        self.label_logo_s.setPixmap(YUlogo_s.scaled(180,180, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.label_logo_L.setPixmap(YUlogo_l.scaled(450,450, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+
 
         self.label_appVersion.setText(f'v{self.appVersion} , {self.appDate}')
 
