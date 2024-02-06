@@ -104,6 +104,10 @@
         overflow-wrap: break-word;
         
     }
+    .myiframe {
+      font-family: Sans-serif;
+      font-size: 16px;
+    }
     .photo-container {
       width: 50%;
       border: 0px solid #000;

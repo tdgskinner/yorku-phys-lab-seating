@@ -3,6 +3,7 @@ import requests
 import appdirs
 import pandas as pd
 import logging
+#from datetime import datetime
 from packaging import version
 
 from PyQt6 import QtWidgets, QtCore
@@ -13,6 +14,7 @@ from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QLis
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
+from PyQt6.QtCore import QTimer, QDateTime
 
 import scripts.SeatingManager as seating
 #import scripts.GPcManager as gpc
@@ -508,7 +510,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         self.label_appVersion.setText(f'v{self.appVersion} , {self.appDate}')
-
+        
+        self.update_time()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_time)
+        self.timer.start(60*1000) # Update every minute
+        
 
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
@@ -631,7 +638,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
-    
+    #--------------------------------------------------------------------------------
+        
+    def update_time(self):
+        now = QDateTime.currentDateTime()
+        formatted_time = now.toString("<b>ddd h:mm AP, MMM d, yyyy</b>")
+        self.label_time.setText(formatted_time)
+
     def set_default_room_settings(self):
         room_setting = {}
         room_setting['year'] = '2024'    
@@ -930,6 +943,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_benches    = int(self.lineEdit_nbenches.text())
         self.course_label.setText(f'PHYS {self.code}')
         
+        self.save_settings()
+
+
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Inof.")
         dlg.setText("Settings saved")
@@ -1198,7 +1214,49 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusbox.setOpenExternalLinks(True)
         self.statusbox.append(text)
         self.statusbox.setTextColor(color)
+    
+    #--------------------------------------------------------------------------------
+    def save_settings(self):
+        """
+        Save the current settings to the system.
 
+        This method saves the current settings to the system using the QSettings object.
+
+        Returns:
+            None
+        """
+        #--- store the current setting in the system before closing the app
+        self.setting_Course.setValue('year', self.lineEdit_year.text() )
+        self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
+        self.setting_Course.setValue('code', self.lineEdit_code.text() )
+        self.setting_Course.setValue('course_dir', self.course_dir )
+        self.setting_Course.setValue('pc_dir', self.pc_dir )
+        self.setting_Course.setValue('exp_id', int(self.exp_id))
+        self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
+        self.setting_Course.setValue('room', self.comboBox_room.currentText())
+        self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
+        self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
+        self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
+        self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
+
+        # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
+        #self.room_setting_dict = {}
+        room_setting = {}
+        room_setting['year'] = self.lineEdit_year.text()
+        room_setting['semester'] = self.comboBox_semester.currentText()
+        room_setting['code'] = self.lineEdit_code.text()
+        room_setting['course_dir'] = self.course_dir
+        room_setting['exp_id'] = int(self.exp_id)
+        room_setting['exp'] = self.comboBox_exp_id.currentText()
+        room_setting['n_max_group'] = int(self.lineEdit_ngroups.text())
+        room_setting['n_benches'] = int(self.lineEdit_nbenches.text())
+        room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
+        room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
+            
+        self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
+        self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
+
+    #--------------------------------------------------------------------------------    
     def closeEvent(self, event):
         """
         Event handler for the close event of the application window.
@@ -1220,6 +1278,9 @@ class MainWindow(QtWidgets.QMainWindow):
         button = dlg.exec()
 
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
+            
+            self.save_settings()
+            '''
             #--- store the current setting in the system before closing the app
             self.setting_Course.setValue('year', self.lineEdit_year.text() )
             self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
@@ -1250,7 +1311,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
             self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
             self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
-
+            '''
 
             try:
                 event.accept()
@@ -1463,42 +1524,8 @@ class lpcDeleteThread(QThread):
     def stop(self):
         self.is_running = False
         self.terminate()
-#--------------------------------------------------------------------------------
-'''
-class lpcRmTreeThread(QThread):
-    progress = pyqtSignal(int)
 
-    def __init__(self, lpc_list, delete_dir_list, destination_path, localCopy, progress_bar, parent=None ):
-        super(lpcDeleteThread, self).__init__(parent)
-        self.status = {}
-        self.lpc_list = lpc_list
-        self.delete_dir_list = delete_dir_list
-        self.destination_path = destination_path
-        self.localCopy = localCopy
-        self.pbar = progress_bar
-        self.is_running = True
-        self.lpc_rmTree_service = Remote_LPC_manager(self.localCopy)
-        
-    def run(self):
-        logging.info(f' Deleting identified directories from the laptops. Please wait ...')
-        
-        self.progress.emit(0)
 
-        for i, lpc in enumerate(self.lpc_list):
-            self.pbar.setFormat(f"Delete directories  from {lpc.split('.')[0]} ")
-            self.status[lpc] = self.lpc_rmTree_service.run_rmTree(lpc, self.delete_dir_list, self.destination_path)
-            self.progress.emit(int(100*(i+1)/len(self.lpc_list)))
-            
-        if all(self.status.values()):
-            logging.info(' Directories are deleted from target Laptop(s) successfully')
-        else:
-            res = [key for key, value in self.status.items() if not value]
-            logging.error(f' Failed to delete the identified files from: {res}')
-
-    def stop(self):
-        self.is_running = False
-        self.terminate()
-'''
 #--------------------------------------------------------------------------------
 class Reboot_PC_Thread(QThread):
     progress = pyqtSignal(int)
