@@ -12,9 +12,10 @@ from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, 
 from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QStyle
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
+from PyQt6.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
-from PyQt6.QtCore import QTimer, QDateTime
+from PyQt6.QtCore import QTimer, QDateTime, QDate
 
 import scripts.SeatingManager as seating
 #import scripts.GPcManager as gpc
@@ -485,7 +486,13 @@ class lpc_file_manager(QDialog):
                 event.ignore()
         else:
             event.accept()
-
+#================================================================================
+class DateDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        editor = QDateEdit(parent)
+        editor.setCalendarPopup(True)
+        editor.setDate(QDate.currentDate().addDays(-QDate.currentDate().dayOfWeek() + 1))
+        return editor
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, appVersion, appDate):
@@ -638,8 +645,45 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
+
+        # scheduler tab:
+        self.pushButton_plus.clicked.connect(self.addRow)
+
+        self.tableWidget_scheduler.setColumnCount(2)  # Reduced to 2 columns
+        self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp"])
+        self.tableWidget_scheduler.setRowCount(1)
+        self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
+        #self.tableWidget_scheduler.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.exp_dropdown = QComboBox()
+        self.exp_dropdown.addItems([""] + ["Option 1", "Option 2", "Option 3"])  # Add empty string as default
+        self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
+        self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
     #--------------------------------------------------------------------------------
+
+    def addRow(self):
+        row_count = self.tableWidget_scheduler.rowCount()
+        self.tableWidget_scheduler.setRowCount(row_count + 1)
         
+        exp_dropdown = QComboBox()
+        exp_dropdown.addItems([""] + ["Option 1", "Option 2", "Option 3"])  # Add empty string as default
+        self.tableWidget_scheduler.setCellWidget(row_count, 1, exp_dropdown)
+
+        # Set the date of the new row to be the same as the date of the previous row
+        if row_count > 0:
+            previous_date_item = self.tableWidget_scheduler.item(row_count - 1, 0)
+            if previous_date_item:
+                previous_date = QDate.fromString(previous_date_item.text(), "yyyy-MM-dd")
+                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(previous_date.toString("yyyy-MM-dd")))
+            else:
+                # If previous date is not available, set the current date
+                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
+        else:
+            self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
+
+        # Enable the "Done" button if the first row has a date
+        if row_count == 0:
+            self.pushButton_done.setEnabled(True)
+    #--------------------------------------------------------------------------------   
     def update_time(self):
         now = QDateTime.currentDateTime()
         formatted_time = now.toString("<b>ddd h:mm AP, MMM d, yyyy</b>")
@@ -726,6 +770,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.course_label.setFont(QFont('Arial', 12, weight=700))
         self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
+
+        self.course_label_2.setText(f'PHYS {self.code}')
+        self.course_label_2.setFont(QFont('Arial', 12, weight=700))
+        self.location_label_2.setText(f'{self.room}')
+        self.location_label_2.setFont(QFont('Arial', 12, weight=700))
 
     #--------------------------------------------------------------------------------        
     def check_comboboxes(self):
