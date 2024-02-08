@@ -512,6 +512,13 @@ class lab_scheduler_manager(QDialog):
         self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.exp_dropdown.setCurrentIndex(-1)
 
+        # Disable the "Done" button initially
+        self.pushButton_done.setEnabled(False)
+
+        # Connect signals for table events
+        self.tableWidget_scheduler.itemChanged.connect(self.checkFirstDate)
+        self.tableWidget_scheduler.model().rowsRemoved.connect(self.checkRowsRemoved)
+
     def addRow(self):
         self.exp_dropdown = QComboBox()
         self.exp_dropdown.addItems(list(self.exp_list.keys())) 
@@ -534,6 +541,67 @@ class lab_scheduler_manager(QDialog):
         # Enable the "Done" button if the first row has a date
         if row_count == 0:
             self.pushButton_done.setEnabled(True)
+    
+    def collectData(self):
+        dates = set()
+        options = set()
+        error_message = ""
+
+        for row in range(self.tableWidget_scheduler.rowCount()):
+            date_item = self.tableWidget_scheduler.item(row, 0)
+            option_item = self.tableWidget_scheduler.cellWidget(row, 1)
+
+            if date_item and option_item:
+                date = date_item.text()
+                option = option_item.currentText()
+
+                if date in dates:
+                    error_message += f"Date {date} is duplicated.\n"
+                else:
+                    dates.add(date)
+
+                if option == "":
+                    error_message += "An option must be selected.\n"
+                elif option in options:
+                    error_message += f"Option {option} is duplicated.\n"
+                else:
+                    options.add(option)
+
+        if error_message:
+            QMessageBox.critical(self, "Error", error_message)
+        else:
+            data = {row + 1: self.tableWidget_scheduler.item(row, 0).text() for row in range(self.tableWidget_scheduler.rowCount())}
+            print(data)
+            self.tableWidget_scheduler.setEnabled(False)
+            self.pushButton_done.setText("Edit")
+
+            # Connect edit functionality to the button
+            self.pushButton_done.clicked.disconnect()
+            self.pushButton_done.clicked.connect(self.editTable)
+    
+    def editTable(self):
+        self.tableWidget_scheduler.setEnabled(True)
+        self.pushButton_done.setText("Done")
+
+        # Connect data collection functionality back to the button
+        self.pushButton_done.clicked.disconnect()
+        self.pushButton_done.clicked.connect(self.collectData)
+
+    def checkFirstDate(self, item):
+        if item.row() == 0 and item.column() == 0:
+            self.pushButton_done.setEnabled(bool(item.text()))
+
+    def checkRowsRemoved(self):
+        # Disable the "Done" button if all rows are removed
+        if self.tableWidget_scheduler.rowCount() == 0:
+            self.pushButton_done.setEnabled(False)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Delete:
+            # Delete the selected row when the Delete key is pressed
+            selected_row = self.tableWidget_scheduler.currentRow()
+            if selected_row >= 0:
+                self.tableWidget_scheduler.removeRow(selected_row)
 #================================================================================
 class DateDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -541,6 +609,15 @@ class DateDelegate(QStyledItemDelegate):
         editor.setCalendarPopup(True)
         editor.setDate(QDate.currentDate().addDays(-QDate.currentDate().dayOfWeek() + 1))
         return editor
+    
+    def setEditorData(self, editor, index):
+        value = index.data(Qt.ItemDataRole.DisplayRole)
+        date = QDate.fromString(value, "yyyy-MM-dd")
+        editor.setDate(date)
+
+    def setModelData(self, editor, model, index):
+        date = editor.date().addDays(-editor.date().dayOfWeek() + 1)
+        model.setData(index, date.toString("yyyy-MM-dd"), Qt.ItemDataRole.DisplayRole)
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, appVersion, appDate):
