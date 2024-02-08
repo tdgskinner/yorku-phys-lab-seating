@@ -3,7 +3,6 @@ import requests
 import appdirs
 import pandas as pd
 import logging
-#from datetime import datetime
 from packaging import version
 
 from PyQt6 import QtWidgets, QtCore
@@ -486,6 +485,55 @@ class lpc_file_manager(QDialog):
                 event.ignore()
         else:
             event.accept()
+#--------------------------------------------------------------------------------
+class lab_scheduler_manager(QDialog):
+    def __init__(self, exp_list, time_csv_path, room, code):
+        super().__init__()
+        self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_lab_scheduler.ui')),self)
+        self.exp_list = exp_list
+        self.time_csv_path = time_csv_path
+        self.room = room
+        self.code = code
+
+        self.course_label.setText(f'PHYS {code}')
+        self.course_label.setFont(QFont('Arial', 12, weight=700))
+        self.location_label.setText(f'{room}')
+        self.location_label.setFont(QFont('Arial', 12, weight=700))
+
+        self.pushButton_plus.clicked.connect(self.addRow)
+        
+        self.tableWidget_scheduler.setColumnCount(2)  # Reduced to 2 columns
+        self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp"])
+        self.tableWidget_scheduler.setRowCount(1)
+        self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
+        self.exp_dropdown = QComboBox()
+        self.exp_dropdown.addItems(list(self.exp_list.keys())) 
+        self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
+        self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.exp_dropdown.setCurrentIndex(-1)
+
+    def addRow(self):
+        self.exp_dropdown = QComboBox()
+        self.exp_dropdown.addItems(list(self.exp_list.keys())) 
+        row_count = self.tableWidget_scheduler.rowCount()
+        self.tableWidget_scheduler.setRowCount(row_count + 1)
+        self.tableWidget_scheduler.setCellWidget(row_count, 1, self.exp_dropdown)
+
+        # Set the date of the new row to be the same as the date of the previous row
+        if row_count > 0:
+            previous_date_item = self.tableWidget_scheduler.item(row_count - 1, 0)
+            if previous_date_item:
+                previous_date = QDate.fromString(previous_date_item.text(), "yyyy-MM-dd")
+                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(previous_date.toString("yyyy-MM-dd")))
+            else:
+                # If previous date is not available, set the current date
+                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
+        else:
+            self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
+
+        # Enable the "Done" button if the first row has a date
+        if row_count == 0:
+            self.pushButton_done.setEnabled(True)
 #================================================================================
 class DateDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -631,6 +679,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
         self.pushButton_lpc_remote_files.clicked.connect(self.open_lpc_file_manager)
         self.pushButton_lpc_remote_files.setToolTip("Copy/Delete files to/from laptops")
+
+        self.pushButton_labScheduler.clicked.connect(self.open_lab_scheduler)
+        self.pushButton_labScheduler.setToolTip("Creates lab schedule csv file, to import in outlook calendar")
+
         if not self.room:
             self.pushButton_lpc_remote_files.setEnabled(False)
 
@@ -645,44 +697,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.show_weekly_att)
-
-        # scheduler tab:
-        self.pushButton_plus.clicked.connect(self.addRow)
-
-        self.tableWidget_scheduler.setColumnCount(2)  # Reduced to 2 columns
-        self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp"])
-        self.tableWidget_scheduler.setRowCount(1)
-        self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
-        #self.tableWidget_scheduler.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.exp_dropdown = QComboBox()
-        self.exp_dropdown.addItems([""] + ["Option 1", "Option 2", "Option 3"])  # Add empty string as default
-        self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
-        self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-    #--------------------------------------------------------------------------------
-
-    def addRow(self):
-        row_count = self.tableWidget_scheduler.rowCount()
-        self.tableWidget_scheduler.setRowCount(row_count + 1)
-        
-        exp_dropdown = QComboBox()
-        exp_dropdown.addItems([""] + ["Option 1", "Option 2", "Option 3"])  # Add empty string as default
-        self.tableWidget_scheduler.setCellWidget(row_count, 1, exp_dropdown)
-
-        # Set the date of the new row to be the same as the date of the previous row
-        if row_count > 0:
-            previous_date_item = self.tableWidget_scheduler.item(row_count - 1, 0)
-            if previous_date_item:
-                previous_date = QDate.fromString(previous_date_item.text(), "yyyy-MM-dd")
-                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(previous_date.toString("yyyy-MM-dd")))
-            else:
-                # If previous date is not available, set the current date
-                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
-        else:
-            self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
-
-        # Enable the "Done" button if the first row has a date
-        if row_count == 0:
-            self.pushButton_done.setEnabled(True)
     #--------------------------------------------------------------------------------   
     def update_time(self):
         now = QDateTime.currentDateTime()
@@ -771,10 +785,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
 
+        """
         self.course_label_2.setText(f'PHYS {self.code}')
         self.course_label_2.setFont(QFont('Arial', 12, weight=700))
         self.location_label_2.setText(f'{self.room}')
         self.location_label_2.setFont(QFont('Arial', 12, weight=700))
+        """
 
     #--------------------------------------------------------------------------------        
     def check_comboboxes(self):
@@ -1240,6 +1256,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lpc_remote.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.lpc_remote.show()
     
+    def open_lab_scheduler(self):
+        self.lab_scheduler = lab_scheduler_manager(self.exp_list, self.time_csv_path, self.room, self.code)
+        self.lab_scheduler.setWindowTitle('Lab Scheduler')
+        self.lab_scheduler.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.lab_scheduler.show()
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
