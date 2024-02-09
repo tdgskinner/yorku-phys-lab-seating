@@ -10,6 +10,7 @@ import subprocess
 import math
 from PIL import Image, ImageFont, ImageDraw
 import re
+from datetime import datetime
 
 from pylatex import Document, Tabular
 import pylatex as pl
@@ -40,7 +41,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
     session_ids = [sessions[key] for key in session_keys_sorted]
     logger.debug(f'session_ids: {session_ids}')
     
-    df = concat_stud_lists(stud_csv_path_list)
+    df, date_modified = concat_stud_lists(stud_csv_path_list)
 
     # Create a LaTeX document
     if extended_attlist_mode:
@@ -50,6 +51,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
     
     doc = Document(geometry_options=geometry_options)
     footer = ''
+    footer_DB_time = f'DB last update: {date_modified}'
 
     for session_id in session_ids:
         session_info = list(filter(lambda x: sessions[x] == session_id, sessions))[0]
@@ -141,6 +143,11 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         doc.append('\n\n\n')  # Add some space between table and caption
         doc.append(footer)
         
+        doc.append(pl.Command('vfill'))
+        doc.append(pl.Command('small'))  # Set the font size to small
+        doc.append(footer_DB_time)
+        doc.append(pl.Command('normalsize'))  # Reset the font size to normal
+        
         # Add a page break after each table
         doc.append(NoEscape(r'\newpage'))
         
@@ -163,17 +170,6 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         except subprocess.CalledProcessError as e:
             #logger.error("Error while generating PDF:", str(e))
             return None
-        '''
-        
-        error_message = str(e)
-        if "I can't write on file" in error_message:
-            # Provide a message to the user
-            logger.error("The PDF file is open in another application. Please close it to overwrite.")
-        else:
-            # Handle other subprocess errors if necessary
-            logger.error("Error while generating PDF:", error_message)
-        '''
-    
     
     
 #------------------------------------------------------------    
@@ -228,6 +224,8 @@ def _print_exp_dict(dict):
 def concat_stud_lists(stud_csv_path_list):
     stud_dfs = []
     for i, path in enumerate(stud_csv_path_list):
+        date_modified = datetime.fromtimestamp(os.path.getmtime(path)).strftime('%b-%d-%Y at %I:%M %p')
+        logging.debug(f'date modified (local time): {date_modified}')
         df = pandas.read_csv(path, index_col= False, header=None)
         # handle two different data length in student list depending on the lab course
         n_col = len(list(df.columns))
@@ -250,13 +248,13 @@ def concat_stud_lists(stud_csv_path_list):
         stud_dfs.append(df)
 
     # merge all lists into one df with distinc session_id
-    return pandas.concat(stud_dfs, axis=0)
+    return pandas.concat(stud_dfs, axis=0), date_modified
 
 
 #------------------------------------------------------------
 def get_number_of_students(stud_csv_path_list, session):
     
-    stud_df = concat_stud_lists(stud_csv_path_list)
+    stud_df, _ = concat_stud_lists(stud_csv_path_list)
     
     # filter the list based on the given session_id
     stud_df = stud_df.loc[stud_df['session_id'].str.strip()==session]
@@ -363,7 +361,7 @@ def get_studList_header(col):
 def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_stud, n_benches, code, pkl_file_name):
     exp_df= pandas.read_csv(exp_csv_path)  
     time_df= pandas.read_csv(time_csv_path)
-    stud_df = concat_stud_lists(stud_csv_path_list)
+    stud_df, _ = concat_stud_lists(stud_csv_path_list)
 
     #--- drop rows with nan
     exp_df = exp_df.dropna()
