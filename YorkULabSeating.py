@@ -487,21 +487,27 @@ class lpc_file_manager(QDialog):
             event.accept()
 #--------------------------------------------------------------------------------
 class lab_scheduler_manager(QDialog):
-    def __init__(self, exp_list, time_csv_path, room, code):
+    def __init__(self, exp_list, time_csv_path, room, code, location_list):
         super().__init__()
         self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_lab_scheduler.ui')),self)
         self.exp_list = exp_list
         self.time_csv_path = time_csv_path
         self.room = room
         self.code = code
+        self.location_list = location_list
 
         self.course_label.setText(f'PHYS {code}')
         self.course_label.setFont(QFont('Arial', 12, weight=700))
         self.location_label.setText(f'{room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
-
-        self.pushButton_plus.clicked.connect(self.addRow)
         
+        self.pushButton_plus.setStyleSheet("background-color: pink;")
+        self.pushButton_done.setStyleSheet("background-color: lightblue;")
+        
+        self.pushButton_plus.clicked.connect(self.addRow)
+        self.pushButton_done.clicked.connect(self.collectData)
+        self.pushButton_create_csv.clicked.connect(self.generate_schedule_csv)
+
         self.tableWidget_scheduler.setColumnCount(2)  # Reduced to 2 columns
         self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp"])
         self.tableWidget_scheduler.setRowCount(1)
@@ -514,6 +520,7 @@ class lab_scheduler_manager(QDialog):
 
         # Disable the "Done" button initially
         self.pushButton_done.setEnabled(False)
+        self.pushButton_create_csv.setEnabled(False)
 
         # Connect signals for table events
         self.tableWidget_scheduler.itemChanged.connect(self.checkFirstDate)
@@ -561,26 +568,30 @@ class lab_scheduler_manager(QDialog):
                     dates.add(date)
 
                 if option == "":
-                    error_message += "An option must be selected.\n"
+                    error_message += "A Exp. must be selected.\n"
                 elif option in options:
-                    error_message += f"Option {option} is duplicated.\n"
+                    error_message += f"Exp. {option} is duplicated.\n"
                 else:
                     options.add(option)
 
         if error_message:
             QMessageBox.critical(self, "Error", error_message)
         else:
-            data = {row + 1: self.tableWidget_scheduler.item(row, 0).text() for row in range(self.tableWidget_scheduler.rowCount())}
-            print(data)
+            self.schedule_data_dict = {row + 1: self.tableWidget_scheduler.item(row, 0).text() for row in range(self.tableWidget_scheduler.rowCount())}
+            logging.debug(f'self.schedule_data_dict: {self.schedule_data_dict}')
+            
             self.tableWidget_scheduler.setEnabled(False)
             self.pushButton_done.setText("Edit")
 
             # Connect edit functionality to the button
             self.pushButton_done.clicked.disconnect()
             self.pushButton_done.clicked.connect(self.editTable)
+            self.pushButton_create_csv.setEnabled(True)
+            return self.schedule_data_dict
     
     def editTable(self):
         self.tableWidget_scheduler.setEnabled(True)
+        self.pushButton_create_csv.setEnabled(False)
         self.pushButton_done.setText("Done")
 
         # Connect data collection functionality back to the button
@@ -602,6 +613,23 @@ class lab_scheduler_manager(QDialog):
             selected_row = self.tableWidget_scheduler.currentRow()
             if selected_row >= 0:
                 self.tableWidget_scheduler.removeRow(selected_row)
+    
+    def closeEvent(self, event):
+        pass
+
+
+    def generate_schedule_csv(self):
+        schedule = seating.generate_schedule(self.schedule_data_dict, self.time_csv_path, self.exp_list, self.code, self.location_list)
+            
+        # Prompt the user to save the file
+        fileName, _ = QFileDialog.getSaveFileName(None, "Save Schedule", "", "CSV Files (*.csv)")
+        
+        if fileName:
+            if not fileName.endswith('.csv'):
+                fileName += '.csv'
+            # Save DataFrame to CSV
+            schedule.to_csv(fileName, index=False)
+            print(f"Lab Schedule saved to {fileName}")
 #================================================================================
 class DateDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
@@ -847,7 +875,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
             if self.exp_csv_path:
-                self.exp_list = self.extract_exp(self.exp_csv_path)
+                self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
         else:
             self.lineEdit_course_dir.clear()
             
@@ -949,7 +977,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
             else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
-                self.exp_list = self.extract_exp(self.exp_csv_path)
+                self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
                 
     
     def extract_course_csv_paths(self, course_dir):
@@ -1029,7 +1057,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return session_list
 
     def extract_exp(self, exp_csv_path):
-        exp_list = seating.get_exp_list(exp_csv_path)
+        exp_list, location_list = seating.get_exp_list(exp_csv_path)
         self.comboBox_exp_id.clear()
         #self.pushButton_Watt.setEnabled(False)
 
@@ -1040,7 +1068,7 @@ class MainWindow(QtWidgets.QMainWindow):
             logging.debug(f'---exps loaded:{list_helper}')
             self.comboBox_exp_id.setCurrentIndex(-1)
         
-        return exp_list
+        return exp_list, location_list
 
     def set_debug_mode(self):
         debug_mode = self.checkBox_debugMode.isChecked()
@@ -1334,10 +1362,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lpc_remote.show()
     
     def open_lab_scheduler(self):
-        self.lab_scheduler = lab_scheduler_manager(self.exp_list, self.time_csv_path, self.room, self.code)
-        self.lab_scheduler.setWindowTitle('Lab Scheduler')
-        self.lab_scheduler.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.lab_scheduler.show()
+        if self.location_list:
+            self.lab_scheduler = lab_scheduler_manager(self.exp_list, self.time_csv_path, self.room, self.code, self.location_list)
+            self.lab_scheduler.setWindowTitle('Lab Scheduler')
+            self.lab_scheduler.setWindowModality(Qt.WindowModality.ApplicationModal)
+            self.lab_scheduler.show()
+        else:
+            QMessageBox.critical(self, "Error", "Cannot generate Lab schedul. No 'location' is listed in exp_*.csv file.")
+            return None
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)

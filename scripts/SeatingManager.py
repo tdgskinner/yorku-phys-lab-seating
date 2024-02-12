@@ -2,6 +2,7 @@
 from typing import DefaultDict
 import pandas
 import numpy as np
+import pandas as pd
 import pickle
 import logging
 import random
@@ -10,12 +11,12 @@ import subprocess
 import math
 from PIL import Image, ImageFont, ImageDraw
 import re
-from datetime import datetime
 
 from pylatex import Document, Tabular
 import pylatex as pl
 from pylatex.utils import NoEscape
 from pylatex import utils, NewPage
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -342,14 +343,17 @@ def get_exp_list(exp_csv_path):
 
     id_list = list(exp_df['exp_id'])
     title_list = list(exp_df['exp_title'].str.strip())
-    
+    try:
+        location_list = list(exp_df['location'].str.strip())
+    except KeyError:
+        location_list = []
     exp_list = list(zip(id_list, title_list))
     
     for exp in exp_list:
         #exps[exp[0]] = f'{exp[0]}: {exp[1]}'
         exps[f'{exp[0]}: {exp[1]}'] = exp[0]
     
-    return exps
+    return exps, location_list
 
 #------------------------------------------------------------
 def get_studList_header(col):
@@ -809,4 +813,45 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     except:
         logger.error('Could not write on the layout image.')
 
-    
+#------------------------------------------------------------
+def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, location_list):
+    weeks_list = list(schedule_data_dict.values())
+    schedule_df = pd.DataFrame(columns=['start date', 'start time', 'end time', 'subject', 'Description', 'location'])
+    days_index = {'M': 0, 'T': 1, 'W': 2, 'R': 3, 'F': 4}
+
+    time_df = pd.read_csv(time_csv_path)
+    # Drop rows with NaN and reset index
+    time_df = time_df.dropna().reset_index(drop=True)
+
+    # Assuming 'Start Time' and 'Duration' columns exist in your CSV
+    start_time_list = time_df['Start Time']
+    duration_list = time_df['Duration']
+    end_time_list = []
+
+    exp_title_list = [s.split(": ", 1)[1] if ": " in s else s for s in list(exp_list.keys())]
+
+    # Calculate end times based on start times and durations
+    for start_time, duration in zip(start_time_list, duration_list):
+        start_time_obj = datetime.strptime(start_time, '%H:%M')
+        duration_obj = timedelta(minutes=int(duration))
+        end_time_obj = start_time_obj + duration_obj
+        end_time_list.append(end_time_obj.strftime('%H:%M'))
+
+    for i, week in enumerate(weeks_list):
+        date_format = '%Y-%m-%d'
+        date_obj = datetime.strptime(week, date_format)
+
+        for index, row in time_df.iterrows():
+            day = row['Day']
+            start_time = row['Start Time']
+            end_time = end_time_list[index]  # Use precomputed end_time
+            type = row['Type']
+            _date = date_obj + timedelta(days=days_index[day])
+
+            # Append each new row to the DataFrame
+            new_row = {'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
+                       'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title_list[i]}',
+                       'location': location_list[i]}
+            schedule_df = schedule_df.append(new_row, ignore_index=True)
+
+    return schedule_df
