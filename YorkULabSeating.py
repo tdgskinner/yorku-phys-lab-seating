@@ -501,9 +501,6 @@ class lab_scheduler_manager(QDialog):
         self.location_label.setText(f'{room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
         
-        self.pushButton_plus.setStyleSheet("background-color: pink;")
-        self.pushButton_done.setStyleSheet("background-color: lightblue;")
-        
         self.pushButton_plus.clicked.connect(self.addRow)
         self.pushButton_done.clicked.connect(self.collectData)
         self.pushButton_create_csv.clicked.connect(self.generate_schedule_csv)
@@ -760,6 +757,9 @@ class MainWindow(QtWidgets.QMainWindow):
         icon_reboot = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_BrowserReload'))
         icon_brows = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_DirOpenIcon'))
         icon_file = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileIcon'))
+        icon_lab_scheduler = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogListView'))
+        icon_weekly_att = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogDetailedView'))
+        icon_session_att = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogContentsView'))
         
         self.pushButton_save_settings.setIcon(icon_save)
         self.pushButton_course_dir_browse.setIcon(icon_brows)
@@ -767,6 +767,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_rebootPCs.setIcon(icon_reboot)
         self.pushButton_rebootLaptops.setIcon(icon_reboot)
         self.pushButton_lpc_remote_files.setIcon(icon_file)
+        self.pushButton_labScheduler.setIcon(icon_lab_scheduler)
+        self.pushButton_Watt.setIcon(icon_weekly_att)
+        self.pushButton_att.setIcon(icon_session_att)
 
         #--signal and slots
         self.pushButton_update_check.clicked.connect(self.check_for_update)
@@ -807,7 +810,9 @@ class MainWindow(QtWidgets.QMainWindow):
         now = QDateTime.currentDateTime()
         formatted_time = now.toString("<b>ddd h:mm AP, MMM d, yyyy</b>")
         self.label_time.setText(formatted_time)
-
+        self.label_time.setStyleSheet("color: blue; font-size: 12pt;")
+        
+    #--------------------------------------------------------------------------------
     def set_default_room_settings(self):
         room_setting = {}
         room_setting['year'] = '2024'    
