@@ -243,7 +243,7 @@ class AttWindow(QWidget):
         self.retrieveDataset()
     
     def retrieveDataset(self):
-        self.df = seating.concat_stud_lists(self.stud_list)
+        self.df, _ = seating.concat_stud_lists(self.stud_list)
         self.df = self.df.reset_index(drop=True)
         n_col = len(list(self.df.columns))
         if n_col == 9 or n_col ==10:
