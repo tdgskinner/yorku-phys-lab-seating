@@ -40,10 +40,13 @@ class Remote_GPC_manager:
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
         out_dir = os.path.join(user_data_dir, f'output_{code}')
+        
+        layout_path = os.path.join(user_data_dir, 'output_layout', 'lab_layout_grp.png')
+        
         css_path_1 = os.path.join(cwd, 'assets', 'style_small.css')
         css_path_2 = os.path.join(cwd, 'assets', 'style_large.css')
         css_path_3 = os.path.join(cwd, 'assets', 'style_all.css')
-        #js_path = os.path.join(cwd, 'assets', 'time.js')
+        
         YUlogo_path = os.path.join(cwd,'assets','yorku-logo.jpg')
         img_dir_path = os.path.join(src_dir ,'img')
         tip_dir_path = os.path.join(src_dir, 'tip')
@@ -64,10 +67,10 @@ class Remote_GPC_manager:
         self._force_copy(css_path_1, os.path.join(self.web_directory,'style_small.css'))
         self._force_copy(css_path_2, os.path.join(self.web_directory,'style_large.css'))
         self._force_copy(css_path_3, os.path.join(self.web_directory,'style_all.css'))
-        #self._force_copy(js_path, os.path.join(self.web_directory,'time.js'))
         self._force_copy(YUlogo_path, os.path.join(self.web_directory,'yorku-logo.jpg'))
         self._force_copy(img_dir_path, os.path.join(self.web_directory,'img'), type='dir')
         self._force_copy(tip_dir_path, os.path.join(self.web_directory,'tip'), type='dir')
+        self._force_copy(layout_path, os.path.join(self.web_directory,'img','lab_layout_grp.png'))
         
 
         for f in html_files:

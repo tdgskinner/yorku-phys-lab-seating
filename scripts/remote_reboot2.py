@@ -26,7 +26,7 @@ class Remote_PC_Reboot:
                 output[2] = -1  # Update index 2 directly
                 break
 
-    def reboot_Pcs(self, pc):
+    def reboot_Pc(self, pc):
         try:
             cmd = f'shutdown -m \\\\{pc} -r -f -t 3'
             output = [None, None, None]

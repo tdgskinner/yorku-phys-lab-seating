@@ -935,7 +935,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText("Cannot generate lab_layout_grp.jpg.")
+                dlg.setText("Cannot generate lab_layout file!")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:
@@ -1238,6 +1238,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ta_name = self.lineEdit_TAname.text()
                 else: self.ta_name = None
                 
+                self.lab_layout_out_file = seating.print_on_layout(user_data_dir, self.gpc_map, self.room, self.room_list, self.exp_id, self.pkl_path)
                 html_dir = seating.html_generator(user_data_dir, self.pkl_path, self.code, self.n_max_group, self.n_benches, self.appVersion, self.css_file, self.css_file_all, self.ta_name)
                 if html_dir:
                     self.can_copy_htmlfiles = True
@@ -1311,7 +1312,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.gpc_list:
                 self.gpc_reboot_pbar.show()
                 #self.gpc_reboot_pbar.setFormat("Rebooting Group PCs ...")
-                self.thread[2] = Reboot_PC_Thread(self.gpc_list, self.gpc_reboot_pbar ,parent=None)
+                self.thread[2] = Reboot_PC_Thread(self.gpc_list, self.gpc_reboot_pbar, self.n_max_group, _type='gpc', parent=None)
                 self.thread[2].finished.connect(self.on_gpc_rebootFinished)
                 self.thread[2].start()
                 
@@ -1345,7 +1346,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.laptop_list:
                 self.pc_reboot_pbar.show()
                 #self.pc_reboot_pbar.setFormat(f"Rebooting Laptop {}")
-                self.thread[3] = Reboot_PC_Thread(self.laptop_list, self.pc_reboot_pbar, parent=None)
+                self.thread[3] = Reboot_PC_Thread(self.laptop_list, self.pc_reboot_pbar, self.n_max_group, type='lpc', parent=None)
                 self.thread[3].finished.connect(self.on_laptop_rebootFinished)
                 self.thread[3].start()
                 
@@ -1714,12 +1715,14 @@ class lpcDeleteThread(QThread):
 class Reboot_PC_Thread(QThread):
     progress = pyqtSignal(int)
 
-    def __init__(self, pc_list, progress_bar, parent=None ):
+    def __init__(self, pc_list, progress_bar, n_max_pc, _type, parent=None ):
         super(Reboot_PC_Thread, self).__init__(parent)
         self.status = {}
         self.pc_list = pc_list
         self.is_running = True
         self.pbar = progress_bar
+        self.n_max_pc= n_max_pc
+        self._type = _type
         self.reboot_service = Remote_PC_Reboot()
         
         
@@ -1728,9 +1731,15 @@ class Reboot_PC_Thread(QThread):
         self.progress.emit(0)
 
         for i, pc in enumerate(self.pc_list):
-            self.pbar.setFormat(f"Rebooting -- {pc.split('.')[0]}")
-            self.status[pc] = self.reboot_service.reboot_Pcs(pc)
-            self.progress.emit(int(100*(i+1)/len(self.pc_list)))
+            if self._type=='gpc':
+                if i< self.n_max_pc: # this is to avoid rebooting PCs other than the group PCs assigned to the course
+                    self.pbar.setFormat(f"Rebooting -- {pc.split('.')[0]}")
+                    self.status[pc] = self.reboot_service.reboot_Pc(pc)
+                    self.progress.emit(int(100*(i+1)/self.n_max_pc))
+            else:
+                self.pbar.setFormat(f"Rebooting -- {pc.split('.')[0]}")
+                self.status[pc] = self.reboot_service.reboot_Pc(pc)
+                self.progress.emit(int(100*(i+1)/len(self.pc_list)))
         
         if all(self.status.values()):
             logging.info(' All PCs rebooted successfully')

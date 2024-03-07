@@ -491,7 +491,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
             ta_name = df_time_metadata['Instructor'].iloc[0]
         
         #creating html files
-        html_all_generator(e, n_max_group, n_benches, code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version)
+        html_all_generator_layout(e, code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version)
     
         for g in range(n_group):
             df = dict[e][2][g].reset_index(drop=True)
@@ -612,7 +612,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     return html_dir
 
 #------------------------------------------------------------
-def html_all_generator(exp, n_max_group, n_benches ,code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version):
+def html_all_generator_grp(exp, n_max_group, n_benches ,code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version):
     n_group = len(dict[1][2])
     
     f_html = os.path.join(output_dir, 'g99.html')
@@ -730,7 +730,95 @@ def html_all_generator(exp, n_max_group, n_benches ,code, output_dir, dict, df_e
         except:
             logger.error(f' Failed to write html files to disk', exc_info = True)
             return None
+#------------------------------------------------------------
+def html_all_generator_layout(exp, code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version):
+    n_group = len(dict[1][2])
+    
+    f_html = os.path.join(output_dir, 'g99.html')
+    stud_list = []
 
+    for g in range(n_group):
+        df = dict[exp][2][g].reset_index(drop=True)
+        df.index += 1
+        _list = []
+        for i in range(len(df)):
+            row = df.iloc[i,2] +' '+ df.iloc[i,1]
+            _list.append(row)
+        
+        stud_list.append(_list)
+        
+    
+    newline = "\n"
+
+    seating_header = f'''
+        <header>
+            <div class="logo"></div>
+            <div class="session-info">PHYS {code}, Session: {day_map(df_time_metadata['Day'].iloc[0])}, {df_time_metadata['Start Time'].iloc[0]}, TA: {ta_name}</div>
+            <div id="time" class="session-info"></div>
+        </header>
+    '''
+            
+    seating_layout =f'''
+        <div class="layout-container">
+            <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Groups</div>
+            <div class="layout" style="background-image: url('img/lab_layout_grp.png');"></div>
+        </div>
+    '''
+
+    seating_img_tip = f'''
+            <div class="photo-container_all">
+                <div class="image-header">Exp {df_exp_metadata['exp_id'].iloc[0]}: {df_exp_metadata['exp_title'].iloc[0]}</div>
+                <div class="photo_all" style="background-image: url('img/{df_exp_metadata['exp_img'].iloc[0]}');"></div>
+            <div class="tips-title">Useful Tips</div>
+            <div class="iframe-content_all" contenteditable="False">
+                <iframe src="{os.path.join('tip', df_exp_metadata['exp_tip'].iloc[0])}" frameborder="0"></iframe>
+            </div>  
+    '''
+    # constructing the html page
+    time_js = '''
+        <script>
+            function updateTime() {
+              const now = new Date();
+              const options = { hour: 'numeric', minute: 'numeric' };
+              const timeElement = document.getElementById('time');
+              timeElement.textContent = now.toLocaleTimeString([], options);
+            }
+
+            updateTime();
+            setInterval(updateTime, 60000); // Update time every minute
+        </script>
+        '''
+    page_contents = f'''<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <title>YU LabManager</title>
+            <meta http-equiv="refresh" content="15">
+            <link rel="stylesheet" type="text/css" href="{css_file_all}?v={round(random.randint(0, 1000)/100, 2 )}">
+        </head>
+        <body>
+            {seating_header}
+            <div class="main-body">
+                {seating_layout}
+                {seating_img_tip}
+            </div>
+            
+            <footer>
+                YU LabManager V{version}
+            </footer>
+            {time_js} 
+        </body>
+        
+        </html>
+    '''
+
+    with open(f_html, 'w') as html_seating_file:
+
+        try:
+            html_seating_file.write(page_contents)
+            return True
+        except:
+            logger.error(f' Failed to write html files to disk', exc_info = True)
+            return None
 #------------------------------------------------------------
 def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     
@@ -750,7 +838,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     g_cord_dict = cord_map(room, gpc_map)
     
     text_char_limit = 20
-    text_color = 'red'  
+    text_color = 'black'  
     
     
     # Open the layout image
@@ -774,7 +862,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     editImage = ImageDraw.Draw(myLayout)
 
     # Define background color
-    background_color = (154, 237, 176)  # Use (R, G, B) values for white background
+    background_color = (255, 204, 229)  # Use (R, G, B) values for white background
 
     dict = _load_student_groups(pkl_path)
 
@@ -802,6 +890,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
            
                 # Create a rectangle with the background color
                 editImage.rectangle([x, y, x + text_width, y + text_height], fill=background_color)
+                #editImage.rectangle([x, y, x + text_width, y + text_height])
             
                 # Write the text on the colored background 
                 editImage.text((x, y), stud_name[:text_char_limit], fill=text_color, font=textFont)
