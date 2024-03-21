@@ -8,7 +8,7 @@ from packaging import version
 from PyQt6 import QtWidgets, QtCore
 from PyQt6 import uic
 from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
-from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QStyle
+from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QProgressDialog, QStyle
 from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt6.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
@@ -771,7 +771,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_att.setIcon(icon_session_att)
 
         #--signal and slots
-        self.pushButton_update_check.clicked.connect(self.check_for_update)
+        #self.pushButton_update_check.clicked.connect(self.check_for_update)
+        self.pushButton_update_check.clicked.connect(self.check_for_update_2)
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.generate_html)
@@ -1526,6 +1527,82 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print(f"Error fetching update information: {e}")
             QMessageBox.critical(None, "Error", "Failed to check for updates.")
+
+
+
+    def check_for_update_2(self):
+        """
+        Check for updates and download the latest version if available, with a progress bar.
+
+        This method fetches update information from a GitHub Pages URL and compares the latest version with the installed version.
+        If a newer version is available, it prompts the user to download it to a selected location while showing a download progress bar.
+
+        Raises:
+            Exception: If there is an error fetching update information or checking for updates.
+
+        Returns:
+            None
+        """
+        update_info_url = "https://m-kareem.github.io/yorku-phys-lab-seating/assets/update_info.json"
+
+        try:
+            response = requests.get(update_info_url)
+            update_info = response.json()
+
+            latest_version = update_info.get('version')
+            logging.debug(f'latest_version: {latest_version}')
+
+            if version.parse(latest_version) > version.parse(self.appVersion):
+                reply = QMessageBox.question(
+                    None,
+                    "Update Available",
+                    f"A new version ({latest_version}) is available. Do you want to download it?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                )
+
+                if reply == QMessageBox.StandardButton.Yes:
+                    default_download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+
+                    file_dialog = QFileDialog()
+                    file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+                    save_path = file_dialog.getExistingDirectory(None, "Select Download Location", default_download_folder)
+
+                    if save_path:
+                        download_url = update_info.get('download_url')
+                        if download_url:
+                            # Download with progress bar
+                            with requests.get(download_url, stream=True) as r:
+                                r.raise_for_status()
+                                total_length = int(r.headers.get('content-length', 0))
+                                chunk_size = 4096
+                                num_bars = total_length // chunk_size
+
+                                progress_dialog = QProgressDialog("Downloading in progress ...", "Cancel", 0, num_bars, None)
+                                progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+                                progress_dialog.setWindowTitle("Downloading")
+                                progress_dialog.setValue(0)
+
+                                file_name = download_url.split('/')[-1]
+                                file_path = f"{save_path}/{file_name}"
+
+                                with open(file_path, 'wb') as f:
+                                    for num, chunk in enumerate(r.iter_content(chunk_size=chunk_size)):
+                                        if progress_dialog.wasCanceled():
+                                            break
+                                        f.write(chunk)
+                                        progress_dialog.setValue(num)
+
+                                if not progress_dialog.wasCanceled():
+                                    QMessageBox.information(None, "Download Completed", f"File downloaded to: {file_path}")
+                                else:
+                                    os.remove(file_path)  # Remove partial file if canceled
+            else:
+                QMessageBox.information(None, "No Update", "Your application is up to date.")
+
+        except Exception as e:
+            print(f"Error fetching update information: {e}")
+            QMessageBox.critical(None, "Error", "Failed to check for updates.")
+
 #--------------------------------------------------------------------------------
 class CopyFileThread(QThread):
     progress = pyqtSignal(int)
