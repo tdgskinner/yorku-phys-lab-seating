@@ -56,11 +56,6 @@ class Remote_GPC_manager:
         logger.debug(f'---img_dir_path= {img_dir_path}')
         
         #creating a fresh web_directory
-        '''
-        if os.path.exists(self.web_directory):
-            shutil.rmtree(self.web_directory)
-        os.makedirs(self.web_directory)
-        '''
         if not os.path.exists(self.web_directory):
             os.makedirs(self.web_directory)
         

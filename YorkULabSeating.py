@@ -17,7 +17,6 @@ from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 from PyQt6.QtCore import QTimer, QDateTime, QDate
 
 import scripts.SeatingManager as seating
-#import scripts.GPcManager as gpc
 import scripts.GPcManager2 as gpc
 from scripts.remote_copy import Remote_GPC_manager, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
@@ -658,7 +657,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.small_screen_mode = False
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
-        #self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
+        
         self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
         YUlogo_s = QPixmap(resource_path(os.path.join('assets','yorklogo.png')))
         YUlogo_l = QPixmap(resource_path(os.path.join('assets','YorkU_logo_L.png')))
@@ -895,13 +894,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
 
-        """
-        self.course_label_2.setText(f'PHYS {self.code}')
-        self.course_label_2.setFont(QFont('Arial', 12, weight=700))
-        self.location_label_2.setText(f'{self.room}')
-        self.location_label_2.setFont(QFont('Arial', 12, weight=700))
-        """
-
     #--------------------------------------------------------------------------------        
     def check_comboboxes(self):
         if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
@@ -1064,7 +1056,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def extract_exp(self, exp_csv_path):
         exp_list, location_list = seating.get_exp_list(exp_csv_path)
         self.comboBox_exp_id.clear()
-        #self.pushButton_Watt.setEnabled(False)
 
         if exp_list:
             list_helper = list(exp_list.keys())
@@ -1219,8 +1210,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
-                    #self.pushButton_grouping.setEnabled(False)
-                    #self.comboBox_session.setEnabled(False)
                     self.pushButton_labLayout.setEnabled(True)
                 else:
                     dlg = QtWidgets.QMessageBox(self)
@@ -1425,7 +1414,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
 
         # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
-        #self.room_setting_dict = {}
         room_setting = {}
         room_setting['year'] = self.lineEdit_year.text()
         room_setting['semester'] = self.comboBox_semester.currentText()
@@ -1465,38 +1453,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if button == QtWidgets.QMessageBox.StandardButton.Yes:
             
             self.save_settings()
-            '''
-            #--- store the current setting in the system before closing the app
-            self.setting_Course.setValue('year', self.lineEdit_year.text() )
-            self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
-            self.setting_Course.setValue('code', self.lineEdit_code.text() )
-            self.setting_Course.setValue('course_dir', self.course_dir )
-            self.setting_Course.setValue('pc_dir', self.pc_dir )
-            self.setting_Course.setValue('exp_id', int(self.exp_id))
-            self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
-            self.setting_Course.setValue('room', self.comboBox_room.currentText())
-            self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
-            self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
-            self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
-            self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
-
-            # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
-            #self.room_setting_dict = {}
-            room_setting = {}
-            room_setting['year'] = self.lineEdit_year.text()
-            room_setting['semester'] = self.comboBox_semester.currentText()
-            room_setting['code'] = self.lineEdit_code.text()
-            room_setting['course_dir'] = self.course_dir
-            room_setting['exp_id'] = int(self.exp_id)
-            room_setting['exp'] = self.comboBox_exp_id.currentText()
-            room_setting['n_max_group'] = int(self.lineEdit_ngroups.text())
-            room_setting['n_benches'] = int(self.lineEdit_nbenches.text())
-            room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
-            room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
-            
-            self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
-            self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
-            '''
 
             try:
                 event.accept()
@@ -1756,7 +1712,6 @@ class Reboot_PC_Thread(QThread):
 if __name__ == '__main__':
     
     def show_main_window(app):
-        #with open("update_info.json", "r") as json_file:
         with open(resource_path(os.path.join('assets', 'update_info.json'))) as json_file:
             data = json.load(json_file)
             appVersion = data["version"]
