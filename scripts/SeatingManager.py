@@ -849,7 +849,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
         return
 
     # Create a font
-    font_size = 65
+    font_size = 70
     font_path = os.path.join('scripts', 'arial.ttf')
     try:
         textFont = ImageFont.truetype(font_path, font_size)
