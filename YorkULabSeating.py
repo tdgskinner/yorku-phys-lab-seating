@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt6.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
-from PyQt6.QtCore import QTimer, QDateTime, QDate
+from PyQt6.QtCore import QTimer, QDateTime, QDate, pyqtSignal
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager2 as gpc
@@ -627,6 +627,120 @@ class lab_scheduler_manager(QDialog):
             schedule.to_csv(fileName, index=False)
             print(f"Lab Schedule saved to {fileName}")
 #================================================================================
+class att_editor_manager(QDialog):
+    column_details_updated = pyqtSignal(dict) # Define a signal to emit updated column details
+
+    def __init__(self, code, column_details=None):
+        super().__init__()
+        self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_att_editor.ui')), self)
+        self.setWindowTitle("Attendance Sheet Editor")
+        self.setGeometry(100, 100, 500, 300)
+
+        self.course_label.setText(f'PHYS {code} Extended Attendance Sheet')
+
+        self.tableWidget_attEditor.setColumnCount(2)  # Two columns for title and width
+        self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width"])
+        self.tableWidget_attEditor.setRowCount(2)  # Start with two rows
+
+        # Button connections
+        self.pushButton_add.clicked.connect(self.addRow)
+        self.pushButton_done.clicked.connect(self.collectData)
+
+        # Initialize flag
+        self.is_initializing = True
+
+        # Load existing details or set default rows
+        self.column_details = column_details if column_details else {}
+        if self.column_details:
+            self.loadColumnDetails(self.column_details)
+        else:
+            self.setDefaultRows()
+
+        # Initialization complete
+        self.is_initializing = False
+
+    def setDefaultRows(self):
+        """Set the default rows for the table."""
+        self.setRowValues(0, "First Name", "3.5")
+        self.setRowValues(1, "Last Name", "3.5")
+
+    def loadColumnDetails(self, column_details):
+        """Load and fill the table with data from column_details."""
+        self.tableWidget_attEditor.setRowCount(len(column_details))
+        for index, (title, width) in enumerate(column_details.items()):
+            self.setRowValues(index, title, str(width))
+
+    def setRowValues(self, row, title, width):
+        """Helper method to set the values of a row."""
+        self.tableWidget_attEditor.setItem(row, 0, QTableWidgetItem(title))
+        self.tableWidget_attEditor.setItem(row, 1, QTableWidgetItem(str(width)))
+
+    def addRow(self):
+        row_count = self.tableWidget_attEditor.rowCount()
+        self.tableWidget_attEditor.setRowCount(row_count + 1)
+
+    def collectData(self):
+        if not self.validityCheck():
+            return  # If data is invalid, halt operation.
+        
+        self.column_details.clear()
+
+        for row in range(self.tableWidget_attEditor.rowCount()):
+            title_item = self.tableWidget_attEditor.item(row, 0)
+            width_item = self.tableWidget_attEditor.item(row, 1)
+            if title_item and width_item:
+                title = title_item.text().strip()
+                width_text = width_item.text().strip()
+                try:
+                    width = float(width_text)
+                except ValueError:
+                    continue  # Skip if invalid
+                self.column_details[title] = width
+        
+        self.column_details_updated.emit(self.column_details)  # Emit the signal with the updated column details
+        self.accept()  # Close dialog if data collection is successful
+        logging.debug(f"Column details: {self.column_details}")
+
+    def validityCheck(self):
+        if self.is_initializing:
+            return True  # Skip checks during initialization.
+
+        seen_titles = set()
+        for row in range(self.tableWidget_attEditor.rowCount()):
+            title_item = self.tableWidget_attEditor.item(row, 0)
+            width_item = self.tableWidget_attEditor.item(row, 1)
+
+            if not title_item or not title_item.text().strip():
+                QMessageBox.warning(self, "Invalid Entry", "Please fill in all titles.")
+                return False
+
+            title_text = title_item.text().strip()
+            if title_text in seen_titles:
+                QMessageBox.warning(self, "Duplicate Title Detected", "Each title must be unique.")
+                return False
+            seen_titles.add(title_text)
+
+            if not width_item or not width_item.text().strip():
+                QMessageBox.warning(self, "Invalid Entry", "Please fill in all widths.")
+                return False
+            try:
+                width = float(width_item.text().strip())
+                if width <= 0:
+                    raise ValueError
+            except ValueError:
+                QMessageBox.warning(self, "Invalid Entry", "Enter a positive number for width.")
+                return False
+
+        return True  # Data is valid
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Delete:
+            # Delete the selected row when the Delete key is pressed
+            selected_row = self.tableWidget_attEditor.currentRow()
+            if selected_row >= 0:
+                self.tableWidget_attEditor.removeRow(selected_row)
+
+#================================================================================
 class DateDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         editor = QDateEdit(parent)
@@ -766,6 +880,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_rebootPCs.setIcon(icon_reboot)
         self.pushButton_rebootLaptops.setIcon(icon_reboot)
         self.pushButton_lpc_remote_files.setIcon(icon_file)
+        self.pushButton_attEdit.setIcon(icon_weekly_att)
         self.pushButton_labScheduler.setIcon(icon_lab_scheduler)
         self.pushButton_Watt.setIcon(icon_weekly_att)
         self.pushButton_att.setIcon(icon_session_att)
@@ -788,6 +903,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_lpc_remote_files.clicked.connect(self.open_lpc_file_manager)
         self.pushButton_lpc_remote_files.setToolTip("Copy/Delete files to/from laptops")
 
+        self.pushButton_attEdit.clicked.connect(self.open_att_editor)
         self.pushButton_labScheduler.clicked.connect(self.open_lab_scheduler)
         self.pushButton_labScheduler.setToolTip("Creates lab schedule csv file, to import in outlook calendar")
 
@@ -825,11 +941,13 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['n_benches'] = 4
         room_setting['extended_attlist_mode'] = False
         room_setting['small_screen_mode'] = False
+        room_setting['att_column'] = {}
         
         return room_setting
     
     
     def load_room_settings(self, room):
+        # Load the room setting dictionary
         self.room_setting_dict = self.setting_Course.value('room_setting_dict')
         logging.debug(f'room_setting_dict: {self.room_setting_dict}')
 
@@ -856,6 +974,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_benches = room_setting.get('n_benches')
         
         self.extended_attlist_mode = room_setting.get('extended_attlist_mode')
+        self.att_column = room_setting.get('att_column')
+
         self.small_screen_mode = room_setting.get('small_screen_mode')
 
         # laod the setting into the GUI
@@ -1367,6 +1487,16 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.critical(self, "Error", "Cannot generate Lab schedul. No 'location' is listed in exp_*.csv file.")
             return None
 
+    def open_att_editor(self):
+        self.att_editor = att_editor_manager(self.code, self.att_column)
+        self.att_editor.column_details_updated.connect(self.updateColumnDetails)  # Connect the signal
+        self.att_editor.setWindowTitle('Attendence Sheet Editor')
+        self.att_editor.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.att_editor.show()
+    
+    def updateColumnDetails(self, updated_details):
+        self.att_column = updated_details
+
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
 
@@ -1425,6 +1555,7 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['n_max_group'] = int(self.lineEdit_ngroups.text())
         room_setting['n_benches'] = int(self.lineEdit_nbenches.text())
         room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
+        room_setting['att_column'] = self.att_column
         room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
             
         self.room_setting_dict[self.comboBox_room.currentText()] = room_setting

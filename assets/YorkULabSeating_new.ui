@@ -41,7 +41,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="Main">
      <attribute name="title">
@@ -622,25 +622,19 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="3,7">
+          <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0,0">
            <property name="spacing">
             <number>7</number>
            </property>
            <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+            <widget class="QPushButton" name="pushButton_attEdit">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(0, 202, 202);</string>
              </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Preferred</enum>
+             <property name="text">
+              <string>Edit Attendance Sheet</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>150</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
            <item>
             <widget class="QPushButton" name="pushButton_labScheduler">
@@ -1366,7 +1360,7 @@ Petrie Science &amp; Engineering 122
      <x>0</x>
      <y>0</y>
      <width>873</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
