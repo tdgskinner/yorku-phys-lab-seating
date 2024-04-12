@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QS
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
 from PyQt6.QtCore import QTimer, QDateTime, QDate, pyqtSignal
+from PyQt6.QtWidgets import QHeaderView
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager2 as gpc
@@ -642,26 +643,41 @@ class att_editor_manager(QDialog):
         self.comboBox_exp.setCurrentIndex(0)
         self.course_label.setText(f'PHYS {self.code} Extended Attendance Sheet')
 
-        self.tableWidget_attEditor.setColumnCount(2)  # Two columns for title and width
-        self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width [cm]"])
+        self.setupTable()
         
+        self.pushButton_save.setEnabled(False)
 
-        # Button connections
+        #--signal and slots
         self.pushButton_add.clicked.connect(self.addRow)
+        self.pushButton_done.clicked.connect(self.collectData)
         self.pushButton_save.clicked.connect(self.generate_att_json)
+        self.comboBox_exp.activated.connect(self.loadColumnDetails)
+        self.pushButton_load.clicked.connect(self.load_att_json)
 
         # Initialize flag
         self.is_initializing = True
 
         # Load existing details or set default rows
-        self.column_details = column_details if column_details else {}
-        if self.column_details:
-            self.loadColumnDetails(self.column_details)
+        self.experiments_data = column_details if column_details else {}
+
+        if self.experiments_data:
+            self.loadColumnDetails()
         else:
             self.setDefaultRows()
         
         # Initialization complete
         self.is_initializing = False
+    
+    def setupTable(self):
+        self.tableWidget_attEditor.setColumnCount(2)
+        self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width [cm]"])
+        self.setDefaultRows()
+        self.adjustColumnWidths()
+
+    def adjustColumnWidths(self):
+        header = self.tableWidget_attEditor.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
 
     def setDefaultRows(self):
         """Set the default rows for the table."""
@@ -670,11 +686,21 @@ class att_editor_manager(QDialog):
         self.setRowValues(1, "Last Name", "3.5")
         self.setRowValues(2, "Attendance", "4")
 
-    def loadColumnDetails(self, column_details):
+    def loadColumnDetails(self):
+        self.pushButton_save.setEnabled(False)
+
         """Load and fill the table with data from column_details."""
-        self.tableWidget_attEditor.setRowCount(len(column_details))
-        for index, (title, width) in enumerate(column_details.items()):
-            self.setRowValues(index, title, str(width))
+        selected_experiment = self.comboBox_exp.currentText()
+        column_details, footer = self.experiments_data.get(selected_experiment, [{}, ''])
+
+        if column_details:
+            self.tableWidget_attEditor.setRowCount(len(column_details))
+            for index, (title, width) in enumerate(column_details.items()):
+                self.setRowValues(index, title, str(width))
+            self.textEdit_footer.setPlainText(footer)
+        else:
+            self.setDefaultRows()
+            self.textEdit_footer.setPlainText('')
 
     def setRowValues(self, row, title, width):
         """Helper method to set the values of a row."""
@@ -685,12 +711,9 @@ class att_editor_manager(QDialog):
         row_count = self.tableWidget_attEditor.rowCount()
         self.tableWidget_attEditor.setRowCount(row_count + 1)
     
-    def generate_att_json(self):
-        
-        self.collectData()
-            
+    def generate_att_json(self): 
         # Prompt the user to save the file
-        fileName, _ = QFileDialog.getSaveFileName(None, "Save Attendance sheet design", "", "JSON Files (*.json)")
+        fileName, _ = QFileDialog.getSaveFileName(None, "Save Attendance Sheet Design", "", "JSON Files (*.json)")
         
         if fileName:
             if not fileName.endswith('.json'):
@@ -698,16 +721,48 @@ class att_editor_manager(QDialog):
             
             # Writing JSON data
             with open(fileName, 'w') as json_file:
-                json.dump(self.column_details, json_file, indent=4)  # Use `indent` for pretty-printing
+                json.dump(self.experiments_data, json_file, indent=4)  # Use `indent` for pretty-printing
 
             self.accept()  # Close dialog if data collection is successful
+
+    def load_att_json(self):
+        # Open a file dialog to select the JSON file
+        fileName, _ = QFileDialog.getOpenFileName(self, "Open Attendance Sheet JSON", "", "JSON Files (*.json)")
+        if fileName:
+            try:
+                # Read the JSON file
+                with open(fileName, 'r') as file:
+                    data = json.load(file)
+    
+                # Check if the data is a dictionary
+                if not isinstance(data, dict):
+                    QMessageBox.warning(self, "Invalid File", "The selected file does not contain valid configuration data.")
+                    return
+    
+                # Update the internal dictionary with the loaded data
+                self.experiments_data = data
+    
+                # Automatically load details for the first experiment, if available
+                if self.experiments_data:
+                    first_experiment = next(iter(self.experiments_data))
+                    self.comboBox_exp.setCurrentText(first_experiment)
+                    self.loadColumnDetails()
+    
+            except Exception as e:
+                QMessageBox.critical(self, "Loading Error", f"An error occurred while loading the file: {str(e)}")
+
 
     def collectData(self):
         if not self.validityCheck():
             return  # If data is invalid, halt operation.
-        
-        self.column_details.clear()
 
+        # Get the current experiment title from the comboBox
+        experiment_title = self.comboBox_exp.currentText()
+
+        # Create a new dictionary to store this experiment's column details
+        column_details = {}
+
+        # Collect the column titles and widths from the table
         for row in range(self.tableWidget_attEditor.rowCount()):
             title_item = self.tableWidget_attEditor.item(row, 0)
             width_item = self.tableWidget_attEditor.item(row, 1)
@@ -718,10 +773,15 @@ class att_editor_manager(QDialog):
                     width = float(width_text)
                 except ValueError:
                     continue  # Skip if invalid
-                self.column_details[title] = width
-        
-        self.column_details_updated.emit(self.column_details)  # Emit the signal with the updated column details
-        logging.debug(f"Column details: {self.column_details}")
+                column_details[title] = width
+
+        # Store the collected details in the experiments_data under the selected experiment
+        self.experiments_data[experiment_title] = [column_details, self.textEdit_footer.toPlainText()]
+
+        # Emit the updated data
+        self.column_details_updated.emit(self.experiments_data)
+        logging.debug(f"Updated details for {experiment_title}: {column_details}")
+        self.pushButton_save.setEnabled(True)
 
     def validityCheck(self):
         if self.is_initializing:

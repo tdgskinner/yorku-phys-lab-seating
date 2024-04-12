@@ -41,7 +41,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="Main">
      <attribute name="title">
@@ -528,6 +528,18 @@
                 </spacer>
                </item>
                <item>
+                <widget class="QLabel" name="label_48">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>PC lists directory</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QLabel" name="label_44">
                  <property name="font">
                   <font>
@@ -538,18 +550,6 @@
                  </property>
                  <property name="text">
                   <string>Course main directory</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_48">
-                 <property name="font">
-                  <font>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>PC lists directory</string>
                  </property>
                 </widget>
                </item>
@@ -574,14 +574,14 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_18">
                <item>
-                <widget class="QLineEdit" name="lineEdit_course_dir">
+                <widget class="QLineEdit" name="lineEdit_pc_dir">
                  <property name="text">
                   <string/>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_pc_dir">
+                <widget class="QLineEdit" name="lineEdit_course_dir">
                  <property name="text">
                   <string/>
                  </property>
@@ -592,7 +592,7 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_19">
                <item>
-                <widget class="QPushButton" name="pushButton_course_dir_browse">
+                <widget class="QPushButton" name="pushButton_pc_browse">
                  <property name="font">
                   <font>
                    <pointsize>10</pointsize>
@@ -604,7 +604,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_pc_browse">
+                <widget class="QPushButton" name="pushButton_course_dir_browse">
                  <property name="font">
                   <font>
                    <pointsize>10</pointsize>
@@ -1360,7 +1360,7 @@ Petrie Science &amp; Engineering 122
      <x>0</x>
      <y>0</y>
      <width>873</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
