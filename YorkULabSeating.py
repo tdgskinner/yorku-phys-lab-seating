@@ -630,21 +630,25 @@ class lab_scheduler_manager(QDialog):
 class att_editor_manager(QDialog):
     column_details_updated = pyqtSignal(dict) # Define a signal to emit updated column details
 
-    def __init__(self, code, column_details=None):
+    def __init__(self, code, exp_list, column_details=None):
         super().__init__()
         self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_att_editor.ui')), self)
         self.setWindowTitle("Attendance Sheet Editor")
-        self.setGeometry(100, 100, 500, 300)
-
-        self.course_label.setText(f'PHYS {code} Extended Attendance Sheet')
+        self.setGeometry(100, 100, 500, 500)
+        self.code = code
+        self.exp_list = exp_list
+        self.comboBox_exp.addItems(['Default'])
+        self.comboBox_exp.addItems(list(self.exp_list.keys()))
+        self.comboBox_exp.setCurrentIndex(0)
+        self.course_label.setText(f'PHYS {self.code} Extended Attendance Sheet')
 
         self.tableWidget_attEditor.setColumnCount(2)  # Two columns for title and width
-        self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width"])
-        self.tableWidget_attEditor.setRowCount(2)  # Start with two rows
+        self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width [cm]"])
+        
 
         # Button connections
         self.pushButton_add.clicked.connect(self.addRow)
-        self.pushButton_done.clicked.connect(self.collectData)
+        self.pushButton_save.clicked.connect(self.generate_att_json)
 
         # Initialize flag
         self.is_initializing = True
@@ -655,14 +659,16 @@ class att_editor_manager(QDialog):
             self.loadColumnDetails(self.column_details)
         else:
             self.setDefaultRows()
-
+        
         # Initialization complete
         self.is_initializing = False
 
     def setDefaultRows(self):
         """Set the default rows for the table."""
+        self.tableWidget_attEditor.setRowCount(3)  # Start with 3 rows
         self.setRowValues(0, "First Name", "3.5")
         self.setRowValues(1, "Last Name", "3.5")
+        self.setRowValues(2, "Attendance", "4")
 
     def loadColumnDetails(self, column_details):
         """Load and fill the table with data from column_details."""
@@ -678,6 +684,23 @@ class att_editor_manager(QDialog):
     def addRow(self):
         row_count = self.tableWidget_attEditor.rowCount()
         self.tableWidget_attEditor.setRowCount(row_count + 1)
+    
+    def generate_att_json(self):
+        
+        self.collectData()
+            
+        # Prompt the user to save the file
+        fileName, _ = QFileDialog.getSaveFileName(None, "Save Attendance sheet design", "", "JSON Files (*.json)")
+        
+        if fileName:
+            if not fileName.endswith('.json'):
+                fileName += '.json'
+            
+            # Writing JSON data
+            with open(fileName, 'w') as json_file:
+                json.dump(self.column_details, json_file, indent=4)  # Use `indent` for pretty-printing
+
+            self.accept()  # Close dialog if data collection is successful
 
     def collectData(self):
         if not self.validityCheck():
@@ -698,7 +721,6 @@ class att_editor_manager(QDialog):
                 self.column_details[title] = width
         
         self.column_details_updated.emit(self.column_details)  # Emit the signal with the updated column details
-        self.accept()  # Close dialog if data collection is successful
         logging.debug(f"Column details: {self.column_details}")
 
     def validityCheck(self):
@@ -797,6 +819,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # reading bundled room settings
         self.room = self.setting_Course.value('room')
         self.pc_dir  = self.setting_Course.value('pc_dir')
+        
+        self.course_dir = None
 
         if self.pc_dir and os.path.isdir(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
@@ -807,6 +831,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 
                 if self.room:
                     self.load_room_settings(self.room)
+
         
 
         self.tabWidget.setCurrentIndex(0)
@@ -1061,8 +1086,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def browse_course_dir(self):
         '''
         open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
-        '''  
-        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main course directory", directory=self.course_dir)  
+        '''
+        self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main course directory", directory=self.course_dir)
+        
         
         if self.course_dir:
             self.lineEdit_course_dir.setText(self.course_dir)
@@ -1264,14 +1290,23 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def set_pc_txt_path(self):
         logging.debug(f'---self.room:{self.room}')
-        self.pc_txt_path = self.room_list[self.room][0]
+        self.pc_txt_path = self.room_list.get(self.room,[None])[0]
         logging.info(f' Selected room:{self.room}')
         logging.debug(f'--pc_txt_path:{self.pc_txt_path}')
-        self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+        if self.pc_txt_path:
+            if os.path.isfile(self.pc_txt_path):
+                self.gpc_list, self.laptop_list, self.gpc_map =gpc.extract_pc_list(self.pc_txt_path)
+        
         self.pushButton_lpc_remote_files.setEnabled(True)
         self.location_label.setText(f'{self.room}')
     
     def room_selector(self):
+        self.session_id = None
+        self.session_list = []
+        self.exp_list = []
+        self.comboBox_session.clear()
+        self.comboBox_exp_id.clear()
+        
         self.room = self.comboBox_room.currentText()
         
         if self.room:
@@ -1488,7 +1523,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return None
 
     def open_att_editor(self):
-        self.att_editor = att_editor_manager(self.code, self.att_column)
+        self.att_editor = att_editor_manager(self.code, self.exp_list , self.att_column)
         self.att_editor.column_details_updated.connect(self.updateColumnDetails)  # Connect the signal
         self.att_editor.setWindowTitle('Attendence Sheet Editor')
         self.att_editor.setWindowModality(Qt.WindowModality.ApplicationModal)
