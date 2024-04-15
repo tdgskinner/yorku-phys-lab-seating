@@ -22,6 +22,7 @@ import scripts.GPcManager2 as gpc
 from scripts.remote_copy import Remote_GPC_manager, Remote_LPC_manager
 from scripts.remote_reboot2 import Remote_PC_Reboot
 import json
+from collections import OrderedDict
 
 # Get the user-specific directory for your application in AppData\Local
 user_data_dir = appdirs.user_data_dir(appname='userData', appauthor='YUlabManager')
@@ -700,12 +701,12 @@ class att_editor_manager(QDialog):
         self.setRowValues(1, "Last Name", "3.5")
         self.setRowValues(2, "Attendance", "4")
 
-    def loadColumnDetails(self):
+    def loadColumnDetails2(self):
         self.pushButton_save.setEnabled(False)
 
         """Load and fill the table with data from column_details."""
         selected_experiment = self.comboBox_exp.currentText()
-        column_details, footer = self.experiments_data.get(selected_experiment, [{}, ''])
+        column_details, footer = self.experiments_data.get(selected_experiment, [OrderedDict(), ''])
 
         if column_details:
             self.tableWidget_attEditor.setRowCount(len(column_details))
@@ -715,13 +716,55 @@ class att_editor_manager(QDialog):
         else:
             self.setDefaultRows()
             self.textEdit_footer.setPlainText('')
+    
+    def loadColumnDetails(self):
+        self.pushButton_save.setEnabled(False)
+
+        """Load and fill the table with data from column_details."""
+        selected_experiment = self.comboBox_exp.currentText()
+        column_details, footer = self.experiments_data.get(selected_experiment, [OrderedDict(), ''])
+
+        if column_details:
+            # Clear the existing table
+            self.tableWidget_attEditor.clearContents()
+            self.tableWidget_attEditor.setRowCount(0)
+
+            for title, width in column_details.items():
+                self.addRow()
+                last_row = self.tableWidget_attEditor.rowCount() - 1
+                self.setRowValues(last_row, title, width)
+            self.textEdit_footer.setPlainText(footer)
+        else:
+            self.setDefaultRows()
+            self.textEdit_footer.setPlainText('')
 
     def setRowValues(self, row, title, width):
+        """Helper method to set the values of a row."""
+        title_item = QTableWidgetItem(title)
+        width_item = QTableWidgetItem(str(width))
+    
+        # Ensure the row exists
+        if row >= self.tableWidget_attEditor.rowCount():
+            self.addRow()
+    
+        self.tableWidget_attEditor.setItem(row, 0, title_item)
+        self.tableWidget_attEditor.setItem(row, 1, width_item)
+    
+    def addRow(self):
+        row_count = self.tableWidget_attEditor.rowCount()
+        self.tableWidget_attEditor.setRowCount(row_count + 1)
+
+        # Initialize the new row with empty items
+        self.tableWidget_attEditor.setItem(row_count, 0, QTableWidgetItem())
+        self.tableWidget_attEditor.setItem(row_count, 1, QTableWidgetItem())
+    
+    
+    def setRowValues2(self, row, title, width):
         """Helper method to set the values of a row."""
         self.tableWidget_attEditor.setItem(row, 0, QTableWidgetItem(title))
         self.tableWidget_attEditor.setItem(row, 1, QTableWidgetItem(str(width)))
 
-    def addRow(self):
+    def addRow2(self):
         row_count = self.tableWidget_attEditor.rowCount()
         self.tableWidget_attEditor.setRowCount(row_count + 1)
     
@@ -746,7 +789,7 @@ class att_editor_manager(QDialog):
             try:
                 # Read the JSON file
                 with open(fileName, 'r') as file:
-                    data = json.load(file)
+                    data = json.load(file, object_pairs_hook=OrderedDict)
     
                 # Check if the data is a dictionary
                 if not isinstance(data, dict):
