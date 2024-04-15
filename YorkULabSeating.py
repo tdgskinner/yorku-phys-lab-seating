@@ -256,7 +256,7 @@ class AttWindow(QWidget):
         self.df = self.df.rename(columns={'first_name': 'First Name'})
         self.df = self.df.rename(columns={'surname': 'Last Name'})
         self.df = self.df[["First Name", "Last Name"]]
-        self.df["Attn"] = "         "
+        self.df["Attn."] = "         "
         idx = range(1,len(self.df)+1)
         self.df.insert(0, '', idx)
 		
@@ -638,10 +638,13 @@ class att_editor_manager(QDialog):
         self.setGeometry(100, 100, 500, 500)
         self.code = code
         self.exp_list = exp_list
-        self.comboBox_exp.addItems(['Default'])
+        self.comboBox_exp.addItems(['Extended (Default)'])
         self.comboBox_exp.addItems(list(self.exp_list.keys()))
         self.comboBox_exp.setCurrentIndex(0)
         self.course_label.setText(f'PHYS {self.code} Extended Attendance Sheet')
+        self.customized = False
+        self.comboBox_exp.setEnabled(False)
+        self.checkBox_customize.setChecked(self.customized)
 
         self.setupTable()
         
@@ -653,6 +656,7 @@ class att_editor_manager(QDialog):
         self.pushButton_save.clicked.connect(self.generate_att_json)
         self.comboBox_exp.activated.connect(self.loadColumnDetails)
         self.pushButton_load.clicked.connect(self.load_att_json)
+        self.checkBox_customize.toggled.connect(self.set_customized_mode)
 
         # Initialize flag
         self.is_initializing = True
@@ -668,6 +672,16 @@ class att_editor_manager(QDialog):
         # Initialization complete
         self.is_initializing = False
     
+    def set_customized_mode(self):
+        self.customized = self.checkBox_customize.isChecked()
+
+        if self.customized:
+            self.comboBox_exp.setEnabled(True)
+        else:
+            self.comboBox_exp.setCurrentIndex(0)
+            self.comboBox_exp.setEnabled(False)
+            self.loadColumnDetails()
+
     def setupTable(self):
         self.tableWidget_attEditor.setColumnCount(2)
         self.tableWidget_attEditor.setHorizontalHeaderLabels(["Column Title", "Column Width [cm]"])

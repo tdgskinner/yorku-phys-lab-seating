@@ -145,7 +145,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         doc.append(footer)
         
         doc.append(pl.Command('vfill'))
-        doc.append(pl.Command('small'))  # Set the font size to small
+        doc.append(pl.Command('tiny'))  # Set the font size to tiny
         doc.append(footer_DB_time)
         doc.append(pl.Command('normalsize'))  # Reset the font size to normal
         
@@ -862,7 +862,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
     editImage = ImageDraw.Draw(myLayout)
 
     # Define background color
-    background_color = (255, 204, 229)  # Use (R, G, B) values for white background
+    background_color = (204, 229, 255)  # Use (R, G, B) values for white background
 
     dict = _load_student_groups(pkl_path)
 
