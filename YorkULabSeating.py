@@ -631,8 +631,9 @@ class lab_scheduler_manager(QDialog):
 #================================================================================
 class att_editor_manager(QDialog):
     column_details_updated = pyqtSignal(dict) # Define a signal to emit updated column details
+    customizedAttChanged = pyqtSignal(bool)  # Signal to notify customizedAtt change
 
-    def __init__(self, code, exp_list, column_details=None):
+    def __init__(self, code, exp_list, customized_att, column_details=None):
         super().__init__()
         self.ui = uic.loadUi(resource_path(os.path.join('assets', 'YorkULabSeating_att_editor.ui')), self)
         self.setWindowTitle("Attendance Sheet Editor")
@@ -643,9 +644,9 @@ class att_editor_manager(QDialog):
         self.comboBox_exp.addItems(list(self.exp_list.keys()))
         self.comboBox_exp.setCurrentIndex(0)
         self.course_label.setText(f'PHYS {self.code} Extended Attendance Sheet')
-        self.customized = False
-        self.comboBox_exp.setEnabled(False)
-        self.checkBox_customize.setChecked(self.customized)
+        self.customized_att = customized_att
+        self.comboBox_exp.setEnabled(self.customized_att)
+        self.checkBox_customize.setChecked(self.customized_att)
 
         self.setupTable()
         
@@ -671,12 +672,13 @@ class att_editor_manager(QDialog):
             self.setDefaultRows()
         
         # Initialization complete
-        self.is_initializing = False
-    
-    def set_customized_mode(self):
-        self.customized = self.checkBox_customize.isChecked()
+        self.is_initializing = False         
 
-        if self.customized:
+    def set_customized_mode(self):
+        self.customized_att = self.checkBox_customize.isChecked()
+        self.customizedAttChanged.emit(self.customized_att) # Emit signal when customized_att changes
+
+        if self.customized_att:
             self.comboBox_exp.setEnabled(True)
         else:
             self.comboBox_exp.setCurrentIndex(0)
@@ -742,11 +744,11 @@ class att_editor_manager(QDialog):
         """Helper method to set the values of a row."""
         title_item = QTableWidgetItem(title)
         width_item = QTableWidgetItem(str(width))
-    
+
         # Ensure the row exists
         if row >= self.tableWidget_attEditor.rowCount():
             self.addRow()
-    
+
         self.tableWidget_attEditor.setItem(row, 0, title_item)
         self.tableWidget_attEditor.setItem(row, 1, width_item)
     
@@ -908,6 +910,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.laptop_list = []
         self.extended_attlist_mode = False
         self.small_screen_mode = False
+        self.customized_att = False
+
         self.getSettingValues()
         QtWidgets.QMainWindow.__init__(self)
         
@@ -1084,6 +1088,7 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['extended_attlist_mode'] = False
         room_setting['small_screen_mode'] = False
         room_setting['att_column'] = {}
+        room_setting['customized_att'] = False
         
         return room_setting
     
@@ -1119,6 +1124,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.att_column = room_setting.get('att_column')
 
         self.small_screen_mode = room_setting.get('small_screen_mode')
+        self.customized_att = room_setting.get('customized_att', False)
 
         # laod the setting into the GUI
         self.lineEdit_year.setText(self.year)
@@ -1640,14 +1646,18 @@ class MainWindow(QtWidgets.QMainWindow):
             return None
 
     def open_att_editor(self):
-        self.att_editor = att_editor_manager(self.code, self.exp_list , self.att_column)
+        self.att_editor = att_editor_manager(self.code, self.exp_list , self.customized_att, self.att_column)
         self.att_editor.column_details_updated.connect(self.updateColumnDetails)  # Connect the signal
+        self.att_editor.customizedAttChanged.connect(self.updateCustomizedAtt)  # Connect signal to slot
         self.att_editor.setWindowTitle('Attendence Sheet Editor')
         self.att_editor.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.att_editor.show()
     
     def updateColumnDetails(self, updated_details):
         self.att_column = updated_details
+    
+    def updateCustomizedAtt(self, new_value):
+        self.customized_att = new_value
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
@@ -1695,6 +1705,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
         self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
         self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
+        self.setting_Course.setValue('customized_att', self.customized_att)
 
         # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
         room_setting = {}
@@ -1709,6 +1720,8 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
         room_setting['att_column'] = self.att_column
         room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
+        room_setting['customized_att'] = self.customized_att
+        logging.debug(f'customized_att: {self.customized_att}')
             
         self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
         self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
