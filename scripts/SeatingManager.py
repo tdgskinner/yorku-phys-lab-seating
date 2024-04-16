@@ -35,7 +35,7 @@ def is_file_locked(file_path):
     except PermissionError:
         return True  # The file is locked
 #------------------------------------------------------------
-def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, exp_title, extended_attlist_mode):
+def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, exp_title, extended_attlist_mode, att_column, customized_att):
     if sessions:
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
@@ -63,8 +63,9 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{4cm}|'
         session_df = session_df[['first_name', 'surname']]
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
-        session_df['Attendance'] = ''
+        #session_df['Attendance'] = ''
         
+        '''
         if extended_attlist_mode:
             if code =='1801':
                 if Exp_id == 2:
@@ -105,8 +106,22 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
                 session_df['Tidiness'] = ''
                 session_df['Participation'] = ''
                 session_df['Total'] = ''
+        '''
+        if extended_attlist_mode:
+            if not customized_att:
+                columns_default = att_column.get('Extended (Default)')[0]
+                footer = att_column.get('Extended (Default)')[1]
+                table_spec = '|' + 'p{0.4cm}|'
+                print(f'columns_default.items: {columns_default.items()}')
+                
+                for col in columns_default.keys():
+                    table_spec += 'p{'+str(columns_default[col])+'cm}|'
+                #for title in columns_default.keys():
+                    if 'name' not in col.lower():
+                        session_df[col] = ''
         
-            
+        else:
+            session_df['Attendance'] = ''    
      
         session_df.insert(0, ' ', range(1, 1 + len(session_df)))
 

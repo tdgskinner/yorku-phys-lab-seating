@@ -702,22 +702,6 @@ class att_editor_manager(QDialog):
         self.setRowValues(0, "First Name", "3.5")
         self.setRowValues(1, "Last Name", "3.5")
         self.setRowValues(2, "Attendance", "4")
-
-    def loadColumnDetails2(self):
-        self.pushButton_save.setEnabled(False)
-
-        """Load and fill the table with data from column_details."""
-        selected_experiment = self.comboBox_exp.currentText()
-        column_details, footer = self.experiments_data.get(selected_experiment, [OrderedDict(), ''])
-
-        if column_details:
-            self.tableWidget_attEditor.setRowCount(len(column_details))
-            for index, (title, width) in enumerate(column_details.items()):
-                self.setRowValues(index, title, str(width))
-            self.textEdit_footer.setPlainText(footer)
-        else:
-            self.setDefaultRows()
-            self.textEdit_footer.setPlainText('')
     
     def loadColumnDetails(self):
         self.pushButton_save.setEnabled(False)
@@ -759,16 +743,6 @@ class att_editor_manager(QDialog):
         # Initialize the new row with empty items
         self.tableWidget_attEditor.setItem(row_count, 0, QTableWidgetItem())
         self.tableWidget_attEditor.setItem(row_count, 1, QTableWidgetItem())
-    
-    
-    def setRowValues2(self, row, title, width):
-        """Helper method to set the values of a row."""
-        self.tableWidget_attEditor.setItem(row, 0, QTableWidgetItem(title))
-        self.tableWidget_attEditor.setItem(row, 1, QTableWidgetItem(str(width)))
-
-    def addRow2(self):
-        row_count = self.tableWidget_attEditor.rowCount()
-        self.tableWidget_attEditor.setRowCount(row_count + 1)
     
     def generate_att_json(self): 
         # Prompt the user to save the file
@@ -1066,7 +1040,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
         self.pushButton_att.clicked.connect(self.show_attendance)
-        self.pushButton_Watt.clicked.connect(self.show_weekly_att)
+        self.pushButton_Watt.clicked.connect(self.generate_weekly_att)
     #--------------------------------------------------------------------------------   
     def update_time(self):
         now = QDateTime.currentDateTime()
@@ -1168,8 +1142,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
             self.pushButton_att.setEnabled(True)
     
-    def show_weekly_att(self):
-        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode)
+    def generate_weekly_att(self):
+        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode, self.att_column, self.customized_att)
         
         # Check if the file exists
         if pdf_file_path and os.path.isfile(pdf_file_path):
