@@ -63,68 +63,57 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{4cm}|'
         session_df = session_df[['first_name', 'surname']]
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
-        #session_df['Attendance'] = ''
         
-        '''
-        if extended_attlist_mode:
-            if code =='1801':
-                if Exp_id == 2:
-                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.2cm}|' + 'p{3.2cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.8cm}|'+ 'p{2cm}|'
-                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
-                    session_df["LA1\n(2 marks)"] = ""
-                    session_df["LA2\n(4 marks)"] = ""
-                    session_df["LA3\n(4 marks)"] = ""
-                    session_df["Bonus\n(1 marks)"] = ""
-                    session_df["Total\n(10 marks)"] = ""
-                    footer = 'LA1 - Used DMM to measure the output voltage of a potentiometer\nLA2 - Wrote LabVIEW for data acquisition of the output voltage from potentiometer\nLA3 - Wrote LabVIEW program for control of DC motor\nBonus - Able to add additional control to stop motor with the "STOP" button'
-
-                elif Exp_id == 3:
-                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{2.2cm}|'
-                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
-                    session_df["LA1\n(5 marks)"] = ""
-                    session_df["LA2\n(5 marks)"] = ""
-                    session_df["Bonus\n(2 marks)"] = ""
-                    session_df["Total\n(10 marks)"] = ""
-                    footer = 'LA1 - Wheatstone bridge circuit operates correctly\nLA2 - Digital Thermometer operates correctly\nBonus - Fan switches on when temperature is too high'
-                elif Exp_id == 5:
-                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'+ 'p{1.7cm}|'
-                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
-                    session_df["LA1\n(2 marks)"] = ""
-                    session_df["LA2\n(3 marks)"] = ""
-                    session_df["InLab\nTotal"] = ""
-                    footer = 'LA1 - Circuit works as expected with magnet\nLA2 - Digital Speedometer works properly'
-                elif Exp_id == 9:
-                    table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{1.0cm}|'+ 'p{2cm}|'
-                    session_df.rename(columns={'Attendance':'Atte.'}, inplace=True)
-                    session_df["LA2\n(3 marks)"] = ""
-                    footer = 'LA2 - Successfully able to decipher number sent using Oscilloscope'
-        
-            else:
-                table_spec = '|' + 'p{0.4cm}|' + 'p{3.5cm}|' + 'p{3.5cm}|' + 'p{2.2cm}|'+ 'p{0.5cm}|'+ 'p{1.6cm}|'+ 'p{1.6cm}|'+ 'p{2.2cm}|'+ 'p{1.0cm}|'
-                session_df['G#'] = ''
-                session_df['On Time'] = ''
-                session_df['Tidiness'] = ''
-                session_df['Participation'] = ''
-                session_df['Total'] = ''
-        '''
         if extended_attlist_mode:
             if not customized_att:
                 columns_default = att_column.get('Extended (Default)')[0]
                 footer = att_column.get('Extended (Default)')[1]
-                table_spec = '|' + 'p{0.4cm}|'
-                print(f'columns_default.items: {columns_default.items()}')
+                table_spec_extended_def = '|' + 'p{0.4cm}|'
                 
-                for col in columns_default.keys():
-                    table_spec += 'p{'+str(columns_default[col])+'cm}|'
-                #for title in columns_default.keys():
-                    if 'name' not in col.lower():
-                        session_df[col] = ''
-        
+                for column_data in columns_default:
+                    table_spec_extended_def += f"p{{{column_data['width']:.1f}cm}}|"
+                    if column_data['title'] not in session_df.columns:
+                        title_helper = column_data['title']
+                        title_helper = title_helper.replace("\\n", "\n")
+                        session_df[title_helper] = ''
+                table_spec = table_spec_extended_def
+            
+            else: # for customized_att
+                matching_exp_title = None
+                for exp_title_json in att_column.keys():
+                    if exp_title in exp_title_json:
+                        matching_exp_title = exp_title_json
+                        columns_customized = att_column.get(matching_exp_title)[0]
+                        footer = att_column.get(matching_exp_title)[1]
+                        table_spec_customized = '|' + 'p{0.4cm}|'
+                
+                        for column_data in columns_customized:
+                            table_spec_customized += f"p{{{column_data['width']:.1f}cm}}|"
+                            if column_data['title'] not in session_df.columns:
+                                title_helper = column_data['title']
+                                title_helper = title_helper.replace("\\n", "\n")
+                                session_df[title_helper] = ''
+                        table_spec = table_spec_customized
+                        break
+                    
+                if not matching_exp_title: # when no matching exp_title is found
+                    columns_default = att_column.get('Extended (Default)')[0]
+                    footer = att_column.get('Extended (Default)')[1]
+                    table_spec_extended_def = '|' + 'p{0.4cm}|'
+            
+                    for column_data in columns_default:
+                        table_spec_extended_def += f"p{{{column_data['width']:.1f}cm}}|"
+                        if column_data['title'] not in session_df.columns:
+                            title_helper = column_data['title']
+                            title_helper = title_helper.replace("\\n", "\n")
+                            session_df[title_helper] = ''
+                    table_spec = table_spec_extended_def           
+                     
         else:
             session_df['Attendance'] = ''    
-     
-        session_df.insert(0, ' ', range(1, 1 + len(session_df)))
 
+        session_df.insert(0, ' ', range(1, 1 + len(session_df)))
+        
         doc.append(pl.NoEscape('{'))
         doc.append(pl.Command('pagenumbering', 'gobble'))
         doc.append(pl.Command('noindent'))
@@ -139,7 +128,8 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         doc.append(text_before_table)
 
         doc.append(pl.NoEscape('}'))
-
+        
+        
         # Create the Table
         with doc.create(Tabular(table_spec, pos='t', row_height=1.3)) as table:
             table.add_hline()
@@ -157,8 +147,8 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
                 counter += 1
 
         doc.append('\n\n\n')  # Add some space between table and caption
+        footer = footer.replace(r'\n', r'\\')
         doc.append(footer)
-        
         doc.append(pl.Command('vfill'))
         doc.append(pl.Command('tiny'))  # Set the font size to tiny
         doc.append(footer_DB_time)

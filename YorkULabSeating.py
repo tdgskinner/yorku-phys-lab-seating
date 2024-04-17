@@ -705,6 +705,39 @@ class att_editor_manager(QDialog):
     
     def loadColumnDetails(self):
         self.pushButton_save.setEnabled(False)
+    
+        """Load and fill the table with data from column_details."""
+        selected_experiment = self.comboBox_exp.currentText()
+        column_details, footer = self.experiments_data.get(selected_experiment, [[], ''])
+    
+        if column_details:
+            # Clear the existing table
+            self.tableWidget_attEditor.clearContents()
+            self.tableWidget_attEditor.setRowCount(0)
+    
+            # Sort the column details by index
+            column_details.sort(key=lambda x: x["index"])
+    
+            for column_data in column_details:
+                title = column_data["title"]
+                width = column_data["width"]
+                index = column_data["index"]
+    
+                # Add row if necessary
+                if index >= self.tableWidget_attEditor.rowCount():
+                    self.addRow()
+    
+                # Set values for the existing row
+                self.setRowValues(index, title, width)
+    
+            self.textEdit_footer.setPlainText(footer)
+        else:
+            self.setDefaultRows()
+            self.textEdit_footer.setPlainText('')
+
+
+    def loadColumnDetails2(self):
+        self.pushButton_save.setEnabled(False)
 
         """Load and fill the table with data from column_details."""
         selected_experiment = self.comboBox_exp.currentText()
@@ -784,8 +817,39 @@ class att_editor_manager(QDialog):
             except Exception as e:
                 QMessageBox.critical(self, "Loading Error", f"An error occurred while loading the file: {str(e)}")
 
-
     def collectData(self):
+        if not self.validityCheck():
+            return  # If data is invalid, halt operation.
+
+        # Get the current experiment title from the comboBox
+        experiment_title = self.comboBox_exp.currentText()
+
+        # Create a new list to store this experiment's column details
+        column_details = []
+
+        # Collect the column titles, widths, and indices from the table
+        for index in range(self.tableWidget_attEditor.rowCount()):
+            title_item = self.tableWidget_attEditor.item(index, 0)
+            width_item = self.tableWidget_attEditor.item(index, 1)
+            if title_item and width_item:
+                title = title_item.text().strip()
+                width_text = width_item.text().strip()
+                try:
+                    width = float(width_text)
+                except ValueError:
+                    continue  # Skip if invalid
+                column_details.append({"title": title, "width": width, "index": index})
+
+        # Store the collected details in the experiments_data under the selected experiment
+        self.experiments_data[experiment_title] = [column_details, self.textEdit_footer.toPlainText()]
+
+        # Emit the updated data
+        self.column_details_updated.emit(self.experiments_data)
+        logging.debug(f"Updated details for {experiment_title}: {column_details}")
+        self.pushButton_save.setEnabled(True)
+
+
+    def collectData2(self):
         if not self.validityCheck():
             return  # If data is invalid, halt operation.
 
