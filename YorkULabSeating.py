@@ -705,31 +705,31 @@ class att_editor_manager(QDialog):
     
     def loadColumnDetails(self):
         self.pushButton_save.setEnabled(False)
-    
+
         """Load and fill the table with data from column_details."""
         selected_experiment = self.comboBox_exp.currentText()
         column_details, footer = self.experiments_data.get(selected_experiment, [[], ''])
-    
+
         if column_details:
             # Clear the existing table
             self.tableWidget_attEditor.clearContents()
             self.tableWidget_attEditor.setRowCount(0)
-    
+
             # Sort the column details by index
             column_details.sort(key=lambda x: x["index"])
-    
+
             for column_data in column_details:
                 title = column_data["title"]
                 width = column_data["width"]
                 index = column_data["index"]
-    
+
                 # Add row if necessary
                 if index >= self.tableWidget_attEditor.rowCount():
                     self.addRow()
-    
+
                 # Set values for the existing row
                 self.setRowValues(index, title, width)
-    
+
             self.textEdit_footer.setPlainText(footer)
         else:
             self.setDefaultRows()
@@ -1159,7 +1159,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.n_benches = room_setting.get('n_benches')
         
         self.extended_attlist_mode = room_setting.get('extended_attlist_mode')
-        self.att_column = room_setting.get('att_column')
+        self.att_column = room_setting.get('att_column', {})
 
         self.small_screen_mode = room_setting.get('small_screen_mode')
         self.customized_att = room_setting.get('customized_att', False)

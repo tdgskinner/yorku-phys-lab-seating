@@ -64,7 +64,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         session_df = session_df[['first_name', 'surname']]
         session_df = session_df.rename(columns={'first_name': 'First Name', 'surname': 'Last Name'})
         
-        if extended_attlist_mode:
+        if extended_attlist_mode and att_column:
             if not customized_att:
                 columns_default = att_column.get('Extended (Default)')[0]
                 footer = att_column.get('Extended (Default)')[1]

@@ -41,7 +41,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="Main">
      <attribute name="title">
@@ -632,7 +632,7 @@
               <string notr="true">background-color: rgb(0, 202, 202);</string>
              </property>
              <property name="text">
-              <string>Edit Attendance Sheet</string>
+              <string>Attendance Sheet Editor</string>
              </property>
             </widget>
            </item>
@@ -642,7 +642,7 @@
               <string notr="true">background-color: rgb(0, 170, 255);</string>
              </property>
              <property name="text">
-              <string>Generate Lab Schedule</string>
+              <string>Lab Schedule Generator</string>
              </property>
             </widget>
            </item>
@@ -1069,7 +1069,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>8</string>
+                  <string>6</string>
                  </property>
                 </widget>
                </item>
@@ -1360,7 +1360,7 @@ Petrie Science &amp; Engineering 122
      <x>0</x>
      <y>0</y>
      <width>873</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
