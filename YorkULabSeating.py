@@ -1098,6 +1098,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_attEdit.setEnabled(False)
             self.pushButton_labScheduler.setEnabled(False)
 
+        if not self.exp:
+            self.pushButton_Watt.setEnabled(False)
 
         self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
         self.pushButton_pc_browse.clicked.connect(self.browse_pc_dir)
@@ -1156,9 +1158,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.semester = room_setting.get('semester')
         self.code = room_setting.get('code')
         self.course_dir = room_setting.get('course_dir', None)
-        logging.info(f'course_dir: {self.course_dir}')
+        logging.debug(f'course_dir: {self.course_dir}')
         self.exp_id = room_setting.get('exp_id')
-        self.exp = room_setting.get('exp')
+        self.exp = room_setting.get('exp', None)
         self.n_max_group = room_setting.get('n_max_group')
         self.n_benches = room_setting.get('n_benches')
         
@@ -1176,9 +1178,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
         self.checkBox_small_scr.setChecked(self.small_screen_mode)
 
-        if self.exp =='':
+        if not self.exp:
             self.comboBox_exp_id.clear()
             self.pushButton_Watt.setEnabled(False)
+        else:
+            self.pushButton_Watt.setEnabled(True)
 
         self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
         self.css_file_all = 'style_all.css'
@@ -1193,6 +1197,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
         else:
             self.lineEdit_course_dir.clear()
+            self.pushButton_attEdit.setEnabled(False)
+            self.pushButton_labScheduler.setEnabled(False)
             
         self.lineEdit_ngroups.setText(str(self.n_max_group))
         self.lineEdit_nbenches.setText(str(self.n_benches))
@@ -1449,6 +1455,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_Watt.setEnabled(True)
             if self.can_copy_htmlfiles:
                 self.pushButton_copyfiles.setEnabled(True)
+        else:
+            self.pushButton_Watt.setEnabled(False)
 
     def set_session_id(self):
         self.session = self.comboBox_session.currentText()
