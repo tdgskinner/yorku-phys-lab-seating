@@ -1093,6 +1093,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if not self.room:
             self.pushButton_lpc_remote_files.setEnabled(False)
+        
+        if not self.course_dir:
+            self.pushButton_attEdit.setEnabled(False)
+            self.pushButton_labScheduler.setEnabled(False)
 
 
         self.pushButton_course_dir_browse.clicked.connect(self.browse_course_dir)
@@ -1151,7 +1155,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.year = room_setting.get('year')
         self.semester = room_setting.get('semester')
         self.code = room_setting.get('code')
-        self.course_dir = room_setting.get('course_dir')
+        self.course_dir = room_setting.get('course_dir', None)
         logging.info(f'course_dir: {self.course_dir}')
         self.exp_id = room_setting.get('exp_id')
         self.exp = room_setting.get('exp')
@@ -1200,6 +1204,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.course_label.setFont(QFont('Arial', 12, weight=700))
         self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
+
+
 
     #--------------------------------------------------------------------------------        
     def check_comboboxes(self):
@@ -1283,6 +1289,9 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.session_list = self.extract_sessions(self.time_csv_path)
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
+
+                self.pushButton_attEdit.setEnabled(True)
+                self.pushButton_labScheduler.setEnabled(True)
                 
     
     def extract_course_csv_paths(self, course_dir):
