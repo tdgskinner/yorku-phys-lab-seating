@@ -351,23 +351,6 @@
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_18">
                  <item>
-                  <widget class="QPushButton" name="pushButton_att">
-                   <property name="font">
-                    <font>
-                     <pointsize>10</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(161, 149, 255)</string>
-                   </property>
-                   <property name="text">
-                    <string>Session Att.</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QPushButton" name="pushButton_Watt">
                    <property name="font">
                     <font>
@@ -393,6 +376,13 @@
                    </property>
                    <property name="text">
                     <string>Extended Att.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="checkBox_blankAtt">
+                   <property name="text">
+                    <string>Blank Att.</string>
                    </property>
                   </widget>
                  </item>

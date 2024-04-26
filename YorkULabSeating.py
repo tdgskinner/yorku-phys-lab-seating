@@ -943,14 +943,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.appVersion = appVersion
         self.appDate = appDate
         
-        self.room_setting_dict ={}
+        self.room_setting_dict ={} # is a nasted dictionary, holds room settings dictionary
         self.pkl_path = None
         self.laptop_list = []
         self.extended_attlist_mode = False
+        self.blankAtt_mode = False
         self.small_screen_mode = False
         self.customized_att = False
 
-        self.getSettingValues()
+        self.gpc_list = []
+        self.gpc_map ={}
+
+        self.LoadSettingValues()
         QtWidgets.QMainWindow.__init__(self)
         
         self.ui = uic.loadUi(resource_path(os.path.join('assets','YorkULabSeating_new.ui')),self)
@@ -967,19 +971,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_time)
         self.timer.start(60*1000) # Update every minute
         
-
         stdout = OutputWrapper(self, True)
         stdout.outputWritten.connect(self.handleOutput)
         stderr = OutputWrapper(self, False)
         stderr.outputWritten.connect(self.handleOutput)
         
-        # -- Retrieving settings from previous session
+        # -- Retrieving settings from previous session (from Windows registry)
         
         # reading bundled room settings
         self.room = self.setting_Course.value('room')
         self.pc_dir  = self.setting_Course.value('pc_dir')
         
-        self.course_dir = None
+        self.course_dir = self.setting_Course.value('course_dir')
+        self.exp = self.setting_Course.value('exp')
 
         if self.pc_dir and os.path.isdir(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
@@ -989,19 +993,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.room_list = self.extract_rooms(self.pc_dir, self.pc_csv_path)
                 
                 if self.room:
-                    self.load_room_settings(self.room)
-
-        
+                    if self.room in self.room_list.keys():
+                        self.load_room_settings(self.room)
+                        self.set_pc_txt_path()
 
         self.tabWidget.setCurrentIndex(0)
 
-        self.gpc_list = []
-        self.gpc_map ={}
+       
+        '''
+        
         if self.pc_dir and os.path.exists(self.pc_dir):
             self.lineEdit_pc_dir.setText(self.pc_dir)
             if self.room:
-                self.set_pc_txt_path()
-        
+                if self.room in self.room_list.keys():
+                    self.set_pc_txt_path()
+        '''
         self.session_id = None
         self.thread={}
         self.LocalCopyMode = False
@@ -1015,16 +1021,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ta_name = None
         self.layout_out = None
         self.pushButton_labLayout.setEnabled(False)
-        self.pushButton_att.setEnabled(False)
+        #self.pushButton_att.setEnabled(False)
         self.pushButton_copyfiles.setEnabled(False)
 
         if self.comboBox_exp_id.currentText() == '':
             self.pushButton_Watt.setEnabled(False)
         
-        if self.comboBox_session.currentText() != '' and self.comboBox_exp_id.currentText() != '':
-            self.pushButton_att.setEnabled(True)
+        #if self.comboBox_session.currentText() != '' and self.comboBox_exp_id.currentText() != '':
+        #    self.pushButton_att.setEnabled(True)
         
         self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
+        self.checkBox_blankAtt.setChecked(self.blankAtt_mode)
         self.checkBox_small_scr.setChecked(self.small_screen_mode)
 
         #-- progress bars ---
@@ -1067,7 +1074,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_attEdit.setIcon(icon_weekly_att)
         self.pushButton_labScheduler.setIcon(icon_lab_scheduler)
         self.pushButton_Watt.setIcon(icon_weekly_att)
-        self.pushButton_att.setIcon(icon_session_att)
+        #self.pushButton_att.setIcon(icon_session_att)
 
         #--signal and slots
         #self.pushButton_update_check.clicked.connect(self.check_for_update)
@@ -1076,9 +1083,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_grouping.clicked.connect(self.generate_groups)
         self.pushButton_htmlgen.clicked.connect(self.generate_html)
         self.comboBox_exp_id.activated.connect(self.set_exp_id)
-        self.comboBox_exp_id.currentIndexChanged.connect(self.check_comboboxes)
+        #self.comboBox_exp_id.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_session.activated.connect(self.set_session_id)
-        self.comboBox_session.currentIndexChanged.connect(self.check_comboboxes)
+        #self.comboBox_session.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_room.activated.connect(self.room_selector)
 
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
@@ -1106,10 +1113,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_debugMode.toggled.connect(self.set_debug_mode)
         self.checkBox_localCopy.toggled.connect(self.set_copy_mode)
         self.checkBox_extended_att.toggled.connect(self.set_attlist_mode)
+        self.checkBox_blankAtt.toggled.connect(self.set_blankAtt_mode)
         self.checkBox_small_scr.toggled.connect(self.set_screen_mode)
         self.checkBox_TAname_overwrite.toggled.connect(self.set_ta_name_mode)
         self.pushButton_labLayout.clicked.connect(self.show_lab_layout)
-        self.pushButton_att.clicked.connect(self.show_attendance)
+        #self.pushButton_att.clicked.connect(self.show_attendance)
         self.pushButton_Watt.clicked.connect(self.generate_weekly_att)
     #--------------------------------------------------------------------------------   
     def update_time(self):
@@ -1130,6 +1138,7 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['n_max_group'] = 6
         room_setting['n_benches'] = 4
         room_setting['extended_attlist_mode'] = False
+        room_setting['blankAtt_mode'] = False
         room_setting['small_screen_mode'] = False
         room_setting['att_column'] = {}
         room_setting['customized_att'] = False
@@ -1149,25 +1158,26 @@ class MainWindow(QtWidgets.QMainWindow):
             self.room_setting_dict[room] = room_setting
 
         else:
-            room_setting = self.room_setting_dict.get(room)
+            room_setting = self.room_setting_dict.get(room, {})
             if room_setting is None:
-                logging.info('No setting found for the selected room. Using default settings.')
+                logging.info('No setting found for the selected room. Set default settings.')
                 room_setting = self.set_default_room_settings()
             
-        self.year = room_setting.get('year')
-        self.semester = room_setting.get('semester')
-        self.code = room_setting.get('code')
+        self.year = room_setting.get('year', '2024')
+        self.semester = room_setting.get('semester', 'Winter')
+        self.code = room_setting.get('code', 'xxxx')
         self.course_dir = room_setting.get('course_dir', None)
         logging.debug(f'course_dir: {self.course_dir}')
-        self.exp_id = room_setting.get('exp_id')
+        self.exp_id = room_setting.get('exp_id', 1)
         self.exp = room_setting.get('exp', None)
-        self.n_max_group = room_setting.get('n_max_group')
-        self.n_benches = room_setting.get('n_benches')
+        self.n_max_group = room_setting.get('n_max_group', 6)
+        self.n_benches = room_setting.get('n_benches', 4)
         
-        self.extended_attlist_mode = room_setting.get('extended_attlist_mode')
+        self.extended_attlist_mode = room_setting.get('extended_attlist_mode', False)
+        self.blankAtt_mode = room_setting.get('blankAtt_mode', False)
         self.att_column = room_setting.get('att_column', {})
 
-        self.small_screen_mode = room_setting.get('small_screen_mode')
+        self.small_screen_mode = room_setting.get('small_screen_mode', False)
         self.customized_att = room_setting.get('customized_att', False)
 
         # laod the setting into the GUI
@@ -1176,6 +1186,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_code.setText(self.code)
 
         self.checkBox_extended_att.setChecked(self.extended_attlist_mode)
+        self.checkBox_blankAtt.setChecked(self.blankAtt_mode)
         self.checkBox_small_scr.setChecked(self.small_screen_mode)
 
         if not self.exp:
@@ -1214,12 +1225,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     #--------------------------------------------------------------------------------        
-    def check_comboboxes(self):
-        if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
-            self.pushButton_att.setEnabled(True)
+    #def check_comboboxes(self):
+    #    if self.comboBox_exp_id.currentText() != '' and self.comboBox_session.currentText() != '':
+    #        self.pushButton_att.setEnabled(True)
     
     def generate_weekly_att(self):
-        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode, self.att_column, self.customized_att)
+        pdf_file_path = seating.create_weekly_att(user_data_dir, self.stud_csv_path_list, self.session_list, self.code, self.exp_id, self.exp, self.extended_attlist_mode, self.blankAtt_mode, self.att_column, self.customized_att, self.n_max_group*self.n_benches)
         
         # Check if the file exists
         if pdf_file_path and os.path.isfile(pdf_file_path):
@@ -1402,6 +1413,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_attlist_mode(self):
         self.extended_attlist_mode = self.checkBox_extended_att.isChecked()
     
+    def set_blankAtt_mode(self):
+        self.blankAtt_mode = self.checkBox_blankAtt.isChecked()
+    
     def set_screen_mode(self):
         self.small_screen_mode = self.checkBox_small_scr.isChecked()
         self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
@@ -1414,12 +1428,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.lineEdit_TAname.setEnabled(False)
 
-    def getSettingValues(self):
+    def LoadSettingValues(self):
         '''
-        # Load the last user setting from previous session
+        # Load the last user setting from previous session (stored in Windows registry)
+        CurrentUser\Software\YorkLabSeating\Course
         '''
         self.setting_Course = QSettings('YorkLabSeating', 'Course')
-        self.setting_Network = QSettings('YorkLabSeating', 'Network')
     
     def save_button_click(self):
         '''
@@ -1748,19 +1762,19 @@ class MainWindow(QtWidgets.QMainWindow):
             None
         """
         #--- store the current setting in the system before closing the app
-        self.setting_Course.setValue('year', self.lineEdit_year.text() )
-        self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
-        self.setting_Course.setValue('code', self.lineEdit_code.text() )
+        #self.setting_Course.setValue('year', self.lineEdit_year.text() )
+        #self.setting_Course.setValue('semester', self.comboBox_semester.currentText())
+        #self.setting_Course.setValue('code', self.lineEdit_code.text() )
         self.setting_Course.setValue('course_dir', self.course_dir )
         self.setting_Course.setValue('pc_dir', self.pc_dir )
-        self.setting_Course.setValue('exp_id', int(self.exp_id))
+        #self.setting_Course.setValue('exp_id', int(self.exp_id))
         self.setting_Course.setValue('exp', self.comboBox_exp_id.currentText())
         self.setting_Course.setValue('room', self.comboBox_room.currentText())
-        self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
-        self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
-        self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
-        self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
-        self.setting_Course.setValue('customized_att', self.customized_att)
+        #self.setting_Course.setValue('n_max_group', int(self.lineEdit_ngroups.text()) )
+        #self.setting_Course.setValue('n_benches', int(self.lineEdit_nbenches.text()))
+        #self.setting_Course.setValue('extended_attlist_mode', self.checkBox_extended_att.isChecked())
+        #self.setting_Course.setValue('small_screen_mode', self.checkBox_small_scr.isChecked())
+        #self.setting_Course.setValue('customized_att', self.customized_att)
 
         # wrap the room setting in a dictionary: key = room name, value = {pc_list, laptop_list, gpc_map}
         room_setting = {}
@@ -1773,6 +1787,7 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting['n_max_group'] = int(self.lineEdit_ngroups.text())
         room_setting['n_benches'] = int(self.lineEdit_nbenches.text())
         room_setting['extended_attlist_mode'] = self.checkBox_extended_att.isChecked()
+        room_setting['blankAtt_mode'] = self.checkBox_blankAtt.isChecked()
         room_setting['att_column'] = self.att_column
         room_setting['small_screen_mode'] = self.checkBox_small_scr.isChecked()
         room_setting['customized_att'] = self.customized_att

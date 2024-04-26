@@ -35,7 +35,7 @@ def is_file_locked(file_path):
     except PermissionError:
         return True  # The file is locked
 #------------------------------------------------------------
-def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, exp_title, extended_attlist_mode, att_column, customized_att):
+def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id, exp_title, extended_attlist_mode, blankAtt_mode, att_column, customized_att, max_n):
     if sessions:
         session_keys_sorted = sorted(list(sessions.keys()), key=sort_helper)    
     
@@ -135,16 +135,27 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
             table.add_hline()
             table.add_row(session_df.columns, mapper=utils.bold)  # Include the column names
             table.add_hline()
+            
             counter = 1
-            for i, row in session_df.iterrows():
-                row_values = [row[column] for column in session_df.columns]
-                if (counter % 2) == 0:
-                    table.add_row(row_values)
-                else:
-                    #table.add_row(row_values, color="lightgray")
-                    table.add_row(row_values, color="gray!10")
-                table.add_hline()
-                counter += 1
+            if not blankAtt_mode:
+                # Add the data rows (student names)
+                for i, row in session_df.iterrows():
+                    row_values = [row[column] for column in session_df.columns]
+                    if (counter % 2) == 0:
+                        table.add_row(row_values)
+                    else:
+                        table.add_row(row_values, color="gray!10")
+                    table.add_hline()
+                    counter += 1
+            else:
+                for n in range(max_n):
+                    row_values = ['' for column in session_df.columns]
+                    if (counter % 2) == 0:
+                        table.add_row(row_values)
+                    else:
+                        table.add_row(row_values, color="gray!10")
+                    table.add_hline()
+                    counter += 1
 
         doc.append('\n\n\n')  # Add some space between table and caption
         footer = footer.replace(r'\n', r'\\')
@@ -229,6 +240,8 @@ def _print_exp_dict(dict):
 #------------------------------------------------------------
 def concat_stud_lists(stud_csv_path_list):
     stud_dfs = []
+    
+    # i is number of stud_* csv files in the course directory
     for i, path in enumerate(stud_csv_path_list):
         date_modified = datetime.fromtimestamp(os.path.getmtime(path)).strftime('%b-%d-%Y at %I:%M %p')
         logging.debug(f'date modified (local time): {date_modified}')
@@ -259,7 +272,7 @@ def concat_stud_lists(stud_csv_path_list):
 
 #------------------------------------------------------------
 def get_number_of_students(stud_csv_path_list, session):
-    
+    logging.debug(f'session: {session}')
     stud_df, _ = concat_stud_lists(stud_csv_path_list)
     
     # filter the list based on the given session_id
