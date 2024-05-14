@@ -1,7 +1,15 @@
-## How to convert GUI to stand alone exe installable file:
+## How to convert the python GUI to a stand alone exe installable file:
+=======================================================================
 1- pip install pyinstaller
-2- pyinstaller --name YU_LabManager --onefile --windowed --icon=YorkU_icon.ico YorkULabSeating.py
-3- install inno setup
+2- run this command to create executable python:
+	pyinstaller --name YU_LabManager --onefile --windowed --icon=YorkU_icon.ico YorkULabSeating.py
+3- Once Building completed successfully, copy assets folder to dist/YU_LabManager folder
+4- install inno setup
     a- use the wizard to create new sw package and follow the instructions.
     b- add all asset directories to the project
     c- edit the source in [Files] block: from DestDir: "{app} to DestDir: "{app}/assets
+
+[Alternatively]
+4.a: reuse same .iss file from previous release and only modify the version number all over the file. Make sure to create the new directories with files prior to this step.
+5- compile (4th buttom from the top left corner of inno setup application)
+6- copy the exe output file to dedicated sharepoint/ team loacation for IT team access
