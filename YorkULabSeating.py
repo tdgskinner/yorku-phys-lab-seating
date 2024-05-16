@@ -1683,7 +1683,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.laptop_list:
                 self.pc_reboot_pbar.show()
                 #self.pc_reboot_pbar.setFormat(f"Rebooting Laptop {}")
-                self.thread[3] = Reboot_PC_Thread(self.laptop_list, self.pc_reboot_pbar, self.n_max_group, type='lpc', parent=None)
+                self.thread[3] = Reboot_PC_Thread(self.laptop_list, self.pc_reboot_pbar, self.n_max_group, _type='lpc', parent=None)
                 self.thread[3].finished.connect(self.on_laptop_rebootFinished)
                 self.thread[3].start()
                 
