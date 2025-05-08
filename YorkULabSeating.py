@@ -5,17 +5,16 @@ import pandas as pd
 import logging
 from packaging import version
 
-from PyQt6 import QtWidgets, QtCore
-from PyQt6 import uic
-from PyQt6.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, pyqtSignal, QObject, Qt, QMarginsF, QSize, QUrl
-from PyQt6.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QProgressDialog, QStyle
-from PyQt6.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
-from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt6.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
-from PyQt6.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
-from PyQt6.QtPrintSupport import QPrinter, QPrintPreviewDialog
-from PyQt6.QtCore import QTimer, QDateTime, QDate, pyqtSignal
-from PyQt6.QtWidgets import QHeaderView
+from qtpy import QtWidgets, QtCore
+from qtpy import uic
+from qtpy.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, QThread, Signal, QObject, Qt, QMarginsF, QSize, QUrl
+from qtpy.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QProgressDialog, QStyle
+from qtpy.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
+from qtpy.QtWidgets import QGraphicsView, QGraphicsScene
+from qtpy.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
+from qtpy.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
+from qtpy.QtPrintSupport import QPrinter, QPrintPreviewDialog
+from qtpy.QtCore import QTimer, QDateTime, QDate
 
 import scripts.SeatingManager as seating
 import scripts.GPcManager2 as gpc
@@ -57,7 +56,7 @@ class OutputWrapper(QObject):
     A class that wraps the standard output or error stream and emits a signal whenever text is written to it.
     """
 
-    outputWritten = QtCore.pyqtSignal(object, object)
+    outputWritten = QtCore.Signal(object, object)
 
     def __init__(self, parent, stdout=True):
         super().__init__(parent)
@@ -630,8 +629,8 @@ class lab_scheduler_manager(QDialog):
             print(f"Lab Schedule saved to {fileName}")
 #================================================================================
 class att_editor_manager(QDialog):
-    column_details_updated = pyqtSignal(dict) # Define a signal to emit updated column details
-    customizedAttChanged = pyqtSignal(bool)  # Signal to notify customizedAtt change
+    column_details_updated = Signal(dict) # Define a signal to emit updated column details
+    customizedAttChanged = Signal(bool)  # Signal to notify customizedAtt change
 
     def __init__(self, code, exp_list, customized_att, column_details=None):
         super().__init__()
@@ -1971,7 +1970,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 #--------------------------------------------------------------------------------
 class CopyFileThread(QThread):
-    progress = pyqtSignal(int)
+    progress = Signal(int)
     
     def __init__(self, exp_id, gpc_list, gpc_map, course_dir, code, localCopy, parent=None ):
         super(CopyFileThread, self).__init__(parent)
@@ -2023,7 +2022,7 @@ class lpcCopyFileThread(QThread):
         parent (QObject): The parent object of the thread.
 
     Attributes:
-        progress (pyqtSignal): A signal emitted to indicate the progress of the file copying.
+        progress (Signal): A signal emitted to indicate the progress of the file copying.
         status (dict): A dictionary to store the status of each file copy operation.
         lpc_list (list): A list of laptops to copy files to.
         selected_files (list): A list of files to be copied.
@@ -2037,7 +2036,7 @@ class lpcCopyFileThread(QThread):
         stop(): Stops the execution of the thread.
     """
 
-    progress = pyqtSignal(int)
+    progress = Signal(int)
 
     def __init__(self, lpc_list, selected_files, destination_path, localCopy, progress_bar, parent=None ):
         super(lpcCopyFileThread, self).__init__(parent)
@@ -2077,7 +2076,7 @@ class lpcCopyFileThread(QThread):
 
 #--------------------------------------------------------------------------------
 class lpcDeleteThread(QThread):
-    progress = pyqtSignal(int)
+    progress = Signal(int)
 
     def __init__(self, lpc_list, to_delete, destination_path, localCopy, progress_bar, parent=None ):
         super(lpcDeleteThread, self).__init__(parent)
@@ -2112,7 +2111,7 @@ class lpcDeleteThread(QThread):
 
 #--------------------------------------------------------------------------------
 class Reboot_PC_Thread(QThread):
-    progress = pyqtSignal(int)
+    progress = Signal(int)
 
     def __init__(self, pc_list, progress_bar, n_max_pc, _type, parent=None ):
         super(Reboot_PC_Thread, self).__init__(parent)
