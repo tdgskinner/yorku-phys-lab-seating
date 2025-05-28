@@ -56,8 +56,10 @@ class Remote_GPC_manager:
         logger.debug(f'---img_dir_path= {img_dir_path}')
         
         #creating a fresh web_directory
-        if not os.path.exists(self.web_directory):
-            os.makedirs(self.web_directory)
+        if os.path.exists(self.web_directory):
+            shutil.rmtree(self.web_directory)
+        
+        os.makedirs(self.web_directory)
         
         self._force_copy(css_path_1, os.path.join(self.web_directory,'style_small.css'))
         self._force_copy(css_path_2, os.path.join(self.web_directory,'style_large.css'))
