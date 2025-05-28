@@ -37,10 +37,10 @@ python3 YorkULabSeating.py
 
 **version 6.6, Nov. 2023**
 
-Developed by Mohammad Kareem
-Laboratory Technologist
-mkareem@yorku.ca
+Developed by Mohammad Kareem, updated by Taylor Skinner & Leya Herschel
+
 Department of Physics & Astronomy
 Faculty of Science | York University
-Petrie Science & Engineering 122
+Petrie Science & Engineering
 4700 Keele Street Toronto ON, Canada M3J 1P3
+
