@@ -900,7 +900,8 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
                 stud_name = df.iloc[i,2] +' '+ df.iloc[i,1]
             
                 # Calculate the text size
-                text_width, text_height = editImage.textsize(stud_name[:text_char_limit], font=textFont)
+                text_width = editImage.textlength(stud_name[:text_char_limit], textFont)
+                text_height = font_size
             
                 # Calculate the position for text to be centered
                 x = g_cord_dict[gpc_id][i][0]
