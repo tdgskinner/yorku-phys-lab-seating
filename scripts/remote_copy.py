@@ -102,6 +102,8 @@ class Remote_LPC_manager:
         client_address = r'\\' + lpc
         destination_path = os.path.join(client_address, dest_path)
         
+        failed_att = False
+        
         for source_path in selected_files:
             source_name = os.path.basename(source_path)
             destination = os.path.join(destination_path, source_name)
@@ -112,11 +114,14 @@ class Remote_LPC_manager:
                 shutil.copy(source_path, destination)
                 logger.debug(f"Successfully copied file: {source_path} to {destination}")
             except Exception as e:
+                failed_att = True
                 logger.debug(f"Unable to copy file: {source_path} to {destination} - {e}")
+                logger.info(f"Failed to copy all files to {destination}")
                 return False
         
-        logger.info(f"Successfully copied all files to {destination}")
-        return True
+        if not failed_att:
+            logger.info(f"Successfully copied all files to {destination}")
+            return True
     
     #------------------------------------------------------------        
     def run_delete(self, lpc, to_delete_list, dest_path):
@@ -133,6 +138,9 @@ class Remote_LPC_manager:
 
     #------------------------------------------------------------        
     def run_deletefile(self, client_address, file_to_delete):
+        
+        failed_att = False
+        
         if '*' in file_to_delete:
             matching_files = glob.glob(file_to_delete)
             for matching_file in matching_files:
@@ -140,22 +148,36 @@ class Remote_LPC_manager:
                     os.remove(matching_file)
                     logger.debug(f"Successfully deleted file: {matching_file}")
                 except Exception as e:
+                    failed_att = True
                     logger.debug(f"Failed to delete file: {matching_file} - {e}")
         else:
             try:
                 os.remove(file_to_delete)
                 logger.debug(f"Successfully deleted file: {file_to_delete}")
             except Exception as e:
+                failed_att = True
                 logger.debug(f"Failed to delete file: {file_to_delete} - {e}")
         
-        logger.info(f"Successfully Deleted all files from {client_address}")
+        if failed_att:
+            logger.info(f"Failed to delete all files from {client_address}")
+        
+        else:
+            logger.info(f"Successfully Deleted all files from {client_address}")
     
     #------------------------------------------------------------
     def run_rmTree(self, client_address, dir_to_delete):
+        
+        failed_att = False
+        
         try:
             shutil.rmtree(dir_to_delete)
             logger.debug(f"Successfully deleted directory: {dir_to_delete}")
         except Exception as e:
+            failed_att = True
             logger.debug(f"Failed to delete file: {dir_to_delete} - {e}")
         
-        logger.info(f"Successfully Deleted all directories from {client_address}")
+        if failed_att:
+            logger.info(f"Failed to delete all directories from {client_address}")
+        
+        else:
+            logger.info(f"Successfully Deleted all directories from {client_address}")
