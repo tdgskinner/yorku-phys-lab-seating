@@ -1128,8 +1128,21 @@ class MainWindow(QtWidgets.QMainWindow):
     #--------------------------------------------------------------------------------
     def set_default_room_settings(self):
         room_setting = {}
-        room_setting['year'] = '2024'    
-        room_setting['semester'] = 'Winter'
+        
+        # Default year/semester set according to today's date
+        date_today = QDate.currentDate()
+        current_month = date_today.month()
+        
+        room_setting['year'] = str(date_today.year())
+        
+        match current_month:
+            case 1 | 2 | 3 | 4:
+                room_setting['semester'] = 'Winter'
+            case 5 | 6 | 7 | 8:
+                room_setting['semester'] = 'Summer'
+            case _:
+                room_setting['semester'] = 'Fall'
+        
         room_setting['code'] = 'xxxx'
         room_setting['course_dir'] = None
         room_setting['exp_id'] = 1
