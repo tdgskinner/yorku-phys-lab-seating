@@ -1175,8 +1175,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 logging.info('No setting found for the selected room. Set default settings.')
                 room_setting = self.set_default_room_settings()
             
-        self.year = room_setting.get('year', '2024')
-        self.semester = room_setting.get('semester', 'Winter')
+        self.year = room_setting.get('year')
+        self.semester = room_setting.get('semester')
         self.code = room_setting.get('code', 'xxxx')
         self.course_dir = room_setting.get('course_dir', None)
         logging.debug(f'course_dir: {self.course_dir}')
@@ -1192,9 +1192,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self.small_screen_mode = room_setting.get('small_screen_mode', False)
         self.customized_att = room_setting.get('customized_att', False)
 
-        # laod the setting into the GUI
-        self.lineEdit_year.setText(self.year)
-        self.comboBox_semester.setCurrentText(self.semester)
+        # load the setting into the GUI, selected year and semester changes if not matching current date
+        today_settings = self.set_default_room_settings()
+        if self.room_setting_dict.get('year') != QDate.currentDate().year() or self.room_setting_dict.get('semester') != today_settings.get('semester'):
+            self.lineEdit_year.setText(str(QDate.currentDate().year()))
+            
+            match QDate.currentDate().month():
+                case 1 | 2 | 3 | 4:
+                    index = self.comboBox_semester.findText('Winter', Qt.MatchExactly)
+                    self.comboBox_semester.setCurrentIndex(index)
+                case 5 | 6 | 7 | 8:
+                    index = self.comboBox_semester.findText('Summer', Qt.MatchExactly)
+                    self.comboBox_semester.setCurrentIndex(index)
+                case _:
+                    room_setting['semester'] = 'Fall'
+                    index = self.comboBox_semester.findText('Fall', Qt.MatchExactly)
+                    self.comboBox_semester.setCurrentIndex(index)
+            
+        else:
+            self.lineEdit_year.setText(self.year)
+            index = self.comboBox_semester.findText(self.semester, Qt.MatchExactly)
+            self.comboBox_semester.setCurrentIndex(index)
+            
         self.lineEdit_code.setText(self.code)
 
         self.checkBox_extended_att.setChecked(self.extended_attlist_mode)

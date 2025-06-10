@@ -248,7 +248,7 @@ def concat_stud_lists(stud_csv_path_list):
     for i, path in enumerate(stud_csv_path_list):
         date_modified = datetime.fromtimestamp(os.path.getmtime(path)).strftime('%b-%d-%Y at %I:%M %p')
         logging.debug(f'date modified (local time): {date_modified}')
-        # Ensures the csv is utf-8 encoded
+        # Ensures the csv is UTF-8 encoded
         df = pandas.read_csv(path, index_col= False, header=None)
         df.to_csv(path, encoding="utf-8", index=False, header=False)
         df = pandas.read_csv(path, index_col= False, header=None)
