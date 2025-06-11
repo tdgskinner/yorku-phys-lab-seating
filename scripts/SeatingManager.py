@@ -325,6 +325,8 @@ def cord_map(room, gpc_map):
 def get_room_list(pc_dir, pc_csv_path):
     rooms = {}
     pc_df = pandas.read_csv(pc_csv_path)
+    pc_df.to_csv(pc_csv_path, encoding='utf-8')
+    pc_df = pandas.read_csv(pc_csv_path)
     #--- drop rows with nan
     pc_df = pc_df.dropna()
     pc_df = pc_df.dropna().reset_index(drop=True)
@@ -343,6 +345,8 @@ def get_session_list(time_csv_path):
     sessions = {}
     
     time_df = pandas.read_csv(time_csv_path)
+    time_df.to_csv(time_csv_path, encoding='utf-8')
+    time_df = pandas.read_csv(time_csv_path)
     #--- drop rows with nan
     time_df = time_df.dropna()
     time_df = time_df.dropna().reset_index(drop=True)
@@ -360,6 +364,8 @@ def get_session_list(time_csv_path):
 def get_exp_list(exp_csv_path):
     exps = {}
     
+    exp_df = pandas.read_csv(exp_csv_path)
+    exp_df.to_csv(exp_csv_path, encoding='utf-8')
     exp_df = pandas.read_csv(exp_csv_path)
     #--- drop rows with nan
     exp_df = exp_df.dropna()

@@ -1205,7 +1205,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     index = self.comboBox_semester.findText('Summer', Qt.MatchExactly)
                     self.comboBox_semester.setCurrentIndex(index)
                 case _:
-                    room_setting['semester'] = 'Fall'
                     index = self.comboBox_semester.findText('Fall', Qt.MatchExactly)
                     self.comboBox_semester.setCurrentIndex(index)
             
