@@ -541,6 +541,12 @@ class lab_scheduler_manager(QDialog):
                 self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
         else:
             self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
+            
+        # Set the experiment of the next new row to be the next experiment in the list
+        if row_count > 0:
+            index = self.tableWidget_scheduler.cellWidget(row_count - 1, 1).currentIndex()
+            index += 1
+            self.exp_dropdown.setCurrentIndex(index)
 
         # Enable the "Done" button if the first row has a date
         if row_count == 0:
@@ -1130,12 +1136,9 @@ class MainWindow(QtWidgets.QMainWindow):
         room_setting = {}
         
         # Default year/semester set according to today's date
-        date_today = QDate.currentDate()
-        current_month = date_today.month()
+        room_setting['year'] = str(QDate.currentDate().year())
         
-        room_setting['year'] = str(date_today.year())
-        
-        match current_month:
+        match QDate.currentDate().month():
             case 1 | 2 | 3 | 4:
                 room_setting['semester'] = 'Winter'
             case 5 | 6 | 7 | 8:
