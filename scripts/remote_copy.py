@@ -36,7 +36,7 @@ class Remote_GPC_manager:
             #self.dest_path = src_dir
             self.dest_path = os.path.join(user_data_dir, f'output_{code}')
         else:
-            self.dest_path = os.path.join(gpc, 'phys')
+            self.dest_path = os.path.join(r'\\' + gpc, 'phys')
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
         out_dir = os.path.join(user_data_dir, f'output_{code}')
@@ -59,7 +59,8 @@ class Remote_GPC_manager:
         if os.path.exists(self.web_directory):
             shutil.rmtree(self.web_directory)
         
-        os.makedirs(self.web_directory)
+        os.makedirs(os.path.join(self.web_directory,'img'))
+        os.makedirs(os.path.join(self.web_directory,'tip'))
         
         self._force_copy(css_path_1, os.path.join(self.web_directory,'style_small.css'))
         self._force_copy(css_path_2, os.path.join(self.web_directory,'style_large.css'))
