@@ -36,7 +36,7 @@ class Remote_GPC_manager:
             #self.dest_path = src_dir
             self.dest_path = os.path.join(user_data_dir, f'output_{code}')
         else:
-            self.dest_path =r'\\' + gpc+ r'\\phys'
+            self.dest_path = os.path.join(gpc, 'phys')
         
         self.web_directory = os.path.join(self.dest_path,'LabSeatingWeb')
         out_dir = os.path.join(user_data_dir, f'output_{code}')
