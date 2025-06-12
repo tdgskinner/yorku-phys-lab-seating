@@ -1,15 +1,17 @@
 ## How to convert the python GUI to a stand alone exe installable file:
 =======================================================================
-1- pip install pyinstaller
-2- run this command to create executable python:
-	pyinstaller --name YU_LabManager --onefile --windowed --icon=YorkU_icon.ico YorkULabSeating.py
-3- Once Building completed successfully, copy assets folder to dist/YU_LabManager folder
+1- pip (or conda) install pyinstaller
+2- run this command to create executable python (while working in appropriate directory):
+	a- pyinstaller --name YU_LabManager --onefile --windowed --icon=YorkU_icon.ico YorkULabSeating.py
+	b- If you get an error about excess recursion: Copy the line of code from the error into "YU_LabManager.spec" as instructed, then run
+	   pyinstaller YU_LabManager.spec
+3- Once Building has completed successfully, copy the assets folder to dist/YU_LabManager folder
 4- install inno setup
-    a- use the wizard to create new sw package and follow the instructions.
+    a- use the wizard to create a new software package and follow the instructions. Set to local (not admin) install.
     b- add all asset directories to the project
-    c- edit the source in [Files] block: from DestDir: "{app} to DestDir: "{app}/assets
+    c- edit the source in [Files] block: from DestDir: "{app}" to DestDir: "{app}/assets"
 
 [Alternatively]
-4.a: reuse same .iss file from previous release and only modify the version number all over the file. Make sure to create the new directories with files prior to this step.
+4a- reuse same .iss file from previous release and only modify the version number all over the file. Make sure to create the new directories with files prior to this step.
 5- compile (4th buttom from the top left corner of inno setup application)
-6- copy the exe output file to dedicated sharepoint/ team loacation for IT team access
+6- copy the exe output file to dedicated sharepoint/teams loacation for IT team access
