@@ -542,7 +542,7 @@ class lab_scheduler_manager(QDialog):
         else:
             self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
             
-        # Set the experiment of the next new row to be the next experiment in the list
+        # Set the experiment of the new row to be the next experiment in the list
         if row_count > 0:
             index = self.tableWidget_scheduler.cellWidget(row_count - 1, 1).currentIndex()
             index += 1
@@ -1271,7 +1271,7 @@ class MainWindow(QtWidgets.QMainWindow):
             QDesktopServices.openUrl(QUrl.fromLocalFile(pdf_file_path))
         else:
             # Handle the case where the file doesn't exist
-            logging.error("PDF file not found: ", pdf_file_path)
+            logging.error("PDF file not found: %s", pdf_file_path)
 
     def show_attendance(self):
         self.att = AttWindow(self.stud_csv_path_list, self.session, self.session_id[0], self.code, self.exp_id)
@@ -1571,7 +1571,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"There are <b>no enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
+            dlg.setText(f"There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         else:
@@ -1744,7 +1744,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lab_scheduler.setWindowModality(Qt.WindowModality.ApplicationModal)
             self.lab_scheduler.show()
         else:
-            QMessageBox.critical(self, "Error", "Cannot generate Lab schedul. No 'location' is listed in exp_*.csv file.")
+            QMessageBox.critical(self, "Error", "Cannot generate Lab schedule. No 'location' is listed in exp_*.csv file.")
             return None
 
     def open_att_editor(self):

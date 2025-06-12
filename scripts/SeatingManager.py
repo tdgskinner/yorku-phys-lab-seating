@@ -189,7 +189,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
             return None
         except Exception as e:
             logger.error("Failed to generate pdf document. Ensure that a LaTeX compiler is installed.")
-            return None
+            return "Failed to generate pdf document. Ensure that a LaTeX compiler is installed."
     
     
 #------------------------------------------------------------    
@@ -258,7 +258,7 @@ def concat_stud_lists(stud_csv_path_list):
             # adding header to student list
             df.columns = get_studList_header(n_col)
         else:
-            logger.error('number of columns in stud csv files is not supported. Suppoerted numbers are 9 and 10.')
+            logger.error('Number of columns in stud csv files is not supported. Suppoerted numbers are 9 and 10.')
     
         # drop nan
         df = df.dropna()
