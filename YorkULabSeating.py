@@ -2223,7 +2223,7 @@ if __name__ == '__main__':
     # Process events to make sure the splash screen is displayed
     QApplication.processEvents()
 
-    # Use QTimer to delay the appearance of the main window after 3 seconds
-    QtCore.QTimer.singleShot(3000, lambda: show_main_window(app))
+    # Use QTimer to delay the appearance of the main window after 1 seconds
+    QtCore.QTimer.singleShot(1000, lambda: show_main_window(app))
     
     sys.exit(app.exec())
