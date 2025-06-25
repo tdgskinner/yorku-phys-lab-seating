@@ -1,4 +1,4 @@
-import sys , os, io
+import sys , os, io, re
 import requests
 import appdirs
 import pandas as pd
@@ -1239,6 +1239,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.session_list = self.extract_sessions(self.time_csv_path)
             if self.exp_csv_path:
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
+                # Uses exp csv filename to pull course code onto GUI automatically 
+                filename_extract = os.path.basename(self.exp_csv_path)
+                regex_course_code = r'PHYS.?(\d{4})'
+                course_code_extract = re.findall(regex_course_code, filename_extract)
+                if course_code_extract:
+                    self.code = course_code_extract[0]
+                    self.lineEdit_code.setText(self.code)
+                    
         else:
             self.lineEdit_course_dir.clear()
             self.pushButton_attEdit.setEnabled(False)
@@ -1342,6 +1350,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 self.pushButton_attEdit.setEnabled(True)
                 self.pushButton_labScheduler.setEnabled(True)
+            
+            # Uses exp csv filename to update course code on GUI automatically 
+            filename_extract = os.path.basename(self.exp_csv_path)
+            regex_course_code = r'PHYS.?(\d{4})'
+            course_code_extract = re.findall(regex_course_code, filename_extract)
+            if course_code_extract:
+                self.code = course_code_extract[0]
+                self.lineEdit_code.setText(self.code)
                 
     
     def extract_course_csv_paths(self, course_dir):
