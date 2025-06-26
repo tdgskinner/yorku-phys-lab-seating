@@ -972,6 +972,6 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
             new_row = {'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
                        'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title_list[i]}',
                        'location': location_list[i]}
-            schedule_df = schedule_df.append(new_row, ignore_index=True)
+            schedule_df = pd.concat([schedule_df, new_row], ignore_index=True)
 
     return schedule_df

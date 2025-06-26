@@ -505,8 +505,8 @@ class lab_scheduler_manager(QDialog):
         self.pushButton_done.clicked.connect(self.collectData)
         self.pushButton_create_csv.clicked.connect(self.generate_schedule_csv)
 
-        self.tableWidget_scheduler.setColumnCount(2)  # Reduced to 2 columns
-        self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp"])
+        self.tableWidget_scheduler.setColumnCount(3)  # Reduced to 2 columns
+        self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp", "Room"])
         self.tableWidget_scheduler.setRowCount(1)
         self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
         self.exp_dropdown = QComboBox()
@@ -514,6 +514,10 @@ class lab_scheduler_manager(QDialog):
         self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
         self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.exp_dropdown.setCurrentIndex(-1)
+        self.room_dropdown = QComboBox()
+        self.room_dropdown.addItems(list(self.location_list))
+        self.tableWidget_scheduler.setCellWidget(0, 2, self.room_dropdown)
+        self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
         # Disable the "Done" button initially
         self.pushButton_done.setEnabled(False)
@@ -526,6 +530,8 @@ class lab_scheduler_manager(QDialog):
     def addRow(self):
         self.exp_dropdown = QComboBox()
         self.exp_dropdown.addItems(list(self.exp_list.keys())) 
+        self.room_dropdown = QComboBox()
+        self.room_dropdown.addItems(list(self.location_list))
         row_count = self.tableWidget_scheduler.rowCount()
         self.tableWidget_scheduler.setRowCount(row_count + 1)
         self.tableWidget_scheduler.setCellWidget(row_count, 1, self.exp_dropdown)
@@ -542,11 +548,12 @@ class lab_scheduler_manager(QDialog):
         else:
             self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
             
-        # Set the experiment of the new row to be the next experiment in the list
+        # Set the experiment and room of the new row to be the next experiment and room in the list
         if row_count > 0:
             index = self.tableWidget_scheduler.cellWidget(row_count - 1, 1).currentIndex()
             index += 1
             self.exp_dropdown.setCurrentIndex(index)
+            self.room_dropdown.setCurrentIndex(index)
 
         # Enable the "Done" button if the first row has a date
         if row_count == 0:
@@ -1386,7 +1393,7 @@ class MainWindow(QtWidgets.QMainWindow):
                   
     def browse_pc_dir(self):
         '''
-        open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
+        open dialog box to browse for source dir and return the paths for exp, stud(s) and time csv files.
         '''  
         self.pc_dir = QFileDialog.getExistingDirectory(self, "Select the pc lists directory", directory=self.pc_dir)  
         
