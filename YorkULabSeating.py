@@ -1485,7 +1485,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.lineEdit_TAname.setEnabled(False)
 
     def LoadSettingValues(self):
-        '''
+        r'''
         # Load the last user setting from previous session (stored in Windows registry)
         CurrentUser\Software\YorkLabSeating\Course
         '''
