@@ -509,7 +509,6 @@ class lab_scheduler_manager(QDialog):
         self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp", "Room"])
         self.tableWidget_scheduler.setRowCount(1)
         self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
-        self.tableWidget_scheduler.setItem(0, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
         self.exp_dropdown = QComboBox()
         self.exp_dropdown.addItems(list(self.exp_list.keys())) 
         self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
@@ -1096,8 +1095,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.pushButton_update_check.clicked.connect(self.check_for_update)
         self.pushButton_update_check.clicked.connect(self.check_for_update_2)
         self.pushButton_save_settings.clicked.connect(self.save_button_click)
-        self.pushButton_grouping.clicked.connect(self.generate_groups)
-        self.pushButton_htmlgen.clicked.connect(self.generate_html)
+        self.pushButton_grouping_htmlgen.clicked.connect(self.generate_groups_html_combined)
         self.comboBox_exp_id.activated.connect(self.set_exp_id)
         #self.comboBox_exp_id.currentIndexChanged.connect(self.check_comboboxes)
         self.comboBox_session.activated.connect(self.set_session_id)
@@ -1570,7 +1568,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setText("Please select a <b>session</b> before generating groups.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
-            return 
+            return False
         else:
             logging.debug(f'selected session_id:{self.session_id}.')
             if not self.stud_csv_path_list:
@@ -1579,7 +1577,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setText(f"Please select a student list from the settings tab and save, before generating groups.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
-                return
+                return False
             else: 
                 n_stud = seating.get_number_of_students(self.stud_csv_path_list, self.session_id[0])
                 logging.debug(f' There are {n_stud} students enrolled in this session.')
@@ -1590,7 +1588,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setText(f"No student found in the selected session.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
-            return
+            return False
 
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
@@ -1598,6 +1596,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.setText(f"There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
+            return False
         else:
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
@@ -1605,7 +1604,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setText(f"Make sure exp_* (experiments list) exists in the main course directory.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
-                return
+                return False
             else:
                 self.pkl_file_name   = self.set_pklfile_name()
                 self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
@@ -1616,12 +1615,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     self.pushButton_labLayout.setEnabled(True)
+                    return True
                 else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")
                     dlg.setText("Experiment list and/or Student list are(is) empty. If not, check the csv headers.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
+                    return False
             
     def generate_html(self):
         if self.pkl_path:
@@ -1651,6 +1652,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
+                
+    def generate_groups_html_combined(self):
+        if self.generate_groups():
+            self.generate_html()
+           
 
     def start_copyfiles_worker(self):
         if self.gpc_list and self.course_dir:
