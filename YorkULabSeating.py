@@ -509,11 +509,12 @@ class lab_scheduler_manager(QDialog):
         self.tableWidget_scheduler.setHorizontalHeaderLabels(["Week of", "Exp", "Room"])
         self.tableWidget_scheduler.setRowCount(1)
         self.tableWidget_scheduler.setItemDelegateForColumn(0, DateDelegate())  # Set delegate for date column
+        self.tableWidget_scheduler.setItem(0, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
         self.exp_dropdown = QComboBox()
         self.exp_dropdown.addItems(list(self.exp_list.keys())) 
         self.tableWidget_scheduler.setCellWidget(0, 1, self.exp_dropdown)
         self.tableWidget_scheduler.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.exp_dropdown.setCurrentIndex(-1)
+        self.exp_dropdown.setCurrentIndex(0)
         self.room_dropdown = QComboBox()
         self.room_dropdown.addItems(list(self.location_list))
         self.tableWidget_scheduler.setCellWidget(0, 2, self.room_dropdown)
@@ -535,13 +536,15 @@ class lab_scheduler_manager(QDialog):
         row_count = self.tableWidget_scheduler.rowCount()
         self.tableWidget_scheduler.setRowCount(row_count + 1)
         self.tableWidget_scheduler.setCellWidget(row_count, 1, self.exp_dropdown)
+        self.tableWidget_scheduler.setCellWidget(row_count, 2, self.room_dropdown)
 
-        # Set the date of the new row to be the same as the date of the previous row
+        # Set the date of the new row to be a week after the date of the previous row
         if row_count > 0:
             previous_date_item = self.tableWidget_scheduler.item(row_count - 1, 0)
             if previous_date_item:
-                previous_date = QDate.fromString(previous_date_item.text(), "yyyy-MM-dd")
-                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(previous_date.toString("yyyy-MM-dd")))
+                next_date = QDate.fromString(previous_date_item.text(), "yyyy-MM-dd")
+                next_date = next_date.addDays(7)
+                self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(next_date.toString("yyyy-MM-dd")))
             else:
                 # If previous date is not available, set the current date
                 self.tableWidget_scheduler.setItem(row_count, 0, QTableWidgetItem(QDate.currentDate().toString("yyyy-MM-dd")))
@@ -947,6 +950,7 @@ class DateDelegate(QStyledItemDelegate):
     def setModelData(self, editor, model, index):
         date = editor.date().addDays(-editor.date().dayOfWeek() + 1)
         model.setData(index, date.toString("yyyy-MM-dd"), Qt.ItemDataRole.DisplayRole)
+        
 #================================================================================
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, appVersion, appDate):
@@ -1137,7 +1141,6 @@ class MainWindow(QtWidgets.QMainWindow):
         formatted_time = now.toString("<b>ddd h:mm AP, MMM d, yyyy</b>")
         self.label_time.setText(formatted_time)
         self.label_time.setStyleSheet("color: blue; font-size: 12pt;")
-        
     #--------------------------------------------------------------------------------
     def set_default_room_settings(self):
         room_setting = {}
@@ -1167,6 +1170,13 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return room_setting
     
+    def set_course_code_textbox(self, stud_csv_path):
+        # Uses stud csv filename to get course code 
+        filename_extract = os.path.basename(stud_csv_path)
+        course_code_extract = filename_extract[-9:-5]
+        if course_code_extract.isdigit():
+            self.code = course_code_extract
+            self.lineEdit_code.setText(self.code)
     
     def load_room_settings(self, room):
         # Load the room setting dictionary
@@ -1241,18 +1251,16 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.course_dir and os.path.isdir(self.course_dir):
             self.lineEdit_course_dir.setText(self.course_dir)
             self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
+            
+            # If course code is set to default value, pulls it from csv onto GUI
+            if self.code == 'xxxx':
+                self.set_course_code_textbox(self.stud_csv_path_list[0])
         
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
             if self.exp_csv_path:
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
-                # Uses exp csv filename to pull course code onto GUI automatically 
-                filename_extract = os.path.basename(self.exp_csv_path)
-                regex_course_code = r'PHYS.?(\d{4})'
-                course_code_extract = re.findall(regex_course_code, filename_extract)
-                if course_code_extract:
-                    self.code = course_code_extract[0]
-                    self.lineEdit_code.setText(self.code)
+                
                     
         else:
             self.lineEdit_course_dir.clear()
@@ -1269,8 +1277,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.course_label.setFont(QFont('Arial', 12, weight=700))
         self.location_label.setText(f'{self.room}')
         self.location_label.setFont(QFont('Arial', 12, weight=700))
-
-
 
     #--------------------------------------------------------------------------------        
     #def check_comboboxes(self):
@@ -1358,13 +1364,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.pushButton_attEdit.setEnabled(True)
                 self.pushButton_labScheduler.setEnabled(True)
             
-            # Uses exp csv filename to update course code on GUI automatically 
-            filename_extract = os.path.basename(self.exp_csv_path)
-            regex_course_code = r'PHYS.?(\d{4})'
-            course_code_extract = re.findall(regex_course_code, filename_extract)
-            if course_code_extract:
-                self.code = course_code_extract[0]
-                self.lineEdit_code.setText(self.code)
+            # Updates course code on GUI automatically 
+            self.set_course_code_textbox(self.stud_csv_path_list[0])
                 
     
     def extract_course_csv_paths(self, course_dir):
