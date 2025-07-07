@@ -1619,7 +1619,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     dlg = QtWidgets.QMessageBox(self)
                     dlg.setWindowTitle("Error")
-                    dlg.setText("Experiment list and/or Student list are(is) empty. If not, check the csv headers.")
+                    dlg.setText("Experiment list and/or Student list appear to be empty. If this is not the case, check the csv headers.")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     return False
