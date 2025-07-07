@@ -496,10 +496,7 @@ class lab_scheduler_manager(QDialog):
         self.code = code
         self.location_list = location_list
 
-        self.course_label.setText(f'PHYS {code}')
-        self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'{room}')
-        self.location_label.setFont(QFont('Arial', 12, weight=700))
+        self.update_current_lab_config_ui()
         
         self.pushButton_plus.clicked.connect(self.addRow)
         self.pushButton_done.clicked.connect(self.collectData)
@@ -1271,10 +1268,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self.room:
             self.comboBox_room.setCurrentText(self.room)
-        self.course_label.setText(f'PHYS {self.code}')
-        self.course_label.setFont(QFont('Arial', 12, weight=700))
-        self.location_label.setText(f'{self.room}')
-        self.location_label.setFont(QFont('Arial', 12, weight=700))
+        self.update_current_lab_config_ui()
 
     #--------------------------------------------------------------------------------        
     #def check_comboboxes(self):
@@ -1315,13 +1309,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("Course main directory not found. Please select the mian directory from the setting tab first.")
+            dlg.setText("Course main directory not found. Please select the main directory from the setting tab first.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
         
     def browse_course_dir(self):
         '''
-        open dialog box to browse for source dir and return the pathes for exp, stud(s) and time csv files.
+        open dialog box to browse for source dir and return the paths for exp, stud(s) and time csv files.
         '''
         self.course_dir = QFileDialog.getExistingDirectory(self, "Select the main course directory", directory=self.course_dir)
         
@@ -1499,10 +1493,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.code       = self.lineEdit_code.text() 
         self.n_max_group    = int(self.lineEdit_ngroups.text())
         self.n_benches    = int(self.lineEdit_nbenches.text())
-        self.course_label.setText(f'PHYS {self.code}')
         
         self.save_settings()
-
+        self.update_current_lab_config_ui()
 
         dlg = QtWidgets.QMessageBox(self)
         dlg.setWindowTitle("Inof.")
@@ -1693,6 +1686,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_copyFinished(self):
         self.copy_pbar.setFormat("Copy completed")
+        self.save_current_lab_config()
+        self.update_current_lab_config_ui()
         self.pushButton_copyfiles.setEnabled(True)
         self.comboBox_exp_id.setEnabled(True)
         self.pushButton_grouping_htmlgen.setEnabled(True)
@@ -1790,6 +1785,21 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def updateCustomizedAtt(self, new_value):
         self.customized_att = new_value
+        
+    def update_current_lab_config_ui(self):
+        lab_config = self.setting_Course.value('current_lab_config')
+        code = lab_config.get('code')
+        self.course_label.setText(f'PHYS {code}')
+        self.course_label.setFont(QFont('Arial', 12, weight=700))
+        room = lab_config.get('room')
+        self.location_label.setText(f'{room}')
+        self.location_label.setFont(QFont('Arial', 12, weight=700))
+        session = lab_config.get('session')
+        self.session_label.setText(f'{session}')
+        self.session_label.setFont(QFont('Arial', 12, weight=700))
+        exp_id = lab_config.get('exp_id')
+        self.exp_label.setText(f'Exp {exp_id}')
+        self.exp_label.setFont(QFont('Arial', 12, weight=700))
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
@@ -1858,6 +1868,22 @@ class MainWindow(QtWidgets.QMainWindow):
             
         self.room_setting_dict[self.comboBox_room.currentText()] = room_setting
         self.setting_Course.setValue('room_setting_dict', self.room_setting_dict)
+        
+    def save_current_lab_config(self):
+        """
+        Saves the current lab configuration to the system using QSettings.
+
+        Returns: None
+
+        """
+        # After copying files to pcs, save the current configuration of the lab pcs
+        lab_config = {}
+        lab_config['room'] = self.comboBox_room.currentText()
+        lab_config['code'] = self.lineEdit_code.text()
+        lab_config['exp_id'] = self.comboBox_exp_id.currentText()[0]
+        lab_config['session'] = self.comboBox_session.currentText()
+        self.setting_Course.setValue('current_lab_config', lab_config)
+        
 
     #--------------------------------------------------------------------------------    
     def closeEvent(self, event):
