@@ -1668,7 +1668,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread[1].start()
             self.pushButton_copyfiles.setEnabled(False)
             self.comboBox_exp_id.setEnabled(False)
-            self.pushButton_htmlgen.setEnabled(False)
+            self.pushButton_grouping_htmlgen.setEnabled(False)
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
             self.thread[1].progress.connect(self.copy_setProgress)
@@ -1695,7 +1695,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.copy_pbar.setFormat("Copy completed")
         self.pushButton_copyfiles.setEnabled(True)
         self.comboBox_exp_id.setEnabled(True)
-        self.pushButton_htmlgen.setEnabled(True)
+        self.pushButton_grouping_htmlgen.setEnabled(True)
         self.pushButton_rebootPCs.setEnabled(True)
         self.isCopyFileRunning = False
     
