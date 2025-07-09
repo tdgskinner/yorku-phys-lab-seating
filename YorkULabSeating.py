@@ -1253,6 +1253,13 @@ class MainWindow(QtWidgets.QMainWindow):
         
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
+                # Load current lab config dictionary
+                lab_config = self.setting_Course.value('current_lab_config')
+                prev_session = lab_config.get('session')
+                # Set current index of session combobox as the next session in the list
+                index = self.comboBox_session.findText(prev_session, Qt.MatchExactly)
+                index += 1
+                self.comboBox_session.setCurrentIndex(index) 
             if self.exp_csv_path:
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
                 
@@ -1432,7 +1439,6 @@ class MainWindow(QtWidgets.QMainWindow):
             
             self.comboBox_session.addItems(list_helper)
             logging.debug(f'---sessions loaded:{list_helper}')
-            self.comboBox_session.setCurrentIndex(-1)
         
         return session_list
 
@@ -1787,6 +1793,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.customized_att = new_value
         
     def update_current_lab_config_ui(self):
+        """
+        Updates the main tab UI with the current lab configuration by pulling saved data from QSettings
+
+        Returns: None
+
+        """
         lab_config = self.setting_Course.value('current_lab_config')
         code = lab_config.get('code')
         self.course_label.setText(f'PHYS {code}')
@@ -1797,7 +1809,7 @@ class MainWindow(QtWidgets.QMainWindow):
         session = lab_config.get('session')
         self.session_label.setText(f'{session}')
         self.session_label.setFont(QFont('Arial', 12, weight=700))
-        exp_id = lab_config.get('exp_id')
+        exp_id = lab_config.get('exp')[0]
         self.exp_label.setText(f'Exp {exp_id}')
         self.exp_label.setFont(QFont('Arial', 12, weight=700))
 
@@ -1880,7 +1892,7 @@ class MainWindow(QtWidgets.QMainWindow):
         lab_config = {}
         lab_config['room'] = self.comboBox_room.currentText()
         lab_config['code'] = self.lineEdit_code.text()
-        lab_config['exp_id'] = self.comboBox_exp_id.currentText()[0]
+        lab_config['exp'] = self.comboBox_exp_id.currentText()
         lab_config['session'] = self.comboBox_session.currentText()
         self.setting_Course.setValue('current_lab_config', lab_config)
         
