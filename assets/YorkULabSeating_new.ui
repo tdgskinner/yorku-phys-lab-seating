@@ -373,6 +373,8 @@
                     <font>
                      <family>Arial</family>
                      <pointsize>10</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -422,6 +424,8 @@
                     <font>
                      <family>Arial</family>
                      <pointsize>10</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="text">
@@ -656,7 +660,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>10</height>
+                   <height>2</height>
                   </size>
                  </property>
                 </spacer>
@@ -700,7 +704,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>10</height>
+                   <height>2</height>
                   </size>
                  </property>
                 </spacer>
