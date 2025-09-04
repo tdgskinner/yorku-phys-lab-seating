@@ -345,10 +345,10 @@ def get_session_list(time_csv_path):
     sessions = {}
     
     time_df = pandas.read_csv(time_csv_path)
-    time_df.to_csv(time_csv_path, encoding='utf-8')
+    time_df.to_csv(time_csv_path, encoding='utf-8', index=False)
     time_df = pandas.read_csv(time_csv_path)
     #--- drop rows with nan
-    time_df = time_df.dropna()
+    # time_df = time_df.dropna()
     time_df = time_df.dropna().reset_index(drop=True)
 
     Type_list = list(time_df['Type'].str.strip())
@@ -969,9 +969,9 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
             _date = date_obj + timedelta(days=days_index[day])
 
             # Append each new row to the DataFrame
-            new_row = {'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
+            new_row = pd.DataFrame({'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
                        'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title_list[i]}',
-                       'location': location_list[i]}
+                       'location': location_list[i]}, index=[0])
             schedule_df = pd.concat([schedule_df, new_row], ignore_index=True)
 
     return schedule_df

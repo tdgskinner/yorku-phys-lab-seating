@@ -629,7 +629,6 @@ class lab_scheduler_manager(QDialog):
     def closeEvent(self, event):
         pass
 
-
     def generate_schedule_csv(self):
         schedule = seating.generate_schedule(self.schedule_data_dict, self.time_csv_path, self.exp_list, self.code, self.location_list)
             
@@ -641,7 +640,10 @@ class lab_scheduler_manager(QDialog):
                 fileName += '.csv'
             # Save DataFrame to CSV
             schedule.to_csv(fileName, index=False)
+            if schedule.shape[0] == 0:
+                logging.debug('Empty schedule written. Check that time csv has no empty fields.')
             print(f"Lab Schedule saved to {fileName}")
+
 #================================================================================
 class att_editor_manager(QDialog):
     column_details_updated = Signal(dict) # Define a signal to emit updated column details
