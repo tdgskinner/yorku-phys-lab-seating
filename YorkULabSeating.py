@@ -862,36 +862,36 @@ class att_editor_manager(QDialog):
         self.pushButton_save.setEnabled(True)
 
 
-    def collectData2(self):
-        if not self.validityCheck():
-            return  # If data is invalid, halt operation.
+    # def collectData2(self):
+    #     if not self.validityCheck():
+    #         return  # If data is invalid, halt operation.
 
-        # Get the current experiment title from the comboBox
-        experiment_title = self.comboBox_exp.currentText()
+    #     # Get the current experiment title from the comboBox
+    #     experiment_title = self.comboBox_exp.currentText()
 
-        # Create a new dictionary to store this experiment's column details
-        column_details = {}
+    #     # Create a new dictionary to store this experiment's column details
+    #     column_details = {}
 
-        # Collect the column titles and widths from the table
-        for row in range(self.tableWidget_attEditor.rowCount()):
-            title_item = self.tableWidget_attEditor.item(row, 0)
-            width_item = self.tableWidget_attEditor.item(row, 1)
-            if title_item and width_item:
-                title = title_item.text().strip()
-                width_text = width_item.text().strip()
-                try:
-                    width = float(width_text)
-                except ValueError:
-                    continue  # Skip if invalid
-                column_details[title] = width
+    #     # Collect the column titles and widths from the table
+    #     for row in range(self.tableWidget_attEditor.rowCount()):
+    #         title_item = self.tableWidget_attEditor.item(row, 0)
+    #         width_item = self.tableWidget_attEditor.item(row, 1)
+    #         if title_item and width_item:
+    #             title = title_item.text().strip()
+    #             width_text = width_item.text().strip()
+    #             try:
+    #                 width = float(width_text)
+    #             except ValueError:
+    #                 continue  # Skip if invalid
+    #             column_details[title] = width
 
-        # Store the collected details in the experiments_data under the selected experiment
-        self.experiments_data[experiment_title] = [column_details, self.textEdit_footer.toPlainText()]
+    #     # Store the collected details in the experiments_data under the selected experiment
+    #     self.experiments_data[experiment_title] = [column_details, self.textEdit_footer.toPlainText()]
 
-        # Emit the updated data
-        self.column_details_updated.emit(self.experiments_data)
-        logging.debug(f"Updated details for {experiment_title}: {column_details}")
-        self.pushButton_save.setEnabled(True)
+    #     # Emit the updated data
+    #     self.column_details_updated.emit(self.experiments_data)
+    #     logging.debug(f"Updated details for {experiment_title}: {column_details}")
+    #     self.pushButton_save.setEnabled(True)
 
     def validityCheck(self):
         if self.is_initializing:
@@ -1077,7 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow):
         icon_file = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileIcon'))
         icon_lab_scheduler = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogListView'))
         icon_weekly_att = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogDetailedView'))
-        icon_session_att = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogContentsView'))
+        # icon_session_att = self.style().standardIcon(getattr(QStyle.StandardPixmap, 'SP_FileDialogContentsView'))
         
         self.pushButton_save_settings.setIcon(icon_save)
         self.pushButton_course_dir_browse.setIcon(icon_brows)
@@ -1244,7 +1244,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.css_file = 'style_large.css' if not self.small_screen_mode else 'style_small.css'
         self.css_file_all = 'style_all.css'
-        
+
         if self.course_dir and os.path.isdir(self.course_dir):
             self.lineEdit_course_dir.setText(self.course_dir)
             self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path = self.extract_course_csv_paths(self.course_dir)
@@ -1252,16 +1252,24 @@ class MainWindow(QtWidgets.QMainWindow):
             # If course code is set to default value, pulls it from csv onto GUI
             if self.code == 'xxxx':
                 self.set_course_code_textbox(self.stud_csv_path_list[0])
-        
+            
             if self.time_csv_path:
                 self.session_list = self.extract_sessions(self.time_csv_path)
                 # Load current lab config dictionary
                 lab_config = self.setting_Course.value('current_lab_config')
-                prev_session = lab_config.get('session')
-                # Set current index of session combobox as the next session in the list
-                index = self.comboBox_session.findText(prev_session, Qt.MatchExactly)
-                index += 1
-                self.comboBox_session.setCurrentIndex(index) 
+                if lab_config:
+                    prev_session = lab_config.get('session')
+                    # Set current index of session combobox as the next session in the list
+                    #Does not currently work as intended: Needs to also update session_id appropriately
+                    #eg ['LAB 01_1','T'] for LAB01 on Tuesday from the first course section
+                    index = self.comboBox_session.findText(prev_session, Qt.MatchExactly)
+                    index += 1
+                    self.comboBox_session.setCurrentIndex(index)
+                else:
+                    #Initialise to a default lab config
+                    default_lab_config = {'room':'Room', 'code':'XXXX', 'exp':'Exp', 'session':'Session'}
+                    self.setting_Course.setValue('current_lab_config', default_lab_config)
+                    
             if self.exp_csv_path:
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
                 
@@ -1563,7 +1571,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
 
     def generate_groups(self):
-        if not self.session_id:
+        if self.session_id is None:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText("Please select a <b>session</b> before generating groups.")
@@ -1575,7 +1583,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not self.stud_csv_path_list:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"Please select a student list from the settings tab and save, before generating groups.")
+                dlg.setText("Please select a student list from the settings tab and save, before generating groups.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return False
@@ -1586,7 +1594,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if n_stud == 0:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"No student found in the selected session.")
+            dlg.setText("No student found in the selected session.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return False
@@ -1594,7 +1602,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
+            dlg.setText("There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return False
@@ -1602,7 +1610,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not self.exp_csv_path:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"Make sure exp_* (experiments list) exists in the main course directory.")
+                dlg.setText("Make sure exp_* (experiments list) exists in the main course directory.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return False
@@ -1644,13 +1652,13 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
+                dlg.setText("pkl file not found. Run Grouping first to generate it.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
         else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"pkl file not found. Run Grouping first to generate it.")
+                dlg.setText("pkl file not found. Run Grouping first to generate it.")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 
@@ -1677,14 +1685,14 @@ class MainWindow(QtWidgets.QMainWindow):
         elif not self.gpc_list and self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
+            dlg.setText("No Group PC name found in Group PC list. Check the input txt file")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
         elif not self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText(f"Select the main course directory from setting tab.")
+            dlg.setText("Select the main course directory from setting tab.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
@@ -1725,7 +1733,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"No Group PC name found in Group PC list. Check the input txt file")
+                dlg.setText("No Group PC name found in Group PC list. Check the input txt file")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
@@ -1759,7 +1767,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 dlg = QtWidgets.QMessageBox(self)
                 dlg.setWindowTitle("Error")
-                dlg.setText(f"No Laptop found in laptop list. Check the input txt file")
+                dlg.setText("No Laptop found in laptop list. Check the input txt file")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 return
@@ -1802,18 +1810,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """
         lab_config = self.setting_Course.value('current_lab_config')
-        code = lab_config.get('code')
-        self.course_label.setText(f'PHYS {code}')
-        self.course_label.setFont(QFont('Arial', 12, weight=700))
-        room = lab_config.get('room')
-        self.location_label.setText(f'{room}')
-        self.location_label.setFont(QFont('Arial', 12, weight=700))
-        session = lab_config.get('session')
-        self.session_label.setText(f'{session}')
-        self.session_label.setFont(QFont('Arial', 12, weight=700))
-        exp_id = lab_config.get('exp')[0]
-        self.exp_label.setText(f'Exp {exp_id}')
-        self.exp_label.setFont(QFont('Arial', 12, weight=700))
+        if lab_config:
+            code = lab_config.get('code')
+            self.course_label.setText(f'PHYS {code}')
+            # self.course_label.setFont(QFont('Arial', 12, weight=700))
+            room = lab_config.get('room')
+            self.location_label.setText(f'{room}')
+            # self.location_label.setFont(QFont('Arial', 12, weight=700))
+            session = lab_config.get('session')
+            self.session_label.setText(f'{session}')
+            # self.session_label.setFont(QFont('Arial', 12, weight=700))
+            exp_id = lab_config.get('exp')[0]
+            self.exp_label.setText(f'Exp {exp_id}')
+            # self.exp_label.setFont(QFont('Arial', 12, weight=700))
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
@@ -2154,7 +2163,7 @@ class lpcCopyFileThread(QThread):
         self.lpc_copy_service = Remote_LPC_manager(self.localCopy)
         
     def run(self):
-        logging.info(f' Copying selected file(s) to the laptops. Please wait ...')
+        logging.info(' Copying selected file(s) to the laptops. Please wait ...')
         
         self.progress.emit(0)
 
@@ -2194,7 +2203,7 @@ class lpcDeleteThread(QThread):
         self.lpc_delete_service = Remote_LPC_manager(self.localCopy)
         
     def run(self):
-        logging.info(f' Deleting identified file(s) from the laptops. Please wait ...')
+        logging.info(' Deleting identified file(s) from the laptops. Please wait ...')
         
         self.progress.emit(0)
         
@@ -2229,7 +2238,7 @@ class Reboot_PC_Thread(QThread):
         
         
     def run(self):
-        logging.info(f' Rebooting PCs. Please wait ...')
+        logging.info(' Rebooting PCs. Please wait ...')
         self.progress.emit(0)
 
         for i, pc in enumerate(self.pc_list):
