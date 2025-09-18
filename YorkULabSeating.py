@@ -1602,7 +1602,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if n_stud > self.n_benches * self.n_max_group:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
+            dlg.setText(f"There are <b>not enough seats for {n_stud} students in {self.n_max_group} groups</b>. Either increase the number of groups or the number of seats per group and try again.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return False
