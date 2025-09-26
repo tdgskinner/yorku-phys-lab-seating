@@ -496,7 +496,11 @@ class lab_scheduler_manager(QDialog):
         self.code = code
         self.location_list = location_list
 
-        self.update_current_lab_config_ui()
+        # Function is out of scope - Leya, 26/09/25
+        # self.update_current_lab_config_ui()
+        
+        # Sets course label at the top of the window
+        self.course_label.setText(f"PHYS {code}")
         
         self.pushButton_plus.clicked.connect(self.addRow)
         self.pushButton_done.clicked.connect(self.collectData)
