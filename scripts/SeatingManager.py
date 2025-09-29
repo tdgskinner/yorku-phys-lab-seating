@@ -200,7 +200,12 @@ def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
     else:
         df_shuffled = df.sample(frac=1, random_state=42)
     
-    df_splits = np.array_split(df_shuffled, int(n_group))
+    #df_splits = np.array_split(df_shuffled, int(n_group))
+    # Manually spliting df using iloc (replaces array_split which was using deprecated function) - Leya 09/29/25
+    n = int(n_group)
+    size = len(df_shuffled)
+    indices = np.linspace(0, size, n + 1, dtype=int)
+    df_splits = [df_shuffled.iloc[indices[i]:indices[i+1]] for i in range(n)]
     
     # Keep maximum number of pair students working together
     if optimize:

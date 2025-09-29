@@ -495,7 +495,7 @@ class lab_scheduler_manager(QDialog):
         self.room = room
         self.code = code
         self.location_list = location_list
-
+        
         # Function is out of scope - Leya, 26/09/25
         # self.update_current_lab_config_ui()
         
