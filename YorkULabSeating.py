@@ -2122,6 +2122,16 @@ class CopyFileThread(QThread):
         self.copy_service = Remote_GPC_manager(self.localCopy)
         
     def run(self):
+        """
+        Used in:
+            class MainWindow
+                start_copyfiles_worker()
+
+        Returns
+        -------
+        None.
+
+        """
         logging.info(f' Copying html files of Exp {self.exp_id} to Group PCs. Please wait ...')
         
         self.progress.emit(0)

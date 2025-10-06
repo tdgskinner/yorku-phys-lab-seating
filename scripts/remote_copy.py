@@ -14,7 +14,11 @@ class Remote_GPC_manager:
     def _force_copy(self, source, dest, type='f'):
         """
         Copies file/directory from given source path to destination path.
-
+        
+        Called by:
+            class Remote_GPC_manager
+                _server_dir_prep()
+                
         Parameters
         ----------
         source : 
@@ -28,6 +32,7 @@ class Remote_GPC_manager:
             None.
 
         """
+        
         logger.debug(f'source_path: {source}')
         logger.debug(f'dest_path: {dest}')
         
@@ -46,6 +51,18 @@ class Remote_GPC_manager:
         
     #------------------------------------------------------------
     def _server_dir_prep(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
+        """
+        Called by: 
+            
+            class Remote_GPC_manager 
+                run_copyfile()
+
+
+        Returns
+            None.
+
+        """
+        
         cwd = os.getcwd()
        
         if self.do_localCopy:
@@ -99,6 +116,18 @@ class Remote_GPC_manager:
 
     #------------------------------------------------------------
     def run_copyfile(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
+        """
+        Called by:
+            
+            YorkULabSeating.py
+                class CopyFileThread()
+                    run()
+
+        Returns:
+            bool
+            Returns true if file copying was successful, otherwise returns false.
+
+        """
        
         try:
             self._server_dir_prep(user_data_dir, exp_id, gpc, group_id, src_dir, code)
