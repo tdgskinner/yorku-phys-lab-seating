@@ -1575,6 +1575,14 @@ class MainWindow(QtWidgets.QMainWindow):
             
 
     def generate_groups(self):
+        """
+        Generates lab groups pkl file only if session, student list is selected, and there are enough groups for all students.
+
+        Returns:
+            bool
+            Returns True if groups successfully made, otherwise returns False.
+            
+        """
         if self.session_id is None:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -1622,11 +1630,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.pkl_file_name   = self.set_pklfile_name()
                 self.pkl_path, self.n_group = seating.make_groups(user_data_dir, self.exp_csv_path, self.stud_csv_path_list, self.time_csv_path, self.session_id, n_stud, self.n_benches, self.code, self.pkl_file_name )
                 if self.pkl_path:
-                    dlg = QtWidgets.QMessageBox(self)
-                    dlg.setWindowTitle("Info.")
-                    dlg.setText(f"<b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>. Number of groups can be adjusted from the settings tab if needed.")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
+                    # Removed unnecessary pop-up and replaced with console log, pop-ups are reserved for errors - Leya, 06/10/25
+                    logging.info(f" <b>{n_stud} enrolled students</b> in this session are assigned into <b>{self.n_group} groups</b>.")
                     self.pushButton_labLayout.setEnabled(True)
                     return True
                 else:
@@ -1638,6 +1643,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     return False
             
     def generate_html(self):
+        """
+        If a pkl file already exists, generates html files for groups
+
+        Returns 
+            None.
+
+        """
         if self.pkl_path:
             if os.path.exists(self.pkl_path):
                 logging.debug(f'self.pkl_path: {self.pkl_path}')
@@ -1667,6 +1679,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.exec()
                 
     def generate_groups_html_combined(self):
+        """
+        Calls generate_html() only if generate_groups() returns True.
+
+        Returns:
+            None.
+            
+        - Leya, 07/07/25   
+        """
         if self.generate_groups():
             self.generate_html()
            

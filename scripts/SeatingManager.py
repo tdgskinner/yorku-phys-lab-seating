@@ -699,7 +699,7 @@ def html_all_generator_grp(exp, n_max_group, n_benches ,code, output_dir, dict, 
                     {html_table}
                 </table>
             '''
-    # handeling empty groups
+    # handling empty groups
             
     seating_groups =f'''
         <div class="table-container", style="width:30%">

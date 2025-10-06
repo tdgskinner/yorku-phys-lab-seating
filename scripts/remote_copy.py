@@ -12,8 +12,24 @@ class Remote_GPC_manager:
     
     #------------------------------------------------------------
     def _force_copy(self, source, dest, type='f'):
+        """
+        Copies file/directory from given source path to destination path.
+
+        Parameters
+        ----------
+        source : 
+            Source path of the file to be copied
+        dest : 
+            Destination path for the file to be copied to
+        type : 
+            Whether the path refers to a directory or a file. The default is 'f'.
+
+        Returns:
+            None.
+
+        """
         logger.debug(f'source_path: {source}')
-        logger.debug(f'dist_path: {dest}')
+        logger.debug(f'dest_path: {dest}')
         
         if type == 'dir':
             try: 
