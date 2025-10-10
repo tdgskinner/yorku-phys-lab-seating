@@ -2,6 +2,7 @@ import os, shutil
 import logging
 import time
 import glob
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,8 @@ class Remote_GPC_manager:
     #------------------------------------------------------------
     def _force_copy(self, source, dest, type='f'):
         """
-        Copies file/directory from given source path to destination path.
+        Attempts to copy file/directory from given source path to destination path.
+        Max 3 attempts with a delay in between to ensure copying does not occur in between html refreshes.
         
         Called by:
             class Remote_GPC_manager
@@ -26,7 +28,7 @@ class Remote_GPC_manager:
         dest : 
             Destination path for the file to be copied to
         type : 
-            Whether the path refers to a directory or a file. The default is 'f'.
+            Whether the path refers to a directory or a file. The default is 'f' for file.
 
         Returns:
             None.
@@ -36,18 +38,70 @@ class Remote_GPC_manager:
         logger.debug(f'source_path: {source}')
         logger.debug(f'dest_path: {dest}')
         
-        if type == 'dir':
-            try: 
-                shutil.copytree(source, dest) 
-            except:
-                shutil.rmtree(dest)
-                shutil.copytree(source, dest)
-        else: 
-            try: 
-                shutil.copy(source, dest)
-            except:
-                os.remove(dest)
-                shutil.copy(source, dest)
+        # Commented out due to unsafe copying, refreshing htmls would break and not update properly if copy peformed during a refresh - Leya, 10/10/25
+        #if type == 'dir':
+            #try: 
+                #shutil.copytree(source, dest) 
+            #except:
+                #shutil.rmtree(dest)
+                #shutil.copytree(source, dest)
+        #else: 
+            #try: 
+                #shutil.copy(source, dest)
+            #except:
+                #os.remove(dest)
+                #shutil.copy(source, dest)
+        
+        # Possible fix for copying files/directories safely, works with local copy, but needs testing on actual group PCs - Leya, 10/10/25
+        
+        # Sets max attempts to copy file/directory
+        copy_attempts = 3
+        # Sets a delay in between successive attempts to copy
+        delay = 2
+        
+        # While there are still attempts to copy
+        while copy_attempts > 0:
+            
+            try:
+                if type == 'dir':
+                    # Makes a temp directory for new directory and copies it to same path
+                    temp_dest = tempfile.mkdtemp(dir=os.path.dirname(dest))
+                    shutil.copytree(source, temp_dest, dirs_exist_ok=True)
+                
+                else:
+                    # Makes a temp file for new file in the destination directory, closes file descriptor
+                    fd, temp_dest = tempfile.mkstemp(dir=os.path.dirname(dest))
+                    os.close(fd)
+                    shutil.copy(source, temp_dest)
+                
+                # Atomically replace the old file/directory with the temp file/directory
+                os.replace(temp_dest, dest)
+                logger.info(f'"{dest}" updated successfully.')
+                # Exit the while loop if successful
+                return
+            
+            # If an attempt to copy fails
+            except Exception as e:
+                copy_attempts -= 1
+                logger.info(f'Copy attempt failed for "{dest}": {e}. Retrying in {delay} seconds. ({copy_attempts} attempts remaining).')
+                
+                # Remove temp file/directory
+                if temp_dest and os.path.exists(temp_dest):
+                    if type == 'dir':
+                        shutil.rmtree(temp_dest)
+                    else:
+                        os.remove(temp_dest)
+                
+                # Delays the next attempt if attempts still remaining
+                if copy_attempts > 0:
+                    time.sleep(delay)
+                    
+                else:
+                    logger.error(f'All 3 attempts failed. Could not update "{dest}". Last error: {e}')
+                    # Exit the while loop after using up all attempts
+                    return
+        
+        
         
     #------------------------------------------------------------
     def _server_dir_prep(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
