@@ -1931,6 +1931,18 @@ class MainWindow(QtWidgets.QMainWindow):
         lab_config['session'] = self.comboBox_session.currentText()
         self.setting_Course.setValue('current_lab_config', lab_config)
         
+    def save_current_lab_config_txt(self):
+        """
+        Creates a string of the current lab configuration. Will be used to
+        check all rooms' current lab configuration.
+        
+        - Leya 24/10/25
+        
+        Returns: None.
+
+        """
+        self.current_lab_config_txt = self.comboBox_room.currentText() + " - PHYS" + self.lineEdit_code.text() + " Session: " + self.comboBox_session.currentText() + " Exp" + self.comboBox_exp_id.currentText()
+        
 
     #--------------------------------------------------------------------------------    
     def closeEvent(self, event):
