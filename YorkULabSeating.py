@@ -1705,7 +1705,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.pushButton_rebootPCs.setEnabled(False)
             self.isCopyFileRunning = True
             self.thread[1].progress.connect(self.copy_setProgress)
-                        
+        
         elif not self.gpc_list and self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")

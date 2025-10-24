@@ -1,10 +1,15 @@
-import os, shutil
+import os, stat, shutil
 import logging
 import time
 import glob
 import tempfile
 
 logger = logging.getLogger(__name__)
+
+def remove_readonly(func, path, _):
+    "Removes read only property from a folder to allow it to be removed/overwritten"
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 class Remote_GPC_manager:
     def __init__(self, localCopy):
@@ -15,7 +20,6 @@ class Remote_GPC_manager:
     def _force_copy(self, source, dest, type='f'):
         """
         Attempts to copy file/directory from given source path to destination path.
-        Max 3 attempts with a delay in between to ensure copying does not occur in between html refreshes.
         
         Called by:
             class Remote_GPC_manager
@@ -39,67 +43,71 @@ class Remote_GPC_manager:
         logger.debug(f'dest_path: {dest}')
         
         # Commented out due to unsafe copying, refreshing htmls would break and not update properly if copy peformed during a refresh - Leya, 10/10/25
-        #if type == 'dir':
-            #try: 
-                #shutil.copytree(source, dest) 
-            #except:
-                #shutil.rmtree(dest)
-                #shutil.copytree(source, dest)
-        #else: 
-            #try: 
-                #shutil.copy(source, dest)
-            #except:
-                #os.remove(dest)
-                #shutil.copy(source, dest)
+        # Uncommented: I don't think the above issue actually occurs, and if it does it's rare enough to live with
+        # Real source of problem: Python commands cannot delete folders set to "read only" in windows.
+        # Fixed by removing this property when required. - Taylor 21/Oct/2025
         
-        # Possible fix for copying files/directories safely, works with local copy, but needs testing on actual group PCs - Leya, 10/10/25
-        
-        # Sets max attempts to copy file/directory
-        copy_attempts = 3
-        # Sets a delay in between successive attempts to copy
-        delay = 2
-        
-        # While there are still attempts to copy
-        while copy_attempts > 0:
-            
+        if type == 'dir':
             try:
-                if type == 'dir':
-                    # Makes a temp directory for new directory and copies it to same path
-                    temp_dest = tempfile.mkdtemp(dir=os.path.dirname(dest))
-                    shutil.copytree(source, temp_dest, dirs_exist_ok=True)
-                
-                else:
-                    # Makes a temp file for new file in the destination directory, closes file descriptor
-                    fd, temp_dest = tempfile.mkstemp(dir=os.path.dirname(dest))
-                    os.close(fd)
-                    shutil.copy(source, temp_dest)
-                
-                # Atomically replace the old file/directory with the temp file/directory
-                os.replace(temp_dest, dest)
-                logger.info(f'"{dest}" updated successfully.')
-                # Exit the while loop if successful
-                return
+                shutil.copytree(source, dest)
+            except:
+                shutil.rmtree(dest, onerror=remove_readonly)
+                shutil.copytree(source, dest)            
+        else:
+            try:
+                shutil.copy(source, dest)
+            except:
+                os.remove(dest)
+                shutil.copy(source, dest)
+        
+        # # Possible fix for copying files/directories safely, works with local copy, but needs testing on actual group PCs - Leya, 10/10/25
+        
+        # # Sets max attempts to copy file/directory
+        # copy_attempts = 3
+        # # Sets a delay in between successive attempts to copy
+        # delay = 2
+        
+        # # While there are still attempts to copy
+        # while copy_attempts > 0:
             
-            # If an attempt to copy fails
-            except Exception as e:
-                copy_attempts -= 1
-                logger.info(f'Copy attempt failed for "{dest}": {e}. Retrying in {delay} seconds. ({copy_attempts} attempts remaining).')
+        #     try:
+        #         if type == 'dir':
+        #             # Makes a temp directory for new directory and copies it to same path
+        #             temp_dest = tempfile.mkdtemp(dir=os.path.dirname(dest))
+        #             shutil.copytree(source, temp_dest, dirs_exist_ok=True)
                 
-                # Remove temp file/directory
-                if temp_dest and os.path.exists(temp_dest):
-                    if type == 'dir':
-                        shutil.rmtree(temp_dest)
-                    else:
-                        os.remove(temp_dest)
+        #         else:
+        #             # Makes a temp file for new file in the destination directory, closes file descriptor
+        #             fd, temp_dest = tempfile.mkstemp(dir=os.path.dirname(dest))
+        #             os.close(fd)
+        #             shutil.copy(source, temp_dest)
                 
-                # Delays the next attempt if attempts still remaining
-                if copy_attempts > 0:
-                    time.sleep(delay)
+        #         # Atomically replace the old file/directory with the temp file/directory
+        #         os.replace(temp_dest, dest)
+        #         logger.info(f'"{dest}" updated successfully.')
+        #         # Exit the while loop if successful
+        #         return
+            
+        #     # If an attempt to copy fails
+        #     except Exception as e:
+        #         copy_attempts -= 1
+        #         logger.info(f'Copy attempt failed for "{dest}": {e}. Retrying in {delay} seconds. ({copy_attempts} attempts remaining).')
+                
+        #         # Remove temp file/directory
+        #         if temp_dest and os.path.exists(temp_dest):
+        #             if type == 'dir':
+        #                 shutil.rmtree(temp_dest)
+        #             else:
+        #                 os.remove(temp_dest)
+                
+        #         # Delays the next attempt if attempts still remaining
+        #         if copy_attempts > 0:
+        #             time.sleep(delay)
                     
-                else:
-                    logger.error(f'All 3 attempts failed. Could not update "{dest}". Last error: {e}')
-                    # Exit the while loop after using up all attempts
-                    return
+        #         else:
+        #             logger.error(f'All 3 attempts failed. Could not update "{dest}". Last error: {e}')
+        #             # Exit the while loop after using up all attempts
+        #             return
         
         
         
@@ -143,11 +151,12 @@ class Remote_GPC_manager:
         logger.debug(f'---img_dir_path= {img_dir_path}')
         
         #creating a fresh web_directory
-        if os.path.exists(self.web_directory):
-            shutil.rmtree(self.web_directory)
+        # if os.path.exists(self.web_directory):
+        #     shutil.rmtree(self.web_directory)
         
-        os.makedirs(os.path.join(self.web_directory,'img'))
-        os.makedirs(os.path.join(self.web_directory,'tip'))
+        if not(os.path.exists(self.web_directory)):
+            os.makedirs(os.path.join(self.web_directory,'img'))
+            os.makedirs(os.path.join(self.web_directory,'tip'))
         
         self._force_copy(css_path_1, os.path.join(self.web_directory,'style_small.css'))
         self._force_copy(css_path_2, os.path.join(self.web_directory,'style_large.css'))
