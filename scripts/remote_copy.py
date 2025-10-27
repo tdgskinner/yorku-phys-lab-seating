@@ -178,7 +178,7 @@ class Remote_GPC_manager:
             self._force_copy(os.path.join(html_path, 'g1.html'), os.path.join(self.web_directory, 'index.html'))
 
     #------------------------------------------------------------
-    def run_copyfile(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
+    def run_copyfile(self, user_data_dir, exp_id, gpc, group_id, src_dir, code, lab_config_txt=None):
         """
         Called by:
             
