@@ -961,7 +961,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.appVersion = appVersion
         self.appDate = appDate
         
-        self.room_setting_dict ={} # is a nasted dictionary, holds room settings dictionary
+        self.room_setting_dict ={} # is a nested dictionary, holds room settings dictionary
         self.pkl_path = None
         self.laptop_list = []
         self.extended_attlist_mode = False

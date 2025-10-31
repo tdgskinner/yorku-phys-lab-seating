@@ -176,6 +176,13 @@ class Remote_GPC_manager:
         # copy g1.html to local PC for testing
         if self.do_localCopy:
             self._force_copy(os.path.join(html_path, 'g1.html'), os.path.join(self.web_directory, 'index.html'))
+            
+        # Copy the lab_config_txt to only the Group 1 PC as a text file
+        if "GR1" in gpc and self.lab_config_txt and not self.do_localCopy:
+            try:
+                self._copy_lab_config(self.lab_config_txt)
+            except Exception as e:
+                logger.error(f"Failed to copy lab_config.txt for {gpc}: {e}")
 
     #------------------------------------------------------------
     def run_copyfile(self, user_data_dir, exp_id, gpc, group_id, src_dir, code, lab_config_txt=None):
@@ -193,12 +200,65 @@ class Remote_GPC_manager:
         """
        
         try:
+            # Save the lab config text in this class instance
+            self.lab_config_txt = lab_config_txt
             self._server_dir_prep(user_data_dir, exp_id, gpc, group_id, src_dir, code)
-            logger.info(f' Group ({group_id}) html file is copied to {gpc} successfully!')               
+            logger.info(f' Group ({group_id}) html file is copied to {gpc} successfully!')
             return True
         except Exception as e:
             logger.debug(f' Unable to copy html file to {gpc}: {e}')
             return False
+    
+    #------------------------------------------------------------
+    def _copy_lab_config(self, lab_config_txt):
+        
+        # Create a temp file containing lab_config_txt
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt") as tmp_file:
+            tmp_file.write(lab_config_txt)
+            tmp_path = tmp_file.name
+            
+        try:
+            # Place lab_config.txt in the web directory of the target PC
+            dest_path = os.path.join(self.web_directory, "lab_config.txt")
+            
+            # Copy text file to web_directory
+            self._force_copy(tmp_path, dest_path)
+            logger.info(f"lab_config.txt copied to {dest_path}")
+        
+        except Exception as e:
+            logger.error(f"Error copying lab_config.txt to {self.web_directory}: {e}")
+            
+        # Remove temp file after copying
+        finally:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+    
+    #------------------------------------------------------------
+    def read_lab_config(self, pc_name):
+        """
+        Reads lab_config.txt from the given PC's web directory folder.
+        
+        Parameters:
+            pc_name: must be str of format: "SC-L-PH-BC3-GR1.yorku.yorku.ca"
+            
+        Returns:
+            str containing lab config info, or error message
+        """
+        
+        config_path = os.path.join(r'\\' + pc_name, 'phys', 'LabSeatingWeb', 'lab_config.txt')
+        
+        try:
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    text = f.read().strip()
+                return text or "(Empty config file)"
+            else:
+                return "(No config file found)"
+        except Exception as e:
+            return f"(Error reading from {pc_name}: {e})"
+        
 
 #===================================================================
 class Remote_LPC_manager:
