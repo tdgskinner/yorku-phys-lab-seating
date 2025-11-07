@@ -1572,6 +1572,65 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.room:
             self.set_pc_txt_path()
             self.load_room_settings(self.room)
+    
+            
+    def show_lab_configs(self):
+        """
+        Reads and displays the lab_config.txt contents from the first Group PC (GR1)
+        of every lab room in the selected PC lists directory.
+        - Leya (7/11/25)
+        
+        Returns:
+            None
+        """
+    
+        # Ensure PC lists directory has been selected
+        if not hasattr(self, 'pc_dir') or not self.pc_dir:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("No PC lists directory selected. Please select one first.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
+    
+        # Get CSV path for pc_room_map.csv
+        self.pc_csv_path = self.extract_pc_csv_path(self.pc_dir)
+        if not self.pc_csv_path or not os.path.exists(self.pc_csv_path):
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("No valid pc_*.csv found in this directory.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
+    
+        # Step 1: Call get_room_list() to get the gpc txt file paths for each room stored in a dict
+        rooms = seating.get_room_list(self.pc_dir, self.pc_csv_path)
+        if not rooms:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("No room data found in the PC lists directory.")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            return
+        
+        # Step 2: Iterate over all room keys, get the file path to the GPCs txt file and store it in a new list
+        gpc_paths_filepath = []
+        for room in rooms:
+            gpc_paths_filepath.append(rooms[room][0])
+            
+        # Step 3: With txt file paths for all rooms available in this new list, iterate over them, extract pc paths and other unnecessary vals to to local vars
+        config_strings = []
+        for room_path in gpc_paths_filepath:
+            room_gpc_list, room_laptop_list, room_gpc_map = gpc.extract_pc_list(room_path)
+            
+            # Step 4: Take only the GPC 1 name from the GPC list, then read lab_config.txt from it
+            gpc_1_name = room_gpc_list[0]
+            remote = Remote_GPC_manager()
+            lab_config_text = remote.read_lab_config(gpc_1_name)
+            config_strings.append(lab_config_text)
+        
+        # Show all lab config text obtained by clicking on a button in the ui - TO BE IMPLEMENTED
+            
             
 
     def generate_groups(self):
