@@ -2,11 +2,10 @@
 from typing import DefaultDict
 import pandas
 import numpy as np
-import pandas as pd
 import pickle
 import logging
 import random
-import sys, os, shutil
+import os, shutil
 import subprocess
 import math
 from PIL import Image, ImageFont, ImageDraw
@@ -15,7 +14,7 @@ import re
 from pylatex import Document, Tabular
 import pylatex as pl
 from pylatex.utils import NoEscape
-from pylatex import utils, NewPage
+from pylatex import utils
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -124,7 +123,7 @@ def create_weekly_att(user_data_dir, stud_csv_path_list, sessions, code, Exp_id,
         text_before_table = f"Exp {exp_title}\n\n"
         doc.append(text_before_table)
         
-        text_before_table = f"Date: ________________          TA: ________________\n\n"
+        text_before_table = "Date: ________________          TA: ________________\n\n"
         doc.append(text_before_table)
 
         doc.append(pl.NoEscape('}'))
@@ -200,7 +199,6 @@ def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
     else:
         df_shuffled = df.sample(frac=1, random_state=42)
     
-    #df_splits = np.array_split(df_shuffled, int(n_group))
     # Manually spliting df using iloc (replaces array_split which was using deprecated function) - Leya 09/29/25
     n = int(n_group)
     size = len(df_shuffled)
@@ -213,7 +211,6 @@ def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
             if len(df_splits[-1])%2 ==1 and len(df_splits[-1]!=1):
                 last, df_splits[-1] = df_splits[-1].iloc[-1], df_splits[-1].iloc[:-1]
                 df_splits[-2].loc[len(df_splits[-2])] = last
-            
     
     return df_splits
 
@@ -468,7 +465,7 @@ def generate_html_table(stud_list, n_benches):
             if index < num_stud:
                 html_table += f"    <td>{stud_list[index]}</td>\n"
             else:
-                html_table += f"    <td> --- </td>\n"
+                html_table += "    <td> --- </td>\n"
         html_table += "  </tr>\n"
     
     html_table += "</tbody>"
@@ -584,7 +581,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                 try:
                     html_seating_file.write(seating_contents)
                 except:
-                    logger.error(f' Failed to write html files to disk', exc_info = True)
+                    logger.error(' Failed to write html files to disk', exc_info = True)
                     return None
         
         #Creating blank html page
@@ -639,7 +636,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
                     try:
                         blank_html_seating_file.write(blank_seating_contents)
                     except:
-                        logger.error(f' Failed to write blank html files to disk', exc_info = True)
+                        logger.error(' Failed to write blank html files to disk', exc_info = True)
                         return None
 
                 
@@ -664,7 +661,7 @@ def html_all_generator_grp(exp, n_max_group, n_benches ,code, output_dir, dict, 
         stud_list.append(_list)
         
     
-    newline = "\n"
+    # newline = "\n"
 
     seating_header = f'''
         <header>
@@ -763,7 +760,7 @@ def html_all_generator_grp(exp, n_max_group, n_benches ,code, output_dir, dict, 
             html_seating_file.write(page_contents)
             return True
         except:
-            logger.error(f' Failed to write html files to disk', exc_info = True)
+            logger.error(' Failed to write html files to disk', exc_info = True)
             return None
 #------------------------------------------------------------
 def html_all_generator_layout(exp, code, output_dir, dict, df_exp_metadata, df_time_metadata, css_file_all, ta_name, version):
@@ -783,7 +780,7 @@ def html_all_generator_layout(exp, code, output_dir, dict, df_exp_metadata, df_t
         stud_list.append(_list)
         
     
-    newline = "\n"
+    # newline = "\n"
 
     seating_header = f'''
         <header>
@@ -793,7 +790,7 @@ def html_all_generator_layout(exp, code, output_dir, dict, df_exp_metadata, df_t
         </header>
     '''
             
-    seating_layout =f'''
+    seating_layout ='''
         <div class="layout-container">
             <div class="group-header" style="width: calc(100% - 10px); margin-left: 5px;">Groups</div>
             <div class="layout" style="background-image: url('img/lab_layout_grp.png');"></div>
@@ -852,7 +849,7 @@ def html_all_generator_layout(exp, code, output_dir, dict, df_exp_metadata, df_t
             html_seating_file.write(page_contents)
             return True
         except:
-            logger.error(f' Failed to write html files to disk', exc_info = True)
+            logger.error(' Failed to write html files to disk', exc_info = True)
             return None
 #------------------------------------------------------------
 def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
@@ -941,10 +938,10 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
 #------------------------------------------------------------
 def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, location_list):
     weeks_list = list(schedule_data_dict.values())
-    schedule_df = pd.DataFrame(columns=['start date', 'start time', 'end time', 'subject', 'Description', 'location'])
+    schedule_df = pandas.DataFrame(columns=['start date', 'start time', 'end time', 'subject', 'Description', 'location'])
     days_index = {'M': 0, 'T': 1, 'W': 2, 'R': 3, 'F': 4}
 
-    time_df = pd.read_csv(time_csv_path)
+    time_df = pandas.read_csv(time_csv_path)
     # Drop rows with NaN and reset index
     time_df = time_df.dropna().reset_index(drop=True)
 
@@ -974,9 +971,9 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
             _date = date_obj + timedelta(days=days_index[day])
 
             # Append each new row to the DataFrame
-            new_row = pd.DataFrame({'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
+            new_row = pandas.DataFrame({'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
                        'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title_list[i]}',
                        'location': location_list[i]}, index=[0])
-            schedule_df = pd.concat([schedule_df, new_row], ignore_index=True)
+            schedule_df = pandas.concat([schedule_df, new_row], ignore_index=True)
 
     return schedule_df

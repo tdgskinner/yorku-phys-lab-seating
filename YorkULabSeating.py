@@ -1,4 +1,4 @@
-import sys , os, io, re
+import sys , os, io
 import requests
 import appdirs
 import pandas as pd
@@ -1518,7 +1518,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_current_lab_config_ui()
 
         dlg = QtWidgets.QMessageBox(self)
-        dlg.setWindowTitle("Inof.")
+        dlg.setWindowTitle("Info")
         dlg.setText("Settings saved")
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         dlg.exec()

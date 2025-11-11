@@ -14,4 +14,7 @@
 [Alternatively]
 4a- reuse same .iss file from previous release and only modify the version number all over the file. Make sure to create the new directories with files prior to this step.
 5- compile (4th buttom from the top left corner of inno setup application)
-6- copy the exe output file to dedicated sharepoint/teams loacation for IT team access
+6- copy the exe output file to dedicated sharepoint/teams location for IT team access
+
+[If the result is huge (>100 MB) and slow to open]
+This is probably because your python environment has a lot of packages installed, and pyinstaller includes more than is necessary. Create a virtual environment (using either venv or anaconda) and use "pip install -r requirements.txt" to install only the required packages before step 1 above.

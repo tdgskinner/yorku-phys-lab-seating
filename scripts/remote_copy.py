@@ -1,8 +1,6 @@
 import os, stat, shutil
 import logging
-import time
 import glob
-import tempfile
 
 logger = logging.getLogger(__name__)
 
