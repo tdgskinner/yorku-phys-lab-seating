@@ -11,7 +11,7 @@ from qtpy.QtCore import QAbstractTableModel, QVariant, QModelIndex, QSettings, Q
 from qtpy.QtWidgets import QDialog, QApplication, QFileDialog, QWidget, QProgressBar, QProgressDialog, QStyle
 from qtpy.QtWidgets import  QLabel, QVBoxLayout, QComboBox, QSplashScreen, QListWidgetItem, QMessageBox
 from qtpy.QtWidgets import QGraphicsView, QGraphicsScene
-from qtpy.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QSizePolicy, QHeaderView
+from qtpy.QtWidgets import QTableWidgetItem, QDateEdit, QStyledItemDelegate, QHeaderView
 from qtpy.QtGui import QIcon, QPixmap, QFont, QPainter, QPageSize, QPageLayout, QShortcut, QKeySequence, QDesktopServices
 from qtpy.QtPrintSupport import QPrinter, QPrintPreviewDialog
 from qtpy.QtCore import QTimer, QDateTime, QDate
@@ -1261,18 +1261,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.session_list = self.extract_sessions(self.time_csv_path)
                 # Load current lab config dictionary
                 lab_config = self.setting_Course.value('current_lab_config')
-                if lab_config:
+                if not(lab_config):
+                    #Initialise to a default lab config
+                    default_lab_config = {'room':'Room', 'code':'XXXX', 'exp':'Exp', 'session':'Session'}
+                    self.setting_Course.setValue('current_lab_config', default_lab_config)
+                else:
                     prev_session = lab_config.get('session')
                     # Set current index of session combobox as the next session in the list
                     #Does not currently work as intended: Needs to also update session_id appropriately
                     #eg ['LAB 01_1','T'] for LAB01 on Tuesday from the first course section
                     index = self.comboBox_session.findText(prev_session, Qt.MatchExactly)
-                    index += 1
+                    # index += 1
                     self.comboBox_session.setCurrentIndex(index)
-                else:
-                    #Initialise to a default lab config
-                    default_lab_config = {'room':'Room', 'code':'XXXX', 'exp':'Exp', 'session':'Session'}
-                    self.setting_Course.setValue('current_lab_config', default_lab_config)
                     
             if self.exp_csv_path:
                 self.exp_list, self.location_list = self.extract_exp(self.exp_csv_path)
@@ -1776,7 +1776,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif not self.course_dir:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("Select the main course directory from setting tab.")
+            dlg.setText("Select the main course directory from settings tab.")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             return
@@ -1895,18 +1895,21 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         lab_config = self.setting_Course.value('current_lab_config')
         if lab_config:
-            code = lab_config.get('code')
-            self.course_label.setText(f'PHYS {code}')
-            # self.course_label.setFont(QFont('Arial', 12, weight=700))
-            room = lab_config.get('room')
-            self.location_label.setText(f'{room}')
-            # self.location_label.setFont(QFont('Arial', 12, weight=700))
-            session = lab_config.get('session')
-            self.session_label.setText(f'{session}')
-            # self.session_label.setFont(QFont('Arial', 12, weight=700))
-            exp_id = lab_config.get('exp')[0]
-            self.exp_label.setText(f'Exp {exp_id}')
-            # self.exp_label.setFont(QFont('Arial', 12, weight=700))
+            try:
+                code = lab_config.get('code')
+                self.course_label.setText(f'PHYS {code}')
+                # self.course_label.setFont(QFont('Arial', 12, weight=700))
+                room = lab_config.get('room')
+                self.location_label.setText(f'{room}')
+                # self.location_label.setFont(QFont('Arial', 12, weight=700))
+                session = lab_config.get('session')
+                self.session_label.setText(f'{session}')
+                # self.session_label.setFont(QFont('Arial', 12, weight=700))
+                exp_id = lab_config.get('exp')[0]
+                self.exp_label.setText(f'Exp {exp_id}')
+                # self.exp_label.setFont(QFont('Arial', 12, weight=700))
+            except Exception as e:
+                logging.error(f'Failed to populate lab config: {e}')
 
     def pc_reboot_setProgress(self, pc_progress):
         self.pc_reboot_pbar.setValue(pc_progress)
