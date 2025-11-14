@@ -1108,8 +1108,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pushButton_copyfiles.clicked.connect(self.start_copyfiles_worker)
         self.pushButton_rebootPCs.clicked.connect(self.start_gpc_reboot_worker)
         self.pushButton_rebootLaptops.clicked.connect(self.start_laptop_reboot_worker)
+        self.pushButton_showLabConfigs.clicked.connect(self.show_lab_configs)
         self.pushButton_lpc_remote_files.clicked.connect(self.open_lpc_file_manager)
         self.pushButton_lpc_remote_files.setToolTip("Copy/Delete files to/from laptops")
+        
 
         self.pushButton_attEdit.clicked.connect(self.open_att_editor)
         self.pushButton_labScheduler.clicked.connect(self.open_lab_scheduler)
@@ -1616,21 +1618,40 @@ class MainWindow(QtWidgets.QMainWindow):
         # Step 2: Iterate over all room keys, get the file path to the GPCs txt file and store it in a new list
         gpc_paths_filepath = []
         for room in rooms:
-            gpc_paths_filepath.append(rooms[room][0])
+            # Store a tuple with the room name and room path
+            gpc_paths_filepath.append((room, rooms[room][0]))
             
         # Step 3: With txt file paths for all rooms available in this new list, iterate over them, extract pc paths and other unnecessary vals to to local vars
         config_strings = []
-        for room_path in gpc_paths_filepath:
-            room_gpc_list, room_laptop_list, room_gpc_map = gpc.extract_pc_list(room_path)
-            
-            # Step 4: Take only the GPC 1 name from the GPC list, then read lab_config.txt from it
-            gpc_1_name = room_gpc_list[0]
-            remote = Remote_GPC_manager()
-            lab_config_text = remote.read_lab_config(gpc_1_name)
-            config_strings.append(lab_config_text)
+        for room_name, pclist_path in gpc_paths_filepath:
+            try:
+                room_gpc_list, room_laptop_list, room_gpc_map = gpc.extract_pc_list(pclist_path)
+                if not room_gpc_list:
+                    config_strings.append(f"{room} - (No PCs found)")
+                    continue
+                
+                # Step 4: Take only the GPC 1 name from the GPC list, then read lab_config.txt from it
+                gpc_1_name = room_gpc_list[0]
+                remote = Remote_GPC_manager(localCopy = self.LocalCopyMode)
+                lab_config_text = remote.read_lab_config(gpc_1_name)
+                
+                if lab_config_text is None or lab_config_text.strip() == "":
+                    config_strings.append(f"{room_name} - (No config file found)")
+                else:
+                    config_strings.append(f"{room_name} - {lab_config_text.strip()}")
+                
+            except Exception as e:
+                config_strings.append(f"{room} - (Error reading config: {e})")
         
-        # Show all lab config text obtained by clicking on a button in the ui - TO BE IMPLEMENTED
-            
+        # Show all lab config text obtained by clicking on a button in the ui
+        message = "\n".join(config_strings)
+
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Lab Configurations")
+        dlg.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        dlg.setText(message)
+        dlg.exec()
             
 
     def generate_groups(self):
@@ -2004,7 +2025,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Returns: None.
 
         """
-        self.current_lab_config_txt = self.comboBox_room.currentText() + " - PHYS" + self.lineEdit_code.text() + " Session: " + self.comboBox_session.currentText() + " Exp " + self.comboBox_exp_id.currentText()
+        self.current_lab_config_txt = " - PHYS" + self.lineEdit_code.text() + " Session: " + self.comboBox_session.currentText() + " Exp " + self.comboBox_exp_id.currentText()
         
 
     #--------------------------------------------------------------------------------    
