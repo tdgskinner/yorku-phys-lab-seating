@@ -177,7 +177,7 @@ class Remote_GPC_manager:
             self._force_copy(os.path.join(html_path, 'g1.html'), os.path.join(self.web_directory, 'index.html'))
             
         # Copy the lab_config_txt to only the Group 1 PC as a text file
-        if "GR1" in gpc and self.lab_config_txt and not self.do_localCopy:
+        if ("GR1" in gpc or "GR01" in gpc) and self.lab_config_txt and not self.do_localCopy:
             try:
                 self._copy_lab_config(self.lab_config_txt)
             except Exception as e:

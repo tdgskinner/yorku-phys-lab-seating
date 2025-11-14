@@ -2025,7 +2025,7 @@ class MainWindow(QtWidgets.QMainWindow):
         Returns: None.
 
         """
-        self.current_lab_config_txt = " - PHYS" + self.lineEdit_code.text() + " Session: " + self.comboBox_session.currentText() + " Exp " + self.comboBox_exp_id.currentText()
+        self.current_lab_config_txt = "PHYS" + self.lineEdit_code.text() + " Session: " + self.comboBox_session.currentText() + " Exp " + self.comboBox_exp_id.currentText()
         
 
     #--------------------------------------------------------------------------------    

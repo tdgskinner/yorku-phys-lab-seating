@@ -922,6 +922,9 @@
                  <property name="text">
                   <string>Check all rooms' current lab configurations</string>
                  </property>
+				 <property name="styleSheet">
+                    <string notr="true">background-color: rgb(85, 170, 0);</string>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -1503,7 +1506,7 @@ p, li { white-space: pre-wrap; }
           <widget class="QPushButton" name="pushButton_update_check">
            <property name="font">
             <font>
-             <family>.AppleSystemUIFont</family>
+             <family>Arial</family>
              <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>

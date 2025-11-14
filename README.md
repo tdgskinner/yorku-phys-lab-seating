@@ -33,10 +33,10 @@ python YorkULabSeating.py
 
 - Each Group PC must be set to automatically display **index.html** page in Windows Kiosk mode.
 - The grouping process tries to create a uniform number (as much as possible) of students per group according to the 'Max # of groups' value.
-- Single and weekly attendence sheets can be generated and printed from the main tab.
+- Single and weekly attendance sheets can be generated and printed from the main tab.
 
 
-**version 7.1, Jun. 2025**
+**version 8.0.1, Nov. 2025**
 
 Developed by Mohammad Kareem, updated by Taylor Skinner & Leya Herschel
 

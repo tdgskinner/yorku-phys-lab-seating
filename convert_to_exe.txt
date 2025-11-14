@@ -10,6 +10,7 @@
     a- use the wizard to create a new software package and follow the instructions. Set to local (not admin) install.
     b- add all asset directories to the project
     c- edit the source in [Files] block: from DestDir: "{app}" to DestDir: "{app}/assets"
+    d- change OutputBaseFilename to YUlabManager_WIN_{#MyAppVersion}.setup
 
 [Alternatively]
 4a- reuse same .iss file from previous release and only modify the version number all over the file. Make sure to create the new directories with files prior to this step.
