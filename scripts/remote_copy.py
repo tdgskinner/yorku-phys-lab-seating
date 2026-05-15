@@ -1,4 +1,4 @@
-import os, stat, shutil
+import os, stat, shutil, winerror
 import logging
 import glob
 import tempfile
@@ -49,66 +49,23 @@ class Remote_GPC_manager:
         if type == 'dir':
             try:
                 shutil.copytree(source, dest)
-            except:
-                shutil.rmtree(dest, onerror=remove_readonly)
-                shutil.copytree(source, dest)            
+            except WindowsError as e:
+                if e.winerror == winerror.ERROR_ALREADY_EXISTS:
+                    logger.debug('Destination dir already exists, removing read-only flag to overwrite')
+                    shutil.rmtree(dest, onerror=remove_readonly)
+                    shutil.copytree(source, dest)
+                else:
+                    logger.error(f'Windows error while copying dir: {e}')
         else:
             try:
                 shutil.copy(source, dest)
-            except:
-                os.remove(dest)
-                shutil.copy(source, dest)
-        
-        # # Possible fix for copying files/directories safely, works with local copy, but needs testing on actual group PCs - Leya, 10/10/25
-        
-        # # Sets max attempts to copy file/directory
-        # copy_attempts = 3
-        # # Sets a delay in between successive attempts to copy
-        # delay = 2
-        
-        # # While there are still attempts to copy
-        # while copy_attempts > 0:
-            
-        #     try:
-        #         if type == 'dir':
-        #             # Makes a temp directory for new directory and copies it to same path
-        #             temp_dest = tempfile.mkdtemp(dir=os.path.dirname(dest))
-        #             shutil.copytree(source, temp_dest, dirs_exist_ok=True)
-                
-        #         else:
-        #             # Makes a temp file for new file in the destination directory, closes file descriptor
-        #             fd, temp_dest = tempfile.mkstemp(dir=os.path.dirname(dest))
-        #             os.close(fd)
-        #             shutil.copy(source, temp_dest)
-                
-        #         # Atomically replace the old file/directory with the temp file/directory
-        #         os.replace(temp_dest, dest)
-        #         logger.info(f'"{dest}" updated successfully.')
-        #         # Exit the while loop if successful
-        #         return
-            
-        #     # If an attempt to copy fails
-        #     except Exception as e:
-        #         copy_attempts -= 1
-        #         logger.info(f'Copy attempt failed for "{dest}": {e}. Retrying in {delay} seconds. ({copy_attempts} attempts remaining).')
-                
-        #         # Remove temp file/directory
-        #         if temp_dest and os.path.exists(temp_dest):
-        #             if type == 'dir':
-        #                 shutil.rmtree(temp_dest)
-        #             else:
-        #                 os.remove(temp_dest)
-                
-        #         # Delays the next attempt if attempts still remaining
-        #         if copy_attempts > 0:
-        #             time.sleep(delay)
-                    
-        #         else:
-        #             logger.error(f'All 3 attempts failed. Could not update "{dest}". Last error: {e}')
-        #             # Exit the while loop after using up all attempts
-        #             return
-        
-        
+            except WindowsError as e:
+                if e.winerror == winerror.ERROR_ALREADY_EXISTS:
+                    logger.debug('Destination file already exists, removing read-only flag to overwrite')
+                    os.remove(dest)
+                    shutil.copy(source, dest)
+                else:
+                    logger.error(f'Windows error while copying file: {e}')
         
     #------------------------------------------------------------
     def _server_dir_prep(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):

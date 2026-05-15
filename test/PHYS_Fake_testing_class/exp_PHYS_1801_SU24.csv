@@ -1,0 +1,10 @@
+exp_id,exp_title,exp_img,exp_tip,location
+1,Introduction to DC Circuits,Breadboard.png,Lab1_DC_Circuits.html, BC 102F
+2,Voltage Divider and Intro. to Computer DAQ & LabVIEW,DAQ_pinout.jpg,Lab2_Intro_to_DAQ.html, BC 102F
+3,Digital Thermometer and Part 2 of Intro. to Computer DAQ & LabVIEW,DAQ_pinout.jpg,Lab3_Bridge_Circuits_and_DT.html, BC 102F
+4,RC Circuits,DAQ_pinout.jpg,Lab4_RC_Circuits.html, BC 102F
+5,The Hall Effect and Hall Sensors,Hall_effect_pinout.jpg,Lab5_Magnetic_Force_and_Hall_Sensors.html, BC 102F
+6,Motors and Generators,Motors_generators_DAQ_setup.jpg,Lab6_Motors_and_Generators.html, BC 102F
+7,Digital Oscilloscope,scopePhase0.png,Lab7_Digital_Oscilloscope.html, BC 102F
+8,LRC Circuits,scopePhaseFull.png,Lab8_RLC_Circuits.html, BC 102F
+9,Semiconductor Optical Devices,Lab9.png,Lab9_Electronic_Circuits.html, BC 102F
