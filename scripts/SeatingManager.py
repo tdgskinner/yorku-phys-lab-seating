@@ -244,35 +244,29 @@ def _print_exp_dict(dict):
         
 #------------------------------------------------------------
 def concat_stud_lists(stud_csv_path_list):
-    stud_dfs = []
+    student_dfs = []
     
     # i is number of stud_* csv files in the course directory
     for i, path in enumerate(stud_csv_path_list):
         date_modified = datetime.fromtimestamp(os.path.getmtime(path)).strftime('%b-%d-%Y at %I:%M %p')
         logging.debug(f'date modified (local time): {date_modified}')
-        df = pandas.read_csv(path, index_col= False, header=None)
-        # handle two different data length in student list depending on the lab course
-        n_col = len(list(df.columns))
-        if n_col == 9 or n_col ==10:
-            # adding header to student list
-            df.columns = get_studList_header(n_col)
-        else:
-            logger.error('Number of columns in stud csv files is not supported. Suppoerted numbers are 9 and 10.')
-    
+        student_df = pandas.read_csv(path, index_col= False, header=None)
+        # handle different student file formats depending on the lab course
+        student_df.columns = get_studList_header(student_df)
+        
         # drop nan
-        df = df.dropna()
-    
+        student_df = student_df.dropna()
         # drop LAB 99
-        df = df.loc[df['session_id'].str.strip()!='LAB 99']
-    
+        student_df = student_df.loc[student_df['session_id'].str.strip()!='LAB 99']
+        
         # append suffix to session_id
         if i >0:
-            df['session_id'] = df['session_id'].add(f'_{i}')
+            student_df['session_id'] = student_df['session_id'].add(f'_{i}')
         
-        stud_dfs.append(df)
+        student_dfs.append(student_df)
 
-    # merge all lists into one df with distinc session_id
-    return pandas.concat(stud_dfs, axis=0), date_modified
+    # merge all lists into one df with distinct session_id
+    return pandas.concat(student_dfs, axis=0), date_modified
 
 
 #------------------------------------------------------------
@@ -342,10 +336,10 @@ def get_room_list(pc_dir, pc_csv_path):
 
 def get_session_list(time_csv_path):
     sessions = {}
-    
-    time_df = pandas.read_csv(time_csv_path)
-    time_df.to_csv(time_csv_path, encoding='utf-8', index=False)
-    time_df = pandas.read_csv(time_csv_path)
+    try:
+        time_df = pandas.read_csv(time_csv_path)
+    except UnicodeDecodeError:
+        logger.error('Check that time file is UTF-8 encoded')
     #--- drop rows with nan
     # time_df = time_df.dropna()
     time_df = time_df.dropna().reset_index(drop=True)
@@ -363,11 +357,12 @@ def get_session_list(time_csv_path):
 def get_exp_list(exp_csv_path):
     exps = {}
     
-    exp_df = pandas.read_csv(exp_csv_path)
-    exp_df.to_csv(exp_csv_path, encoding='utf-8', index=False)
-    exp_df = pandas.read_csv(exp_csv_path)
+    try:
+        exp_df = pandas.read_csv(exp_csv_path)
+    except UnicodeDecodeError:
+        logger.error('Check that experiments file is UTF-8 encoded')
     #--- drop rows with nan
-    exp_df = exp_df.dropna()
+    #exp_df = exp_df.dropna()
     exp_df = exp_df.dropna().reset_index(drop=True)
 
     id_list = list(exp_df['exp_id'])
@@ -385,10 +380,25 @@ def get_exp_list(exp_csv_path):
     return exps, location_list
 
 #------------------------------------------------------------
-def get_studList_header(col):
-    header_10 = ["student_id","surname","first_name","email","session_id","lect_id","tutr_id","programme_title","study_level","registration_status"]
-    header_9 = ["student_id","surname","first_name","email","session_id","lect_id","programme_title","study_level","registration_status"]
-    return header_10 if col==10 else header_9
+def get_studList_header(student_df):
+    # Manages the different possible formats of student csv files - TS Nov/25
+    labPattern = r'^ LAB \d\d$'
+    n_col = len(list(student_df.columns))
+    firstrow = student_df.loc[0]
+    # PHYS1800 block format matches one of these 9 column patterns:
+    if n_col == 9 and re.search(labPattern, firstrow[4]):
+        header = ["student_id","surname","first_name","email","session_id","format",
+                  "programme_title","study_level","registration_status"]
+    elif n_col == 9 and re.search(labPattern, firstrow[5]):
+        header = ["student_id","surname","first_name","email","format",
+                  "session_id","programme_title","study_level","registration_status"]
+    elif n_col == 10 and re.search(labPattern, firstrow[4]):
+        # Most classes match this format
+        header= ["student_id","surname","first_name","email","session_id",
+                 "lect_id","tutr_id","programme_title","study_level","registration_status"]
+    else:
+        logger.error('Student csv file columns do not match a known format')
+    return header
 
 #------------------------------------------------------------        
 def make_groups(user_data_dir, exp_csv_path, stud_csv_path_list, time_csv_path, session_id, n_stud, n_benches, code, pkl_file_name):
