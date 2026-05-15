@@ -838,7 +838,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>10</height>
+                   <height>55</height>
                   </size>
                  </property>
                 </spacer>
@@ -918,7 +918,20 @@
                 <number>0</number>
                </property>
                <item>
+               
                 <widget class="QPushButton" name="pushButton_showLabConfigs">
+                <property name="minimumSize">
+   <size>
+    <width>310</width>
+    <height>30</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>310</width>
+    <height>30</height>
+   </size>
+  </property>
                  <property name="text">
                   <string>Check all rooms' current lab configurations</string>
                  </property>
@@ -926,6 +939,7 @@
                     <string notr="true">background-color: rgb(85, 170, 0);</string>
                  </property>
                 </widget>
+                
                </item>
                <item>
                 <spacer name="verticalSpacer_7">
@@ -937,7 +951,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>20</width>
+                   <width>25</width>
                    <height>5</height>
                   </size>
                  </property>
@@ -989,8 +1003,8 @@
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
-                     <width>5</width>
-                     <height>5</height>
+                     <width>10</width>
+                     <height>10</height>
                     </size>
                    </property>
                   </spacer>
@@ -1066,13 +1080,13 @@
                   <widget class="QPushButton" name="pushButton_lpc_remote_files">
                    <property name="minimumSize">
                     <size>
-                     <width>126</width>
+                     <width>140</width>
                      <height>23</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>126</width>
+                     <width>140</width>
                      <height>23</height>
                     </size>
                    </property>
