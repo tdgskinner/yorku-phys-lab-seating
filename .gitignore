@@ -15,3 +15,4 @@ example.csv
 *.spec
 dist/
 build/
+.vscode/settings.json
