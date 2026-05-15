@@ -7,11 +7,7 @@ output_*/
 *.tex
 test*.py
 *.ipynb
-**/LabSeatingWeb
-**/stud_*.csv
-**/time_*.csv
 example.csv
-**/*_GroupPC_list.txt
 *.spec
 dist/
 build/
