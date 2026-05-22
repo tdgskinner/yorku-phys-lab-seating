@@ -1268,7 +1268,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     default_lab_config = {'room':'Room', 'code':'XXXX', 'exp':'Exp', 'session':'Session'}
                     self.setting_Course.setValue('current_lab_config', default_lab_config)
                 else:
-                    prev_session = lab_config.get('session')
+                    prev_session = 'Session'
                     # Set current index of session combobox as the next session in the list
                     #Does not currently work as intended: Needs to also update session_id appropriately
                     #eg ['LAB 01_1','T'] for LAB01 on Tuesday from the first course section
