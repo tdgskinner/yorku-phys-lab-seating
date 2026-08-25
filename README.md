@@ -38,7 +38,7 @@ python YorkULabSeating.py
 
 **version 8.0.1, Nov. 2025**
 
-Developed by Mohammad Kareem, updated by Taylor Skinner & Leya Herschel
+Developed by Mohammad Kareem, managed by Taylor Skinner and update by Leya Herschel & Bhavjot Khaira.
 
 Department of Physics & Astronomy
 Faculty of Science | York University
