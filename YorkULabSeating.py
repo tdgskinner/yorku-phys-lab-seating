@@ -1176,7 +1176,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_course_code_textbox(self, stud_csv_path):
         # Uses stud csv filename to get course code 
         filename_extract = os.path.basename(stud_csv_path)
-        course_code_extract = filename_extract[-9:-5]
+        course_code_ind = filename_extract.index('PHYS')
+        course_code_extract = filename_extract[course_code_ind+4:course_code_ind+8]
         if course_code_extract.isdigit():
             self.code = course_code_extract
             self.lineEdit_code.setText(self.code)
