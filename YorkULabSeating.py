@@ -566,6 +566,7 @@ class lab_scheduler_manager(QDialog):
         dates = set()
         options = set()
         error_message = ""
+        warning_message = ""
 
         for row in range(self.tableWidget_scheduler.rowCount()):
             date_item = self.tableWidget_scheduler.item(row, 0)
@@ -583,24 +584,37 @@ class lab_scheduler_manager(QDialog):
                 if option == "":
                     error_message += "A Exp. must be selected.\n"
                 elif option in options:
-                    error_message += f"Exp. {option} is duplicated.\n"
+                    warning_message += f"Exp. {option} is duplicated.\n"
                 else:
                     options.add(option)
 
         if error_message:
             QMessageBox.critical(self, "Error", error_message)
-        else:
-            self.schedule_data_dict = {row + 1: self.tableWidget_scheduler.item(row, 0).text() for row in range(self.tableWidget_scheduler.rowCount())}
-            logging.debug(f'self.schedule_data_dict: {self.schedule_data_dict}')
+            return
             
-            self.tableWidget_scheduler.setEnabled(False)
-            self.pushButton_done.setText("Edit")
+        if warning_message:
+            QMessageBox.warning(self, "Warning", warning_message)
+        
+        # Commented out, doesn't save enough info to allow duplicate labs, updated version below
+        #self.schedule_data_dict = {row + 1: self.tableWidget_scheduler.item(row, 0).text() for row in range(self.tableWidget_scheduler.rowCount())}
+        self.schedule_data_dict = {
+            row + 1: {
+                "date": self.tableWidget_scheduler.item(row, 0).text(),
+                "experiment": self.tableWidget_scheduler.cellWidget(row, 1).currentText(),
+                "location": self.tableWidget_scheduler.cellWidget(row, 2).currentText()
+            }
+            for row in range(self.tableWidget_scheduler.rowCount())
+        }
+        logging.debug(f'self.schedule_data_dict: {self.schedule_data_dict}')
+            
+        self.tableWidget_scheduler.setEnabled(False)
+        self.pushButton_done.setText("Edit")
 
-            # Connect edit functionality to the button
-            self.pushButton_done.clicked.disconnect()
-            self.pushButton_done.clicked.connect(self.editTable)
-            self.pushButton_create_csv.setEnabled(True)
-            return self.schedule_data_dict
+        # Connect edit functionality to the button
+        self.pushButton_done.clicked.disconnect()
+        self.pushButton_done.clicked.connect(self.editTable)
+        self.pushButton_create_csv.setEnabled(True)
+        return self.schedule_data_dict
     
     def editTable(self):
         self.tableWidget_scheduler.setEnabled(True)

@@ -944,7 +944,7 @@ def print_on_layout(user_data_dir, gpc_map, room, room_list, exp_id, pkl_path):
 
 #------------------------------------------------------------
 def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, location_list):
-    weeks_list = list(schedule_data_dict.values())
+    schedule_rows = list(schedule_data_dict.values())
     schedule_df = pandas.DataFrame(columns=['start date', 'start time', 'end time', 'subject', 'Description', 'location'])
     days_index = {'M': 0, 'T': 1, 'W': 2, 'R': 3, 'F': 4}
 
@@ -957,7 +957,6 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
     duration_list = time_df['Duration']
     end_time_list = []
 
-    exp_title_list = [s.split(": ", 1)[1] if ": " in s else s for s in list(exp_list.keys())]
 
     # Calculate end times based on start times and durations
     for start_time, duration in zip(start_time_list, duration_list):
@@ -965,8 +964,15 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
         duration_obj = timedelta(minutes=int(duration))
         end_time_obj = start_time_obj + duration_obj
         end_time_list.append(end_time_obj.strftime('%H:%M'))
+        
 
-    for i, week in enumerate(weeks_list):
+    for entry in schedule_rows:
+        week = entry["date"]
+        experiment = entry["experiment"]
+        location = entry["location"]
+
+        exp_title = experiment.split(": ", 1)[1] if ": " in experiment else experiment
+        
         date_format = '%Y-%m-%d'
         date_obj = datetime.strptime(week, date_format)
 
@@ -979,8 +985,8 @@ def generate_schedule(schedule_data_dict, time_csv_path, exp_list, code, locatio
 
             # Append each new row to the DataFrame
             new_row = pandas.DataFrame({'start date': _date.strftime('%Y-%m-%d'), 'start time': start_time,
-                       'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title_list[i]}',
-                       'location': location_list[i]}, index=[0])
+                       'end time': end_time, 'subject': f'PHYS {code}', 'Description': f'{type} - {exp_title}',
+                       'location': location}, index=[0])
             schedule_df = pandas.concat([schedule_df, new_row], ignore_index=True)
 
     return schedule_df
