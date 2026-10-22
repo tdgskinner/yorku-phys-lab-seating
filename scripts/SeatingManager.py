@@ -5,7 +5,7 @@ import numpy as np
 import pickle
 import logging
 import random
-import os, shutil
+import os, stat, shutil
 import subprocess
 import math
 from PIL import Image, ImageFont, ImageDraw
@@ -493,6 +493,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     if os.path.exists(html_dir):
         shutil.rmtree(html_dir)
     os.makedirs(html_dir)
+    os.chmod(html_dir, stat.S_IWRITE) #Make folder itself writeable
     
     dict = _load_student_groups(pkl_path, print_result=False)
     

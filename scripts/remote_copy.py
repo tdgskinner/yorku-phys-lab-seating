@@ -1,4 +1,4 @@
-import os, stat, shutil, winerror
+import os, time, stat, shutil, winerror
 import logging
 import glob
 import tempfile
@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 def remove_readonly(func, path, _):
     "Removes read only property from a folder to allow it to be removed/overwritten"
+    logger.debug(f'Removing read-only status of {path}')
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
@@ -38,8 +39,9 @@ class Remote_GPC_manager:
 
         """
         
-        logger.debug(f'source_path: {source}')
-        logger.debug(f'dest_path: {dest}')
+        time_start = time.time()
+        logger.debug(f'Source path: {source}')
+        logger.debug(f'Dest path: {dest}')
         
         # Commented out due to unsafe copying, refreshing htmls would break and not update properly if copy peformed during a refresh - Leya, 10/10/25
         # Uncommented: I don't think the above issue actually occurs, and if it does it's rare enough to live with
@@ -48,10 +50,10 @@ class Remote_GPC_manager:
         
         if type == 'dir':
             try:
-                shutil.copytree(source, dest)
+                shutil.copytree(source, dest, dirs_exist_ok=True)
             except WindowsError as e:
                 if e.winerror == winerror.ERROR_ALREADY_EXISTS:
-                    logger.debug('Destination dir already exists, removing read-only flag to overwrite')
+                    logger.debug('Destination dir already exists. Deleting it.')
                     shutil.rmtree(dest, onerror=remove_readonly)
                     shutil.copytree(source, dest)
                 else:
@@ -61,12 +63,15 @@ class Remote_GPC_manager:
                 shutil.copy(source, dest)
             except WindowsError as e:
                 if e.winerror == winerror.ERROR_ALREADY_EXISTS:
-                    logger.debug('Destination file already exists, removing read-only flag to overwrite')
+                    logger.debug('Destination file already exists. Deleting it')
                     os.remove(dest)
                     shutil.copy(source, dest)
                 else:
                     logger.error(f'Windows error while copying file: {e}')
         
+        time_elapsed = time.time() - time_start
+        logger.debug(f'Time elapsed: {time_elapsed:.2f} sec')
+    
     #------------------------------------------------------------
     def _server_dir_prep(self, user_data_dir, exp_id, gpc, group_id, src_dir, code):
         """
