@@ -199,16 +199,13 @@ def _rand_group_maker(df, n_group, n_benches, optimize = True, rand_grp = True):
     else:
         df_shuffled = df.sample(frac=1, random_state=42)
     
-    # Manually spliting df using iloc (replaces array_split which was using deprecated function) - Leya 09/29/25
-    n = int(n_group)
-    size = len(df_shuffled)
-    indices = np.linspace(0, size, n + 1, dtype=int)
-    df_splits = [df_shuffled.iloc[indices[i]:indices[i+1]] for i in range(n)]
+    # Fixed-size groups of n_benches; remainder goes in the last group
+    df_splits = [df_shuffled.iloc[i:i+n_benches] for i in range(0, len(df_shuffled), n_benches)]
     
     # Keep maximum number of pair students working together
     if optimize:
         if sum(i <n_benches for i in [len(grp) for grp in df_splits]) > 1:
-            if len(df_splits[-1])%2 ==1 and len(df_splits[-1]!=1):
+            if len(df_splits[-1])%2 ==1 and len(df_splits[-1])!=1:
                 last, df_splits[-1] = df_splits[-1].iloc[-1], df_splits[-1].iloc[:-1]
                 df_splits[-2].loc[len(df_splits[-2])] = last
     
@@ -493,7 +490,7 @@ def html_generator(user_data_dir, pkl_path, code, n_max_group, n_benches, versio
     if os.path.exists(html_dir):
         shutil.rmtree(html_dir)
     os.makedirs(html_dir)
-    os.chmod(html_dir, stat.S_IWRITE) #Make folder itself writeable
+    os.chmod(html_dir, stat.S_IRWXU) #Make folder itself writeable
     
     dict = _load_student_groups(pkl_path, print_result=False)
     
