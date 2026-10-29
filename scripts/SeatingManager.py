@@ -465,7 +465,7 @@ def generate_html_table(stud_list, n_benches):
     for i in range(num_rows):
         html_table += "  <tr>\n"
         for j in range(2):
-            index = i * 2 + j
+            index = j * num_rows + i
             if index < num_stud:
                 html_table += f"    <td>{stud_list[index]}</td>\n"
             else:
